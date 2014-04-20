@@ -15,23 +15,23 @@
     require_once($GLOBALS['THRIFT_ROOT'].'/RecommenderService.php');
     
     // Create a thrift connection
-    $socket = new Thrift\Transport\TSocket('kibitz.csail.mit.edu', '9888');
-    //$socket = new Thrift\Transport\TSocket('localhost', '9888');
+    //$socket = new Thrift\Transport\TSocket('kibitz.csail.mit.edu', '9888');
+    $socket = new Thrift\Transport\TSocket('localhost', '9888');
     $transport = new Thrift\Transport\TBufferedTransport($socket);
     $protocol = new Thrift\Protocol\TBinaryProtocol($transport);
     // Create a reposearch service client
-    $client = new Recommender\RecommenderServiceClient($protocol);
+    $client = new kibitz\RecommenderServiceClient($protocol);
     
     // Open up the connection
     $transport->open();
+    $client -> initiateModel('f6afe418118814ae1c62aeae803ab049');
     
-    echo implode(", ", $client->makeRecommendation(10));
+    echo implode(", ", $client->makeRecommendation(5000, 10));
 ?>
 
 <html> 
 <body>
   <form enctype="multipart/form-data" action="upload_file.php" method="post">
-    <input type="hidden" name="MAX_FILE_SIZE" value="1000000" />
     Choose a file to upload: <input name="uploaded_file" type="file" />
     <input type="submit" value="Upload" />
   </form> 
