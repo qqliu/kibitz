@@ -5,7 +5,7 @@ ini_set('memory_limit', '500M');
 if((!empty($_FILES["uploaded_file"])) && ($_FILES['uploaded_file']['error'] == 0)) {
   //Check if the file is JPEG image and it's size is less than 350Kb
   $filename = basename($_FILES['uploaded_file']['name']);
-  $databaseitemtable = md5(uniqid(rand(), true));
+  $databaseitemtable = "f6afe418118814ae1c62aeae803ab049";
   $databaseratingtable = $databaseitemtable . "ratings";
   $databaseusertable = $databaseitemtable . "users";
   $sql = "CREATE TABLE " . $databaseitemtable . " (id MEDIUMINT NOT NULL AUTO_INCREMENT, item VARCHAR(500), description VARCHAR(1000), image VARCHAR(500), primary key (id))";
@@ -37,7 +37,7 @@ if((!empty($_FILES["uploaded_file"])) && ($_FILES['uploaded_file']['error'] == 0
       $allrows = array();
       foreach($rows as $key => $row) {
         if (count($allrows) > 1000) {
-            mysqli_query($con, "INSERT INTO $databaseitemtable (item, description, image) VALUES " . implode(', ', $allrows) . ";") or die(mysqli_error($con));
+            mysqli_query($con, "INSERT INTO $databaseratingtable (user_id, item_id, rating) VALUES " . implode(', ', $allrows) . ";") or die(mysqli_error($con));
             unset($allrows);
             $allrows = array();
         }

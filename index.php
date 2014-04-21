@@ -26,7 +26,27 @@
     $transport->open();
     $client -> initiateModel('f6afe418118814ae1c62aeae803ab049');
     
-    echo implode(", ", $client->makeRecommendation(5000, 10));
+    $recommendations = $client->makeRecommendation(999999, 10);
+    foreach($recommendations as $rec) {
+      echo implode(", ", $rec);
+    }
+    
+    /*$allitems = $client -> getItems();
+    foreach($allitems as $item) {
+      echo implode(", ", $item);
+    }*/
+    
+    $client -> createNewUser("quanquan", "quanquan@mit.edu", "HelloThere123!");
+    $user = $client -> recordRatings(999996, 1000, 10);
+    echo $user;
+    $login = $client -> checkLogin("quanquan", "HelloThere123!");
+    echo $login;
+    $login2 = $client -> checkLogin("quanquan", "HelloThere123");
+    echo $login2;
+    $myratings = $client -> getUserRatedItems(999999);
+    foreach($myratings as $rating) {
+      echo implode(", ", $rating);
+    }
 ?>
 
 <html> 

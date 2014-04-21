@@ -13,6 +13,7 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.Array;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -62,7 +63,7 @@ public class IndividualRecommender implements Iface {
 			if (this.dataModel != null) {
 				UserSimilarity userSimilarity = new PearsonCorrelationSimilarity(this.dataModel);
 				UserNeighborhood neighborhood =
-				new NearestNUserNeighborhood(3, userSimilarity, this.dataModel);
+					      new NearestNUserNeighborhood(30, userSimilarity, this.dataModel);
 				Recommender recommender = new GenericUserBasedRecommender(this.dataModel, neighborhood, userSimilarity);
 				Recommender cachingRecommender = new CachingRecommender(recommender);
 				List<RecommendedItem> recommendations = cachingRecommender.recommend(userId, numRecs);
@@ -71,15 +72,20 @@ public class IndividualRecommender implements Iface {
 					recommendationNames.add(recommendations.get(i).getItemID());
 				}
 				Connection conn = this.dataSource.getConnection();
-				Statement query = conn.createStatement();
+				PreparedStatement query = conn.prepareStatement("SELECT * FROM " + this.table + " ORDER BY RAND() LIMIT " + numRecs + ";");
 				List<List<String>> items = new ArrayList<List<String>>();
 				if (recommendationNames.size() == 0) {
-					ResultSet results = query.executeQuery("SELECT * FROM " + this.table + " ORDER BY RAND() LIMIT " + numRecs + ";");
+					ResultSet results = query.executeQuery();
 					System.out.println(results);
+					List<String> def = new ArrayList<String>();
+					def.add("Default Recommendation");
+					items.add(def);
 					while(results.next()){
 						List<String> item = new ArrayList<String>();
-						item.add(Integer.toString(results.getInt(0)));
-						item.add(results.getString(1));
+						item.add(Integer.toString(results.getInt(1)));
+						item.add(results.getString(2));
+						item.add(results.getString(3));
+						item.add(results.getString(4));
 						items.add(item);
 					}
 				} else {
@@ -87,12 +93,16 @@ public class IndividualRecommender implements Iface {
 						List<String> item = new ArrayList<String>();
 						Long itemId = recommendationNames.get(i);
 						System.out.println(recommendationNames);
-						ResultSet results = query.executeQuery("SELECT item FROM " + this.table + " WHERE id=" + itemId + ";");
-						item.add(Long.toString(itemId));
-						item.add(results.getString(0));
+						query = conn.prepareStatement("SELECT * FROM " + this.table + " WHERE id=" + itemId + ";");
+						ResultSet results = query.executeQuery();
+						results.next();
+						item.add(results.getString(1));
+						item.add(results.getString(2));
+						item.add(results.getString(3));
 						items.add(item);
 					}
 				}
+				System.out.println(items);
 				return items;
 			}
 		} catch (TasteException e) {
@@ -108,12 +118,14 @@ public class IndividualRecommender implements Iface {
 		List<List<String>> items = new ArrayList<List<String>>();
 		try {
 			Connection conn = this.dataSource.getConnection();
-			Statement query = conn.createStatement();
-			ResultSet results = query.executeQuery("SELECT * FROM " + this.table + ";");
+			PreparedStatement query = conn.prepareStatement("SELECT * FROM " + this.table + ";");
+			ResultSet results = query.executeQuery();
 			while(results.next()){
 				List<String> item = new ArrayList<String>();
-				item.add(Integer.toString(results.getInt(0)));
-				item.add(results.getString(1));
+				item.add(Integer.toString(results.getInt(1)));
+				item.add(results.getString(2));
+				item.add(results.getString(3));
+				item.add(results.getString(4));
 				items.add(item);
 			}
 		} catch (SQLException e) {
@@ -128,23 +140,49 @@ public class IndividualRecommender implements Iface {
 		columns.add(userId);
 		columns.add(itemId);
 		columns.add(rating);
-		saveIntoDb(columns, "ratings");
+		List<String> columnNames = new ArrayList<String>();
+		columnNames.add("user_id");
+		columnNames.add("item_id");
+		columnNames.add("rating");
+		if (!saveIntoDb(columns, "ratings", columnNames)) {
+			deleteRatings(userId, itemId);
+			saveIntoDb(columns, "ratings", columnNames);
+		}
+	}
+	
+	public void deleteRatings(int userId, int itemId) {
+		try {
+			Connection conn = this.dataSource.getConnection();
+			PreparedStatement query = conn.prepareStatement("DELETE FROM " + this.table + "ratings WHERE user_id = " + userId + " AND "
+					+ "item_id = " + itemId);
+			query.executeUpdate();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public String createNewUser(String username, String email, String password) {
+		if (this.checkUsername(username)) {
+			System.out.println("User exists");
+			return "User already exists, please pick another username.";
+		}
 		List<String> columns = new ArrayList<String>();
-		columns.add(username);
-		columns.add(email);
+		columns.add("'" + username + "'");
+		columns.add("'" + email + "'");
+		List<String> columnNames = new ArrayList<String>();
+		columnNames.add("username");
+		columnNames.add("email");
+		columnNames.add("password");
 		String passwordHash;
 		try {
 			passwordHash = generatePasswordHash(password);
-			columns.add(passwordHash);
-			saveIntoDb(columns, "users");
+			columns.add("'" + passwordHash + "'");
 			Connection conn = this.dataSource.getConnection();
-			Statement query = conn.createStatement();
-			ResultSet results = query.executeQuery("SELECT id FROM " + this.table + "users WHERE username='" + username + "'");
+			PreparedStatement query = conn.prepareStatement("SELECT id FROM " + this.table + "users WHERE username='" + username + "'");
+			ResultSet results = query.executeQuery();
 			results.first();
-			Integer userid = (Integer) results.getObject(0); 
+			Integer userid = results.getInt(1); 
 			return userid.toString();
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
@@ -159,14 +197,34 @@ public class IndividualRecommender implements Iface {
 		return "Cannot create user";
 	}
 	
+	public boolean checkUsername(String username) {
+		try {
+			Connection conn = this.dataSource.getConnection();
+			PreparedStatement query = conn.prepareStatement("SELECT COUNT(*) FROM " + this.table + "users WHERE username='" + username + "'");
+			ResultSet results = query.executeQuery();
+			while (results.next()) {
+				int num = results.getInt(1);
+				System.out.println("user already exists?");
+				System.out.println(num);
+				if (num == 0) {
+					return false;
+				}
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return true;
+	}
+	
 	public boolean checkLogin(String username, String password) {
 		Connection conn;
 		try {
 			conn = this.dataSource.getConnection();
-			Statement query = conn.createStatement();
-			ResultSet results = query.executeQuery("SELECT password FROM " + this.table + "users WHERE username='" + username + "'");
+			PreparedStatement query = conn.prepareStatement("SELECT password FROM " + this.table + "users WHERE username='" + username + "'");
+			ResultSet results = query.executeQuery();
 			results.first();
-			String hash = (String) results.getObject(0); 
+			String hash = results.getString(1); 
 			return validatePassword(password, hash);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -185,20 +243,20 @@ public class IndividualRecommender implements Iface {
         int iterations = 1000;
         char[] chars = password.toCharArray();
         byte[] salt = getSalt().getBytes();
-		
+         
         PBEKeySpec spec = new PBEKeySpec(chars, salt, iterations, 64 * 8);
         SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
         byte[] hash = skf.generateSecret(spec).getEncoded();
         return iterations + ":" + toHex(salt) + ":" + toHex(hash);
     }
-	
+     
     private String getSalt() throws NoSuchAlgorithmException {
         SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
         byte[] salt = new byte[16];
         sr.nextBytes(salt);
         return salt.toString();
     }
-	
+     
     private String toHex(byte[] array) throws NoSuchAlgorithmException {
         BigInteger bi = new BigInteger(1, array);
         String hex = bi.toString(16);
@@ -216,16 +274,17 @@ public class IndividualRecommender implements Iface {
         int iterations = Integer.parseInt(parts[0]);
         byte[] salt = fromHex(parts[1]);
         byte[] hash = fromHex(parts[2]);
-		
+         
         PBEKeySpec spec = new PBEKeySpec(originalPassword.toCharArray(), salt, iterations, hash.length * 8);
         SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
         byte[] testHash = skf.generateSecret(spec).getEncoded();
-		
+         
         int diff = hash.length ^ testHash.length;
         for(int i = 0; i < hash.length && i < testHash.length; i++)
         {
             diff |= hash[i] ^ testHash[i];
         }
+        System.out.println(diff == 0);
         return diff == 0;
     }
     
@@ -236,6 +295,33 @@ public class IndividualRecommender implements Iface {
             bytes[i] = (byte)Integer.parseInt(hex.substring(2 * i, 2 * i + 2), 16);
         }
         return bytes;
+    }
+    
+    public List<List<String>> getUserRatedItems(int userId) {
+		List<List<String>> items = new ArrayList<List<String>>();
+		try {
+			Connection conn = this.dataSource.getConnection();
+			System.out.println("SELECT item_id, rating FROM " + this.table + "ratings WHERE user_id=" + userId);
+			PreparedStatement query = conn.prepareStatement("SELECT item_id, rating FROM " + this.table + "ratings WHERE user_id=" + userId);
+			ResultSet results = query.executeQuery();
+			while(results.next()){
+				List<String> item = new ArrayList<String>();
+				query = conn.prepareStatement("SELECT * FROM " + this.table + " WHERE id='" + results.getInt(1) + "'");
+				ResultSet result = query.executeQuery();
+				result.next();
+				item.add(Integer.toString(result.getInt(1)));
+				item.add(result.getString(2));
+				item.add(result.getString(3));
+				item.add(result.getString(4));
+				System.out.println(Integer.toString(results.getInt(2)));
+				item.add(Integer.toString(results.getInt(2)));
+				items.add(item);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return items;
     }
 	
 	public void initiateModel(String table) {
@@ -249,67 +335,92 @@ public class IndividualRecommender implements Iface {
 	}
 	
 	/*public void readFromFile() {
-	 BufferedReader reader;
-	 try {
-	 reader = new BufferedReader(new FileReader(this.file));
-	 String line = null;
-	 while ((line = reader.readLine()) != null) {
-	 final StringTokenizer tokenizer = new StringTokenizer(line, ",");
-	 final List<String> columns = new ArrayList<String>();
-	 while (tokenizer.hasMoreTokens()) {
-	 columns.add(tokenizer.nextToken());
-	 }
-	 saveIntoDb(columns);
-	 }
-	 reader.close();
-	 } catch (FileNotFoundException e1) {
-	 // TODO Auto-generated catch block
-	 e1.printStackTrace();
-	 } catch (IOException e) {
-	 throw new IllegalArgumentException("Error reading file (" + this.file + ")", e);
-	 }
-	 }*/
+	    BufferedReader reader;
+		try {
+			reader = new BufferedReader(new FileReader(this.file));
+			String line = null;
+	        while ((line = reader.readLine()) != null) {
+	            final StringTokenizer tokenizer = new StringTokenizer(line, ",");
+	            final List<String> columns = new ArrayList<String>();
+	            while (tokenizer.hasMoreTokens()) {
+	                columns.add(tokenizer.nextToken());
+	            }
+	            saveIntoDb(columns);
+	        }
+	        reader.close();
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+	    } catch (IOException e) {
+	        throw new IllegalArgumentException("Error reading file (" + this.file + ")", e);
+	    }
+	}*/
 	
-	private void saveIntoDb(List<?> columns, String suffix) {
+	private boolean saveIntoDb(List<?> columns, String suffix, List<String>columnNames) {
 		try {
 			Connection conn = this.dataSource.getConnection();
-			Statement query = conn.createStatement();
-			query.executeUpdate("INSERT INTO " + this.table + suffix + " VALUES (" + StringUtils.join(columns, ",") + ");");
+			String q = "SELECT COUNT(*) FROM " + this.table + suffix + " WHERE ";
+			for (int i = 0; i < columns.size(); i++) {
+				q = q + columnNames.get(i) + "=";
+				if (columns.get(i).getClass().getName() != "java.lang.Integer") {
+					System.out.println(columns.get(i).getClass().getName());
+					q = q + "'" + columns.get(i) + "' AND ";
+				} else {
+					q = q + columns.get(i) + " AND ";
+				}
+			}
+			q = q.substring(0, q.length() - 5);
+			System.out.println(q);
+			PreparedStatement query = conn.prepareStatement(q);
+			ResultSet r = query.executeQuery();
+			while (r.next()) {
+				int num = r.getInt(1);
+				System.out.println("Rating exists?");
+				System.out.println(num);
+				if (num == 0) {
+					System.out.println("updating");
+					query = conn.prepareStatement("INSERT INTO " + this.table + suffix + "(" + StringUtils.join(columnNames, ",") + ") VALUES (" + StringUtils.join(columns, ",") + ");");
+					System.out.println(columns);
+					query.executeUpdate();
+					return true;
+				}
+			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return false;
 	}
 	
 	public static void main (String[] args) {
-		/*IndividualRecommender recommender = new IndividualRecommender("data.txt");
+		 /*IndividualRecommender recommender = new IndividualRecommender("data.txt");
 		 List<RecommendedItem> recommendations = recommender.makeRecommendation(20);
 		 System.out.println(recommendations);*/
-		
-        //try {
-		//IndividualRecommender recommender = new IndividualRecommender("data.txt", null);
-		MysqlDataSource dataSource = new MysqlDataSource();
-		dataSource.setServerName("sql.mit.edu");
-		dataSource.setUser("quanquan");
-		dataSource.setPassword("hof9924ne@!");
-		dataSource.setDatabaseName("quanquan+datahub");
-		IndividualRecommender recommender = new IndividualRecommender(dataSource);
-		recommender.initiateModel("f6afe418118814ae1c62aeae803ab049");
-		recommender.makeRecommendation(276747, 10);
-		//recommender.readFromFile();
-		/*TServerSocket serverTransport = new TServerSocket(9888);
-		 RecommenderService.Processor<IndividualRecommender> processor =
-		 new RecommenderService.Processor<IndividualRecommender>(recommender);
-		 Args args1 = new Args(serverTransport);
-		 args1.processor(processor);
-		 // TNonblockingServer might be a better idea to prevent multiple windows from 
-		 // blocking the server until one process finishes
-		 TServer server = new TThreadPoolServer(args1);*/
-		
-		//System.out.println("Started service successfully...");
-		//server.serve();
-        /*} catch(TTransportException e) {
-		 e.printStackTrace();
-		 }*/
+
+        try {
+            //IndividualRecommender recommender = new IndividualRecommender("data.txt", null);
+        	MysqlDataSource dataSource = new MysqlDataSource();
+    		dataSource.setServerName("sql.mit.edu");
+    		dataSource.setUser("quanquan");
+    		dataSource.setPassword("hof9924ne@!");
+    		dataSource.setDatabaseName("quanquan+datahub");
+    		IndividualRecommender recommender = new IndividualRecommender(dataSource);
+    		//recommender.initiateModel("f6afe418118814ae1c62aeae803ab049");
+    		//recommender.makeRecommendation(999997, 10);
+    		//recommender.readFromFile();
+            TServerSocket serverTransport = new TServerSocket(9888);
+            RecommenderService.Processor<IndividualRecommender> processor =
+                new RecommenderService.Processor<IndividualRecommender>(recommender);
+            Args args1 = new Args(serverTransport);
+            args1.processor(processor);
+            // TNonblockingServer might be a better idea to prevent multiple windows from 
+            // blocking the server until one process finishes
+            TServer server = new TThreadPoolServer(args1);
+ 
+            System.out.println("Started service successfully...");
+            server.serve();
+        } catch(TTransportException e) {
+            e.printStackTrace();
+        }
 	}
 }
