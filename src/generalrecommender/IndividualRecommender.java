@@ -99,6 +99,7 @@ public class IndividualRecommender implements Iface {
 						item.add(results.getString(1));
 						item.add(results.getString(2));
 						item.add(results.getString(3));
+						item.add(results.getString(4));
 						items.add(item);
 					}
 				}
@@ -151,6 +152,7 @@ public class IndividualRecommender implements Iface {
 	}
 	
 	public void deleteRatings(int userId, int itemId) {
+		System.out.println("deleting");
 		try {
 			Connection conn = this.dataSource.getConnection();
 			PreparedStatement query = conn.prepareStatement("DELETE FROM " + this.table + "ratings WHERE user_id = " + userId + " AND "
@@ -361,15 +363,18 @@ public class IndividualRecommender implements Iface {
 			Connection conn = this.dataSource.getConnection();
 			String q = "SELECT COUNT(*) FROM " + this.table + suffix + " WHERE ";
 			for (int i = 0; i < columns.size(); i++) {
-				q = q + columnNames.get(i) + "=";
-				if (columns.get(i).getClass().getName() != "java.lang.Integer") {
-					System.out.println(columns.get(i).getClass().getName());
-					q = q + "'" + columns.get(i) + "' AND ";
-				} else {
-					q = q + columns.get(i) + " AND ";
+				if (columnNames.get(i) != "rating") {
+					q = q + columnNames.get(i) + "=";
+					if (columns.get(i).getClass().getName() != "java.lang.Integer") {
+						System.out.println(columns.get(i).getClass().getName());
+						q = q + "'" + columns.get(i) + "' AND ";
+					} else {
+						q = q + columns.get(i) + " AND ";
+					}
 				}
 			}
 			q = q.substring(0, q.length() - 5);
+			System.out.println("checking query if rating exists");
 			System.out.println(q);
 			PreparedStatement query = conn.prepareStatement(q);
 			ResultSet r = query.executeQuery();
