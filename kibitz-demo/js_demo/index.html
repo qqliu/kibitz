@@ -1,0 +1,29 @@
+<html>
+<head>
+  <title>Sample Kibitz Recommendations Page</title>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script> 
+  <script type="text/javascript" src="thrift.js"></script>
+  <script type="text/javascript" src="kibitz_types.js"></script>
+  <script type="text/javascript" src="RecommenderService.js"></script>
+
+</head>
+<body>
+<table id="results">
+</table>
+</body>
+</html>
+
+
+<script type="text/javascript">
+
+var transport = new Thrift.Transport("http://localhost:9888/kibitz/");
+var protocol = new Thrift.Protocol(transport);
+var client = new kibitz.RecommenderServiceClient(protocol);
+
+transport.open();
+
+client.initiateModel('f6afe418118814ae1c62aeae803ab049');
+var recs = client.makeRecommendation(999999, 10);
+console.log(recs);
+
+</script>
