@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
@@ -49,7 +50,7 @@ import org.apache.thrift.transport.TTransportException;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 public class IndividualRecommender implements Iface {
-	private ReloadFromJDBCDataModel dataModel;
+	private DatahubDataModel dataModel;
 	private MysqlDataSource dataSource;
 	private String table;
 	
@@ -330,12 +331,19 @@ public class IndividualRecommender implements Iface {
 	
 	public void initiateModel(String table) {
 		try {
+			this.dataModel = new DatahubDataModel();
+			this.table = table;
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*try {
 			this.dataModel = new ReloadFromJDBCDataModel(new MySQLJDBCDataModel(this.dataSource, table+"ratings", "user_id", "item_id", "rating", null));
 			this.table = table;
 		} catch (TasteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} 
+		}*/
 	}
 	
 	/*public void readFromFile() {
