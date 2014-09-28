@@ -26,10 +26,15 @@ import javax.sql.DataSource;
 import com.google.common.collect.Lists;
 
 public class DatahubDataModel implements DataModel{
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private static final Logger log = LoggerFactory.getLogger(DatahubDataModel.class);
 
 	/** Default Datahub host. */
-	private static final String DEFAULT_DATAHUB_HOST = "sql.mit.edu";
+	private static final String DEFAULT_DATAHUB_HOST = "sql.mit.edu/";
 
 	/** Default Datahub user. */
 	private static final String DEFAULT_DATAHUB_USERNAME = "quanquan";
@@ -42,6 +47,7 @@ public class DatahubDataModel implements DataModel{
 
 	/** Default Datahub Table Name*/
 	private static final String DEFAULT_DATAHUB_TABLENAME = "ratings";
+	private final String url = "jdbc:mysql://";
 
 	private String datahubHost = DEFAULT_DATAHUB_HOST;
 	private String datahubUsername = DEFAULT_DATAHUB_USERNAME;
@@ -109,13 +115,16 @@ public class DatahubDataModel implements DataModel{
 		System.out.println("Building model");
 
 		try {
-		    Class.forName ("com.mysql.jdbc.Driver").newInstance();
-		    conn = DriverManager.getConnection (this.datahubHost, this.datahubUsername, this.datahubPassword);
+		    Class.forName("com.mysql.jdbc.Driver").newInstance();
+		    System.out.println(this.datahubHost);
+		    System.out.println(this.datahubUsername);
+		    System.out.println(this.datahubPassword);
+		    conn = DriverManager.getConnection (this.url + this.datahubHost + this.datahubDatabase, this.datahubUsername, this.datahubPassword);
 		    System.out.println ("Database connection established");
 
 		    Statement s = conn.createStatement();
 		    // execute the query, and get a java resultset
-		    ResultSet rs = s.executeQuery("SELECT * FROM quanquan+grouplens.ratings");
+		    ResultSet rs = s.executeQuery("SELECT * FROM ratings");
 		    while (rs.next()) {
 		        int userID = rs.getInt("id");
 		        int itemID = rs.getInt("itemID");
@@ -132,7 +141,7 @@ public class DatahubDataModel implements DataModel{
 		    s.close();
 		}
 		catch (Exception e) {
-		    System.err.println ("Cannot connect to database server");
+		    System.err.println ("Database server error: " + e);
 		} finally {
 			if (conn != null) {
 		        try {

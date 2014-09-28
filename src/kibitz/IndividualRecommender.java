@@ -2,25 +2,17 @@ package kibitz;
 
 import kibitz.RecommenderService.Iface;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -30,17 +22,10 @@ import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.recommender.CachingRecommender;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
 import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
-import org.apache.mahout.cf.taste.model.DataModel;
-import org.apache.mahout.cf.taste.model.JDBCDataModel;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
-import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
-import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
-import org.apache.mahout.cf.taste.impl.model.jdbc.MySQLJDBCDataModel;
-import org.apache.mahout.cf.taste.impl.model.jdbc.ReloadFromJDBCDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;
-import org.apache.thrift.TException;
 import org.apache.thrift.server.TServer;
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.server.TThreadPoolServer.Args;
@@ -52,6 +37,11 @@ import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 public class IndividualRecommender implements Iface {
 	private DatahubDataModel dataModel;
 	private MysqlDataSource dataSource;
+	private UserSimilarity userSimilarity;
+	private UserNeighborhood neighborhood;
+	private GenericUserBasedRecommender recommender;
+	private CachingRecommender cachingRecommender;
+	
 	private String table;
 	
 	public IndividualRecommender(MysqlDataSource dataSource) {
@@ -63,17 +53,12 @@ public class IndividualRecommender implements Iface {
 		System.out.println("Making recommendation: ");
 		try {
 			if (this.dataModel != null) {
-				UserSimilarity userSimilarity = new PearsonCorrelationSimilarity(this.dataModel);
-				UserNeighborhood neighborhood =
-					      new NearestNUserNeighborhood(30, userSimilarity, this.dataModel);
-				Recommender recommender = new GenericUserBasedRecommender(this.dataModel, neighborhood, userSimilarity);
-				Recommender cachingRecommender = new CachingRecommender(recommender);
-				List<RecommendedItem> recommendations = cachingRecommender.recommend(userId, numRecs);
+				List<RecommendedItem> recommendations = this.cachingRecommender.recommend(userId, numRecs);
 				ArrayList<Long> recommendationNames = new ArrayList<Long>();
 				for (int i = 0; i < recommendations.size(); i++) {
 					recommendationNames.add(recommendations.get(i).getItemID());
 				}
-				Connection conn = this.dataSource.getConnection();
+				/*Connection conn = this.dataSource.getConnection();
 				PreparedStatement query = conn.prepareStatement("SELECT * FROM " + this.table + " ORDER BY RAND() LIMIT " + numRecs + ";");
 				List<List<String>> items = new ArrayList<List<String>>();
 				if (recommendationNames.size() == 0) {
@@ -104,15 +89,18 @@ public class IndividualRecommender implements Iface {
 						item.add(results.getString(4));
 						items.add(item);
 					}
-				}
-				System.out.println(items);
-				return items;
+				}*/
+				
+				//System.out.println(items);
+				//return items;
+				System.out.println(recommendationNames);
+				return new ArrayList<List<String>>();
 			}
 		} catch (TasteException e) {
 			e.printStackTrace();
-		} catch (SQLException e) {
+		/*} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			e.printStackTrace();*/
 		}
 		System.out.println("Returning null");
 		return null;
@@ -333,6 +321,11 @@ public class IndividualRecommender implements Iface {
 		try {
 			this.dataModel = new DatahubDataModel();
 			this.table = table;
+			this.userSimilarity = new PearsonCorrelationSimilarity(this.dataModel);
+			this.neighborhood =
+				      new NearestNUserNeighborhood(30, userSimilarity, this.dataModel);
+			this.recommender = new GenericUserBasedRecommender(this.dataModel, neighborhood, userSimilarity);
+			this.cachingRecommender = new CachingRecommender(recommender);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -343,7 +336,10 @@ public class IndividualRecommender implements Iface {
 		} catch (TasteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}*/ catch (TasteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	/*public void readFromFile() {

@@ -1,10 +1,6 @@
 package kibitz;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import kibitz.RecommenderService.Processor;
 
 import org.apache.thrift.protocol.TJSONProtocol;
 import org.apache.thrift.server.TServlet;
@@ -12,7 +8,16 @@ import org.apache.thrift.server.TServlet;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 public class KibitzServlet extends TServlet {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public KibitzServlet(MysqlDataSource dataSource)	{
-		super(new RecommenderService.Processor(new IndividualRecommender(dataSource)), new TJSONProtocol.Factory());
+		super(extracted(dataSource), new TJSONProtocol.Factory());
+	}
+
+	private static Processor<IndividualRecommender> extracted(MysqlDataSource dataSource) {
+		return new RecommenderService.Processor<IndividualRecommender>(new IndividualRecommender(dataSource));
 	}
 }
