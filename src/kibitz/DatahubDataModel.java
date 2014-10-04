@@ -1,6 +1,7 @@
 package kibitz;
 
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
@@ -13,15 +14,18 @@ import org.apache.mahout.cf.taste.impl.common.LongPrimitiveIterator;
 import org.apache.mahout.cf.taste.impl.model.GenericDataModel;
 import org.apache.mahout.cf.taste.impl.model.GenericPreference;
 import org.apache.mahout.cf.taste.model.DataModel;
-import org.apache.mahout.cf.taste.model.JDBCDataModel;
 import org.apache.mahout.cf.taste.model.Preference;
 import org.apache.mahout.cf.taste.model.PreferenceArray;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.THttpClient;
+import org.apache.thrift.transport.TTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.*;
 
-import javax.sql.DataSource;
+import datahub.*;
 
 import com.google.common.collect.Lists;
 
@@ -34,16 +38,16 @@ public class DatahubDataModel implements DataModel{
 	private static final Logger log = LoggerFactory.getLogger(DatahubDataModel.class);
 
 	/** Default Datahub host. */
-	private static final String DEFAULT_DATAHUB_HOST = "sql.mit.edu/";
+	private static final String DEFAULT_DATAHUB_HOST = "datahub.csail.mit.edu/";
 
 	/** Default Datahub user. */
 	private static final String DEFAULT_DATAHUB_USERNAME = "quanquan";
 
 	/**Default Datahub password. */
-	private static final String DEFAULT_DATAHUB_PASSWORD = "XXXXXXXXXXX";
+	private static final String DEFAULT_DATAHUB_PASSWORD = "hof9924ne@!";
 
 	/** Default Datahub Database */
-	private static final String DEFAULT_DATAHUB_DATABASE = "quanquan+grouplens";
+	private static final String DEFAULT_DATAHUB_DATABASE = "quanquan.books";
 
 	/** Default Datahub Table Name*/
 	private static final String DEFAULT_DATAHUB_TABLENAME = "ratings";
@@ -114,22 +118,44 @@ public class DatahubDataModel implements DataModel{
 		Connection conn = null;
 		System.out.println("Building model");
 
+		/*try {
+			TTransport transport = new THttpClient("http://datahub.csail.mit.edu/service");
+			TProtocol protocol = new  TBinaryProtocol(transport);
+			DataHub.Client client = new DataHub.Client(protocol);
+
+			System.out.println(client.get_version());
+
+			DHConnectionParams con_params = new DHConnectionParams();
+			con_params.setUser("anantb");
+			con_params.setPassword("anant");
+			DHConnection con = client.connect(con_params);
+
+			DHQueryResult res = client.execute_sql(con, "select * from anantb.demo_today.test", new ArrayList<String>());
+
+			for (DHRow row : res.getData().getTable().getRows()) {
+				for (DHCell cell : row.getCells()) {
+					System.out.print(new String(cell.getValue()) + "\t");
+				}
+				System.out.println();
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}*/
 		try {
 		    Class.forName("com.mysql.jdbc.Driver").newInstance();
 		    System.out.println(this.datahubHost);
 		    System.out.println(this.datahubUsername);
 		    System.out.println(this.datahubPassword);
-		    conn = DriverManager.getConnection (this.url + this.datahubHost + this.datahubDatabase, this.datahubUsername, this.datahubPassword);
+		    conn = DriverManager.getConnection (this.url + this.datahubHost + "/" + this.datahubDatabase, this.datahubUsername, this.datahubPassword);
 		    System.out.println ("Database connection established");
 
 		    Statement s = conn.createStatement();
 		    // execute the query, and get a java resultset
-		    ResultSet rs = s.executeQuery("SELECT * FROM ratings");
+		    ResultSet rs = s.executeQuery("SELECT * FROM quanquan_ratings");
 		    while (rs.next()) {
 		        int userID = rs.getInt("id");
 		        int itemID = rs.getInt("itemID");
 		        int ratingValue = rs.getInt("rating");
-		        System.out.println(userID + ", " + itemID + ", " + ratingValue);
 
 		        Collection<Preference> userPrefs = userIDPrefMap.get(userID);
 				if (userPrefs == null) {
@@ -150,7 +176,6 @@ public class DatahubDataModel implements DataModel{
 		        } catch (Exception e) { /* ignore close errors */ }
 		    }
 		}
-
 		this.delegate = new GenericDataModel(GenericDataModel.toDataMap(userIDPrefMap, true));
 	}
 
@@ -271,22 +296,4 @@ public class DatahubDataModel implements DataModel{
 	public float getMinPreference() {
 	    return delegate.getMinPreference();
 	}
-
-	/*@Override
-	public DataSource getDataSource() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public FastByIDMap<PreferenceArray> exportWithPrefs() throws TasteException {
-		// TODO Auto-generated method stub
-		return delegate.getRawItemData();
-	}
-
-	@Override
-	public FastByIDMap<FastIDSet> exportWithIDsOnly() throws TasteException {
-		// TODO Auto-generated method stub
-		return null;
-	}*/
 }

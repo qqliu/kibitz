@@ -23,7 +23,7 @@ public class EmbeddingJettyWithServlet {
 		MysqlDataSource dataSource = new MysqlDataSource();
 		dataSource.setServerName("sql.mit.edu");
 		dataSource.setUser("quanquan");
-		dataSource.setPassword("XXXXXXXXXXXXXXX");
+		dataSource.setPassword("XXXXXXXXX");
 		dataSource.setDatabaseName("quanquan+datahub");
 		context.addServlet(new ServletHolder(new KibitzServlet(dataSource)), "/*");
 
