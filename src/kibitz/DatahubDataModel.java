@@ -1,11 +1,12 @@
 package kibitz;
 
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.mahout.cf.taste.common.Refreshable;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.common.FastByIDMap;
@@ -16,14 +17,12 @@ import org.apache.mahout.cf.taste.impl.model.GenericPreference;
 import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.model.Preference;
 import org.apache.mahout.cf.taste.model.PreferenceArray;
+import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TTransport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.sql.*;
+import org.apache.thrift.transport.TTransportException;
 
 import datahub.*;
 
@@ -31,35 +30,36 @@ import com.google.common.collect.Lists;
 
 public class DatahubDataModel implements DataModel{
 	/**
-	 *
+	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	private static final Logger log = LoggerFactory.getLogger(DatahubDataModel.class);
-
+	
 	/** Default Datahub host. */
-	private static final String DEFAULT_DATAHUB_HOST = "datahub.csail.mit.edu/";
-
+	private static final String DEFAULT_DATAHUB_HOST = "http://datahub.csail.mit.edu/service";
+	
 	/** Default Datahub user. */
 	private static final String DEFAULT_DATAHUB_USERNAME = "quanquan";
-
+	
 	/**Default Datahub password. */
 	private static final String DEFAULT_DATAHUB_PASSWORD = "hof9924ne@!";
 
 	/** Default Datahub Database */
-	private static final String DEFAULT_DATAHUB_DATABASE = "quanquan.books";
-
+	private static final String DEFAULT_DATAHUB_DATABASE = "quanquan.kibitz_users";
+	
 	/** Default Datahub Table Name*/
-	private static final String DEFAULT_DATAHUB_TABLENAME = "ratings";
-	private final String url = "jdbc:mysql://";
-
+	private static final String DEFAULT_DATAHUB_TABLENAME = "users";
+	
 	private String datahubHost = DEFAULT_DATAHUB_HOST;
-	private String datahubUsername = DEFAULT_DATAHUB_USERNAME;
-	private String datahubPassword = DEFAULT_DATAHUB_PASSWORD;
+	private String datahubUsername = getDefaultDatahubUsername();
+	private String datahubPassword = getDefaultDatahubPassword();
 	private String datahubDatabase = DEFAULT_DATAHUB_DATABASE;
-	private String datahubTableName = DEFAULT_DATAHUB_TABLENAME;
-
-	private final ReentrantLock reloadLock;
+	private String datahubTableName = getDefaultDatahubTablename();
+	
+	private TTransport transport;
+	private TProtocol protocol;
+	private DataHub.Client client;
+	private ConnectionParams con_params;
+	private Connection conn;
 
 	private GenericDataModel delegate;
 
@@ -67,10 +67,9 @@ public class DatahubDataModel implements DataModel{
 	* Creates a new DatahubDataModel
 	*/
 	public DatahubDataModel() throws UnknownHostException {
-		this.reloadLock = new ReentrantLock();
 		buildModel();
 	}
-
+	  
 	/**
 	 * Creates a new DatahubDataModel with customized Database configuration
 	 * (with authentication)
@@ -92,7 +91,6 @@ public class DatahubDataModel implements DataModel{
 		this.datahubUsername = username;
 		this.datahubPassword = password;
 		this.datahubTableName = tablename;
-		this.reloadLock = new ReentrantLock();
 		buildModel();
 	}
 
@@ -111,74 +109,297 @@ public class DatahubDataModel implements DataModel{
 	*/
 	public void refresh(Collection<Refreshable> alreadyRefreshed) {
 	}
-
+	
 	private void buildModel() throws UnknownHostException {
 		// Map of user preferences by Mahout user id
 		FastByIDMap<Collection<Preference>> userIDPrefMap = new FastByIDMap<Collection<Preference>>();
-		Connection conn = null;
 		System.out.println("Building model");
+		
+		try {
+			this.transport = new THttpClient(this.datahubHost);
+			this.protocol = new  TBinaryProtocol(transport);
+			this.client = new DataHub.Client(protocol);
+			System.out.println("Connected to Datahub Successfully");
+		
+			this.con_params = new ConnectionParams();
+			this.con_params.setUser(this.datahubUsername);
+			this.con_params.setPassword(this.datahubPassword);
+			this.conn = this.client.open_connection(con_params);
+		     
+			ResultSet res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + this.datahubTableName, null);
+	
+			for (Tuple t : res.getTuples()) {
+				List<ByteBuffer> cells = t.getCells();
+				int userID = Integer.parseInt(new String(cells.get(0).array()));
+				int itemID = Integer.parseInt(new String(cells.get(1).array()));
+				int ratingValue = Integer.parseInt(new String(cells.get(2).array()));
 
-		/*try {
-			TTransport transport = new THttpClient("http://datahub.csail.mit.edu/service");
-			TProtocol protocol = new  TBinaryProtocol(transport);
-			DataHub.Client client = new DataHub.Client(protocol);
-
-			System.out.println(client.get_version());
-
-			DHConnectionParams con_params = new DHConnectionParams();
-			con_params.setUser("anantb");
-			con_params.setPassword("anant");
-			DHConnection con = client.connect(con_params);
-
-			DHQueryResult res = client.execute_sql(con, "select * from anantb.demo_today.test", new ArrayList<String>());
-
-			for (DHRow row : res.getData().getTable().getRows()) {
-				for (DHCell cell : row.getCells()) {
-					System.out.print(new String(cell.getValue()) + "\t");
+				Collection<Preference> userPrefs = userIDPrefMap.get(userID);
+				if (userPrefs == null) {
+					userPrefs = Lists.newArrayListWithCapacity(2);
+					userIDPrefMap.put(userID, userPrefs);
 				}
-				System.out.println();
+				userPrefs.add(new GenericPreference(userID, itemID, ratingValue));
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
-		}*/
-		try {
-		    Class.forName("com.mysql.jdbc.Driver").newInstance();
-		    System.out.println(this.datahubHost);
-		    System.out.println(this.datahubUsername);
-		    System.out.println(this.datahubPassword);
-		    conn = DriverManager.getConnection (this.url + this.datahubHost + "/" + this.datahubDatabase, this.datahubUsername, this.datahubPassword);
-		    System.out.println ("Database connection established");
-
-		    Statement s = conn.createStatement();
-		    // execute the query, and get a java resultset
-		    ResultSet rs = s.executeQuery("SELECT * FROM quanquan_ratings");
-		    while (rs.next()) {
-		        int userID = rs.getInt("id");
-		        int itemID = rs.getInt("itemID");
-		        int ratingValue = rs.getInt("rating");
-
-		        Collection<Preference> userPrefs = userIDPrefMap.get(userID);
-				if (userPrefs == null) {
-					userPrefs = Lists.newArrayListWithCapacity(2);
-		            userIDPrefMap.put(userID, userPrefs);
-				}
-				userPrefs.add(new GenericPreference(userID, itemID, ratingValue));
-		    }
-		    s.close();
 		}
-		catch (Exception e) {
-		    System.err.println ("Database server error: " + e);
-		} finally {
-			if (conn != null) {
-		        try {
-		            conn.close ();
-		            System.out.println ("Database connection terminated");
-		        } catch (Exception e) { /* ignore close errors */ }
-		    }
-		}
+		
 		this.delegate = new GenericDataModel(GenericDataModel.toDataMap(userIDPrefMap, true));
 	}
-
+	
+	/**
+	 * Gets list of all items from items table
+	 */
+	public List<List<String>> getItems(String table) {
+		List<List<String>> items = new ArrayList<List<String>>();
+		try {
+			ResultSet res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + table, null);
+			for (Tuple t : res.getTuples()) {
+				List<ByteBuffer> cells = t.getCells();
+				List<String> item = new ArrayList<String>();
+				item.add(new String(cells.get(0).array()));
+				item.add(new String(cells.get(1).array()));
+				item.add(new String(cells.get(2).array()));
+				item.add(new String(cells.get(3).array()));
+				items.add(item);
+			}
+			return items;
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	/**
+	 * Creates all associated tables associated with a new recommender.
+	 */
+	public boolean createNewRecommender(String table) {
+		try {
+			this.client.execute_sql(this.conn, "create table " + this.datahubDatabase + "." + table + "_ratings (" + 
+					"user_id int NOT NULL, item_id varchar(255) NOT NULL, rating varchar(255))" , null);
+			this.client.execute_sql(this.conn, "create table " + this.datahubDatabase + "." + table + "_users (" + 
+					"id int NOT NULL, username varchar(255) NOT NULL, password varchar(255))" , null);
+			return true;
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	/**
+	 * Gets list of items user has rated.
+	 */
+	 public List<List<String>> getUserRatedItems(int userId, String ratings_table, String items_table) {
+		List<List<String>> items = new ArrayList<List<String>>();
+		try {
+			ResultSet res = this.client.execute_sql(this.conn, "SELECT id, rating FROM " + ratings_table + "ratings WHERE user_id=" + userId, null);
+			for (Tuple t : res.getTuples()) {
+				List<ByteBuffer> cells = t.getCells();
+				List<String> item = new ArrayList<String>();
+				ResultSet s = this.client.execute_sql(this.conn, "SELECT * FROM " + items_table + " WHERE id='" + new String(cells.get(0).array()) + "'", null);
+				for (Tuple tt : s.getTuples()) {
+					List<ByteBuffer> cc = tt.getCells();
+					item.add(new String(cc.get(0).array()));
+					item.add(new String(cc.get(1).array()));
+					item.add(new String(cc.get(2).array()));
+					item.add(new String(cc.get(3).array()));
+					items.add(item);
+				}
+			}
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return items;
+	}
+	 
+	/**
+	 * Records user ratings
+	 */
+	 public void recordRatings(int userId, int itemId, int rating, String ratings_table) {
+		List<Integer> columns = new ArrayList<Integer>();
+		columns.add(userId);
+		columns.add(itemId);
+		columns.add(rating);
+		List<String> columnNames = new ArrayList<String>();
+		columnNames.add("user_id");
+		columnNames.add("item_id");
+		columnNames.add("rating");
+		if (!saveIntoDb(columns, null , columnNames, ratings_table)) {
+			deleteRatings(userId, itemId, ratings_table);
+			saveIntoDb(columns, null, columnNames, ratings_table);
+		}
+	 }
+	 
+	 /**
+	  * Deletes user ratings.
+	  */
+	 public void deleteRatings(int userId, int itemId, String table) {
+		 System.out.println("deleting");
+		 try {
+			 	this.client.execute_sql(this.conn, "DELETE FROM " + table + "ratings WHERE user_id = " + userId + " AND "
+			 			+ "item_id = " + itemId, null);
+		 } catch (DBException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+		 } catch (TException e) {
+			 	// TODO Auto-generated catch block
+			 	e.printStackTrace();
+		 }
+	 }
+	 
+	 public void createNewUser(List<?> columns, String suffix, List<String>columnNames, String table, boolean isCentralRepo) {
+		 if(isCentralRepo) {
+			 saveIntoDb(columns, suffix, columnNames, DatahubDataModel.getDefaultDatahubTablename());
+		 } else {
+			 saveIntoDb(columns, suffix, columnNames, table);
+		 }
+	 }
+	 /**
+	  * Saves record into Datahub.
+	  */
+	 private boolean saveIntoDb(List<?> columns, String suffix, List<String>columnNames, String table) {
+			try {
+				String q = "SELECT COUNT(*) FROM " + table + suffix + " WHERE ";
+				for (int i = 0; i < columns.size(); i++) {
+					if (columnNames.get(i) != "rating") {
+						q = q + columnNames.get(i) + "=";
+						if (columns.get(i).getClass().getName() != "java.lang.Integer") {
+							System.out.println(columns.get(i).getClass().getName());
+							q = q + "'" + columns.get(i) + "' AND ";
+						} else {
+							q = q + columns.get(i) + " AND ";
+						}
+					}
+				}
+				q = q.substring(0, q.length() - 5);
+				System.out.println("checking query if rating exists");
+				System.out.println(q);
+				ResultSet res = this.client.execute_sql(this.conn, q, null);
+				for (Tuple t : res.getTuples()) {
+					List<ByteBuffer> cells = t.getCells();
+					int num = Integer.parseInt(new String((cells.get(0).array())));
+					if (num == 0) {
+						this.client.execute_sql(this.conn, "INSERT INTO " + table + suffix + "(" + StringUtils.join(columnNames, ",") + ") VALUES (" + StringUtils.join(columns, ",") + ");", null);
+						return true;
+					}
+				}
+			} catch (DBException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return false;
+	 }
+	 
+	 public String checkLogin(String username, String password, String table, boolean isCentralRepo) {
+		 try {
+		 	if (isCentralRepo) {
+				THttpClient transport = new THttpClient(this.datahubHost);
+				TBinaryProtocol protocol = new  TBinaryProtocol(transport);
+				DataHub.Client client = new DataHub.Client(protocol);
+				System.out.println("Connected to central Datahub repo successfully");
+			
+				ConnectionParams params = new ConnectionParams();
+				params.setUser(DatahubDataModel.getDefaultDatahubUsername());
+				params.setPassword(DatahubDataModel.getDefaultDatahubPassword());
+				Connection connection = client.open_connection(con_params);
+				
+				ResultSet res = client.execute_sql(connection, "SELECT password FROM " + DatahubDataModel.getDefaultDatahubTablename() + "users WHERE username='" + username + "'", null);
+				for (Tuple t : res.getTuples()) {
+					List<ByteBuffer> cells = t.getCells();
+					String hash = new String((cells.get(0).array()));
+					return hash;
+				}
+			 } else {
+				ResultSet res;
+					res = this.client.execute_sql(this.conn, "SELECT password FROM " + table + "users WHERE username='" + username + "'", null);
+					for (Tuple t : res.getTuples()) {
+						List<ByteBuffer> cells = t.getCells();
+						String hash = new String((cells.get(0).array()));
+						return hash;
+					}
+			 }
+		 } catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		 return null;
+	 }
+	 
+	 /**
+	  * Checks whether username is already taken.
+	  * @param username
+	  * @return
+	  */
+	 public boolean checkUsername(String username, String table, boolean isCentralRepo) {
+			try {	
+				if (isCentralRepo) {
+					THttpClient transport = new THttpClient(this.datahubHost);
+					TBinaryProtocol protocol = new  TBinaryProtocol(transport);
+					DataHub.Client client = new DataHub.Client(protocol);
+					System.out.println("Connected to central Datahub repo successfully");
+				
+					ConnectionParams params = new ConnectionParams();
+					params.setUser(DatahubDataModel.getDefaultDatahubUsername());
+					params.setPassword(DatahubDataModel.getDefaultDatahubPassword());
+					Connection connection = client.open_connection(con_params);
+					
+					ResultSet res = this.client.execute_sql(connection, "SELECT COUNT(*) FROM " + DatahubDataModel.getDefaultDatahubTablename() + "users WHERE username='" + username + "'", null);
+					for (Tuple t : res.getTuples()) {
+						List<ByteBuffer> cells = t.getCells();
+						int num = Integer.parseInt(new String((cells.get(0).array())));
+						if (num == 0) {
+							return false;
+						} else {
+							return true;
+						}
+					}
+				} else {
+					ResultSet res = this.client.execute_sql(this.conn, "SELECT COUNT(*) FROM " + table + "users WHERE username='" + username + "'", null);
+					for (Tuple t : res.getTuples()) {
+						List<ByteBuffer> cells = t.getCells();
+						int num = Integer.parseInt(new String((cells.get(0).array())));
+						if (num == 0) {
+							return false;
+						} else {
+							return true;
+						}
+					}
+				}
+			} catch (TTransportException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (DBException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return true;
+	 }
+	
 	/**
 	 * Maps id from Datahub to long for Mahout recommenders
 	 */
@@ -186,26 +407,26 @@ public class DatahubDataModel implements DataModel{
 		// creates a map of the id to the long value
 		return id;
 	}
-
+	
 	/**
 	 * Maps Mahout long value to Datahub ID
 	 */
 	public String fromLongToId(long id) {
 		return new String();
 	}
-
+	
 	/**
 	 * Removes Datahub User Item
 	 */
 	private void removeDatahubUserItem(String userID, String itemID) {
 	}
-
+	
 	/**
 	 * Adds Datahub User Item
 	 */
 	private void addDatahubUserItem(String userID, String itemID) {
 	}
-
+	
 	private DataModel removeUserItem(long userID, Iterable<List<String>> items) {
 		FastByIDMap<PreferenceArray> rawData = ((GenericDataModel) delegate).getRawUserData();
 		return new GenericDataModel(rawData);
@@ -216,7 +437,7 @@ public class DatahubDataModel implements DataModel{
 	*/
 	public void cleanupMappingCollection() {
 	}
-
+	
 	@Override
 	public LongPrimitiveIterator getUserIDs() throws TasteException {
 		return delegate.getUserIDs();
@@ -226,7 +447,7 @@ public class DatahubDataModel implements DataModel{
 	public PreferenceArray getPreferencesFromUser(long id) throws TasteException {
 	  return delegate.getPreferencesFromUser(id);
 	}
-
+	
 	@Override
 	public FastIDSet getItemIDsFromUser(long userID) throws TasteException {
 		return delegate.getItemIDsFromUser(userID);
@@ -295,5 +516,17 @@ public class DatahubDataModel implements DataModel{
 	@Override
 	public float getMinPreference() {
 	    return delegate.getMinPreference();
+	}
+
+	public static String getDefaultDatahubUsername() {
+		return DEFAULT_DATAHUB_USERNAME;
+	}
+
+	public static String getDefaultDatahubPassword() {
+		return DEFAULT_DATAHUB_PASSWORD;
+	}
+
+	public static String getDefaultDatahubTablename() {
+		return DEFAULT_DATAHUB_TABLENAME;
 	}
 }
