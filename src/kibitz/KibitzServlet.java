@@ -17,7 +17,7 @@ public class KibitzServlet extends TServlet {
 		super(extracted(dataSource), new TJSONProtocol.Factory());
 	}
 
-	private static Processor<IndividualRecommender> extracted(MysqlDataSource dataSource) {
-		return new RecommenderService.Processor<IndividualRecommender>(new IndividualRecommender(dataSource));
+	private static Processor<KibitzServer> extracted(MysqlDataSource dataSource) {
+		return new RecommenderService.Processor<KibitzServer>(new KibitzServer(dataSource));
 	}
 }

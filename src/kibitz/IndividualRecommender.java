@@ -1,7 +1,5 @@
 package kibitz;
 
-import kibitz.RecommenderService.Iface;
-
 import java.math.BigInteger;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
@@ -24,7 +22,7 @@ import org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
-public class IndividualRecommender implements Iface {
+public class IndividualRecommender {
 	private DatahubDataModel dataModel;
 	private MysqlDataSource dataSource;
 	private UserSimilarity userSimilarity;
@@ -53,7 +51,7 @@ public class IndividualRecommender implements Iface {
 		System.out.println("Making recommendation: ");
 		try {
 			if (this.dataModel != null) {
-				List<RecommendedItem> recommendations = this.recommender.recommend(userId, numRecs);
+				List<RecommendedItem> recommendations = this.cachingRecommender.recommend(userId, numRecs);
 				ArrayList<Long> recommendationNames = new ArrayList<Long>();
 				ArrayList<Item> recs = new ArrayList<Item>();
 				for (int i = 0; i < recommendations.size(); i++) {
@@ -249,15 +247,24 @@ public class IndividualRecommender implements Iface {
 					this.password,
 					this.ratings_table);
 			
-			this.userSimilarity = new PearsonCorrelationSimilarity(this.dataModel);
-			this.neighborhood =
-				      new NearestNUserNeighborhood(30, userSimilarity, this.dataModel);
-			this.recommender = new GenericUserBasedRecommender(this.dataModel, neighborhood, userSimilarity);
-			//this.cachingRecommender = new CachingRecommender(recommender);
+			if (KibitzServer.RECOMMENDERS.get(table + username + password + database) != null) {
+				this.cachingRecommender = KibitzServer.RECOMMENDERS.get(table + username + password + database);
+			} else {
+				this.userSimilarity = new PearsonCorrelationSimilarity(this.dataModel);
+				this.neighborhood =
+					      new NearestNUserNeighborhood(30, userSimilarity, this.dataModel);
+				this.recommender = new GenericUserBasedRecommender(this.dataModel, neighborhood, userSimilarity);
+				this.cachingRecommender = new CachingRecommender(recommender);
+				KibitzServer.RECOMMENDERS.put(table + username + password + database, this.cachingRecommender);
+			}
 		} catch (UnknownHostException e) {
 			System.err.println(e);
 		} catch (TasteException e) {
 			System.err.println(e);
 		}
+	}
+	
+	public static IndividualRecommender createNewIndividualServer(MysqlDataSource dataSource) {
+		return new IndividualRecommender(dataSource);
 	}
 }
