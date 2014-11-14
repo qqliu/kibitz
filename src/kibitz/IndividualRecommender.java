@@ -12,7 +12,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
 import org.apache.mahout.cf.taste.common.TasteException;
-import org.apache.mahout.cf.taste.impl.recommender.CachingRecommender;
+//import org.apache.mahout.cf.taste.impl.recommender.CachingRecommender;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
 import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
@@ -28,7 +28,7 @@ public class IndividualRecommender {
 	private UserSimilarity userSimilarity;
 	private UserNeighborhood neighborhood;
 	private GenericUserBasedRecommender recommender;
-	private CachingRecommender cachingRecommender;
+	//private CachingRecommender cachingRecommender;
 	
 	private String items_table;
 	private String username;
@@ -51,7 +51,7 @@ public class IndividualRecommender {
 		System.out.println("Making recommendation: ");
 		try {
 			if (this.dataModel != null) {
-				List<RecommendedItem> recommendations = this.cachingRecommender.recommend(userId, numRecs);
+				List<RecommendedItem> recommendations = this.recommender.recommend(userId, numRecs);
 				ArrayList<Long> recommendationNames = new ArrayList<Long>();
 				ArrayList<Item> recs = new ArrayList<Item>();
 				for (int i = 0; i < recommendations.size(); i++) {
@@ -209,20 +209,6 @@ public class IndividualRecommender {
 		System.out.println(items);
 		return items;
     }
-    
-    public boolean createNewRecommender(String username, String password, String database, String table) {
-    		try {
-				this.dataModel = new DatahubDataModel(this.dataSource.getServerName(), database, 
-					username,
-					password,
-					null);
-				return this.dataModel.createNewRecommender(table);
-			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-    		return false;
-    }
 	
 	public void initiateModel(String table, String username, String password, String database) {
 		try {
@@ -248,14 +234,14 @@ public class IndividualRecommender {
 					this.ratings_table);
 			
 			if (KibitzServer.RECOMMENDERS.get(table + username + password + database) != null) {
-				this.cachingRecommender = KibitzServer.RECOMMENDERS.get(table + username + password + database);
+				this.recommender = (GenericUserBasedRecommender) KibitzServer.RECOMMENDERS.get(table + username + password + database);
 			} else {
 				this.userSimilarity = new PearsonCorrelationSimilarity(this.dataModel);
 				this.neighborhood =
 					      new NearestNUserNeighborhood(30, userSimilarity, this.dataModel);
 				this.recommender = new GenericUserBasedRecommender(this.dataModel, neighborhood, userSimilarity);
-				this.cachingRecommender = new CachingRecommender(recommender);
-				KibitzServer.RECOMMENDERS.put(table + username + password + database, this.cachingRecommender);
+				//this.cachingRecommender = new CachingRecommender(recommender);
+				KibitzServer.RECOMMENDERS.put(table + username + password + database, this.recommender);
 			}
 		} catch (UnknownHostException e) {
 			System.err.println(e);

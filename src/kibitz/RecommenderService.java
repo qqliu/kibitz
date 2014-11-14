@@ -56,7 +56,7 @@ public class RecommenderService {
 
     public long retrieveUserId(String key, String username, String password) throws org.apache.thrift.TException;
 
-    public boolean createNewRecommender(String key, String username, String password, String database, String table) throws org.apache.thrift.TException;
+    public boolean createNewRecommender(String username, String password, String database, String table) throws org.apache.thrift.TException;
 
     public List<Item> getUserRatedItems(String key, int userId) throws org.apache.thrift.TException;
 
@@ -86,7 +86,7 @@ public class RecommenderService {
 
     public void retrieveUserId(String key, String username, String password, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void createNewRecommender(String key, String username, String password, String database, String table, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void createNewRecommender(String username, String password, String database, String table, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void getUserRatedItems(String key, int userId, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
@@ -350,16 +350,15 @@ public class RecommenderService {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "retrieveUserId failed: unknown result");
     }
 
-    public boolean createNewRecommender(String key, String username, String password, String database, String table) throws org.apache.thrift.TException
+    public boolean createNewRecommender(String username, String password, String database, String table) throws org.apache.thrift.TException
     {
-      send_createNewRecommender(key, username, password, database, table);
+      send_createNewRecommender(username, password, database, table);
       return recv_createNewRecommender();
     }
 
-    public void send_createNewRecommender(String key, String username, String password, String database, String table) throws org.apache.thrift.TException
+    public void send_createNewRecommender(String username, String password, String database, String table) throws org.apache.thrift.TException
     {
       createNewRecommender_args args = new createNewRecommender_args();
-      args.setKey(key);
       args.setUsername(username);
       args.setPassword(password);
       args.setDatabase(database);
@@ -817,22 +816,20 @@ public class RecommenderService {
       }
     }
 
-    public void createNewRecommender(String key, String username, String password, String database, String table, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void createNewRecommender(String username, String password, String database, String table, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      createNewRecommender_call method_call = new createNewRecommender_call(key, username, password, database, table, resultHandler, this, ___protocolFactory, ___transport);
+      createNewRecommender_call method_call = new createNewRecommender_call(username, password, database, table, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
 
     public static class createNewRecommender_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private String key;
       private String username;
       private String password;
       private String database;
       private String table;
-      public createNewRecommender_call(String key, String username, String password, String database, String table, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      public createNewRecommender_call(String username, String password, String database, String table, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
-        this.key = key;
         this.username = username;
         this.password = password;
         this.database = database;
@@ -842,7 +839,6 @@ public class RecommenderService {
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("createNewRecommender", org.apache.thrift.protocol.TMessageType.CALL, 0));
         createNewRecommender_args args = new createNewRecommender_args();
-        args.setKey(key);
         args.setUsername(username);
         args.setPassword(password);
         args.setDatabase(database);
@@ -1187,7 +1183,7 @@ public class RecommenderService {
 
       public createNewRecommender_result getResult(I iface, createNewRecommender_args args) throws org.apache.thrift.TException {
         createNewRecommender_result result = new createNewRecommender_result();
-        result.success = iface.createNewRecommender(args.key, args.username, args.password, args.database, args.table);
+        result.success = iface.createNewRecommender(args.username, args.password, args.database, args.table);
         result.setSuccessIsSet(true);
         return result;
       }
@@ -1819,7 +1815,7 @@ public class RecommenderService {
       }
 
       public void start(I iface, createNewRecommender_args args, org.apache.thrift.async.AsyncMethodCallback<Boolean> resultHandler) throws TException {
-        iface.createNewRecommender(args.key, args.username, args.password, args.database, args.table,resultHandler);
+        iface.createNewRecommender(args.username, args.password, args.database, args.table,resultHandler);
       }
     }
 
@@ -10449,11 +10445,10 @@ public class RecommenderService {
   public static class createNewRecommender_args implements org.apache.thrift.TBase<createNewRecommender_args, createNewRecommender_args._Fields>, java.io.Serializable, Cloneable, Comparable<createNewRecommender_args>   {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("createNewRecommender_args");
 
-    private static final org.apache.thrift.protocol.TField KEY_FIELD_DESC = new org.apache.thrift.protocol.TField("key", org.apache.thrift.protocol.TType.STRING, (short)1);
-    private static final org.apache.thrift.protocol.TField USERNAME_FIELD_DESC = new org.apache.thrift.protocol.TField("username", org.apache.thrift.protocol.TType.STRING, (short)2);
-    private static final org.apache.thrift.protocol.TField PASSWORD_FIELD_DESC = new org.apache.thrift.protocol.TField("password", org.apache.thrift.protocol.TType.STRING, (short)3);
-    private static final org.apache.thrift.protocol.TField DATABASE_FIELD_DESC = new org.apache.thrift.protocol.TField("database", org.apache.thrift.protocol.TType.STRING, (short)4);
-    private static final org.apache.thrift.protocol.TField TABLE_FIELD_DESC = new org.apache.thrift.protocol.TField("table", org.apache.thrift.protocol.TType.STRING, (short)5);
+    private static final org.apache.thrift.protocol.TField USERNAME_FIELD_DESC = new org.apache.thrift.protocol.TField("username", org.apache.thrift.protocol.TType.STRING, (short)1);
+    private static final org.apache.thrift.protocol.TField PASSWORD_FIELD_DESC = new org.apache.thrift.protocol.TField("password", org.apache.thrift.protocol.TType.STRING, (short)2);
+    private static final org.apache.thrift.protocol.TField DATABASE_FIELD_DESC = new org.apache.thrift.protocol.TField("database", org.apache.thrift.protocol.TType.STRING, (short)3);
+    private static final org.apache.thrift.protocol.TField TABLE_FIELD_DESC = new org.apache.thrift.protocol.TField("table", org.apache.thrift.protocol.TType.STRING, (short)4);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -10461,7 +10456,6 @@ public class RecommenderService {
       schemes.put(TupleScheme.class, new createNewRecommender_argsTupleSchemeFactory());
     }
 
-    public String key; // required
     public String username; // required
     public String password; // required
     public String database; // required
@@ -10469,11 +10463,10 @@ public class RecommenderService {
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-      KEY((short)1, "key"),
-      USERNAME((short)2, "username"),
-      PASSWORD((short)3, "password"),
-      DATABASE((short)4, "database"),
-      TABLE((short)5, "table");
+      USERNAME((short)1, "username"),
+      PASSWORD((short)2, "password"),
+      DATABASE((short)3, "database"),
+      TABLE((short)4, "table");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -10488,15 +10481,13 @@ public class RecommenderService {
        */
       public static _Fields findByThriftId(int fieldId) {
         switch(fieldId) {
-          case 1: // KEY
-            return KEY;
-          case 2: // USERNAME
+          case 1: // USERNAME
             return USERNAME;
-          case 3: // PASSWORD
+          case 2: // PASSWORD
             return PASSWORD;
-          case 4: // DATABASE
+          case 3: // DATABASE
             return DATABASE;
-          case 5: // TABLE
+          case 4: // TABLE
             return TABLE;
           default:
             return null;
@@ -10541,8 +10532,6 @@ public class RecommenderService {
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.KEY, new org.apache.thrift.meta_data.FieldMetaData("key", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.USERNAME, new org.apache.thrift.meta_data.FieldMetaData("username", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.PASSWORD, new org.apache.thrift.meta_data.FieldMetaData("password", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -10559,14 +10548,12 @@ public class RecommenderService {
     }
 
     public createNewRecommender_args(
-      String key,
       String username,
       String password,
       String database,
       String table)
     {
       this();
-      this.key = key;
       this.username = username;
       this.password = password;
       this.database = database;
@@ -10577,9 +10564,6 @@ public class RecommenderService {
      * Performs a deep copy on <i>other</i>.
      */
     public createNewRecommender_args(createNewRecommender_args other) {
-      if (other.isSetKey()) {
-        this.key = other.key;
-      }
       if (other.isSetUsername()) {
         this.username = other.username;
       }
@@ -10600,35 +10584,10 @@ public class RecommenderService {
 
     @Override
     public void clear() {
-      this.key = null;
       this.username = null;
       this.password = null;
       this.database = null;
       this.table = null;
-    }
-
-    public String getKey() {
-      return this.key;
-    }
-
-    public createNewRecommender_args setKey(String key) {
-      this.key = key;
-      return this;
-    }
-
-    public void unsetKey() {
-      this.key = null;
-    }
-
-    /** Returns true if field key is set (has been assigned a value) and false otherwise */
-    public boolean isSetKey() {
-      return this.key != null;
-    }
-
-    public void setKeyIsSet(boolean value) {
-      if (!value) {
-        this.key = null;
-      }
     }
 
     public String getUsername() {
@@ -10729,14 +10688,6 @@ public class RecommenderService {
 
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
-      case KEY:
-        if (value == null) {
-          unsetKey();
-        } else {
-          setKey((String)value);
-        }
-        break;
-
       case USERNAME:
         if (value == null) {
           unsetUsername();
@@ -10774,9 +10725,6 @@ public class RecommenderService {
 
     public Object getFieldValue(_Fields field) {
       switch (field) {
-      case KEY:
-        return getKey();
-
       case USERNAME:
         return getUsername();
 
@@ -10800,8 +10748,6 @@ public class RecommenderService {
       }
 
       switch (field) {
-      case KEY:
-        return isSetKey();
       case USERNAME:
         return isSetUsername();
       case PASSWORD:
@@ -10826,15 +10772,6 @@ public class RecommenderService {
     public boolean equals(createNewRecommender_args that) {
       if (that == null)
         return false;
-
-      boolean this_present_key = true && this.isSetKey();
-      boolean that_present_key = true && that.isSetKey();
-      if (this_present_key || that_present_key) {
-        if (!(this_present_key && that_present_key))
-          return false;
-        if (!this.key.equals(that.key))
-          return false;
-      }
 
       boolean this_present_username = true && this.isSetUsername();
       boolean that_present_username = true && that.isSetUsername();
@@ -10888,16 +10825,6 @@ public class RecommenderService {
 
       int lastComparison = 0;
 
-      lastComparison = Boolean.valueOf(isSetKey()).compareTo(other.isSetKey());
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-      if (isSetKey()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.key, other.key);
-        if (lastComparison != 0) {
-          return lastComparison;
-        }
-      }
       lastComparison = Boolean.valueOf(isSetUsername()).compareTo(other.isSetUsername());
       if (lastComparison != 0) {
         return lastComparison;
@@ -10958,14 +10885,6 @@ public class RecommenderService {
       StringBuilder sb = new StringBuilder("createNewRecommender_args(");
       boolean first = true;
 
-      sb.append("key:");
-      if (this.key == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.key);
-      }
-      first = false;
-      if (!first) sb.append(", ");
       sb.append("username:");
       if (this.username == null) {
         sb.append("null");
@@ -11040,15 +10959,7 @@ public class RecommenderService {
             break;
           }
           switch (schemeField.id) {
-            case 1: // KEY
-              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-                struct.key = iprot.readString();
-                struct.setKeyIsSet(true);
-              } else { 
-                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-              }
-              break;
-            case 2: // USERNAME
+            case 1: // USERNAME
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.username = iprot.readString();
                 struct.setUsernameIsSet(true);
@@ -11056,7 +10967,7 @@ public class RecommenderService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 3: // PASSWORD
+            case 2: // PASSWORD
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.password = iprot.readString();
                 struct.setPasswordIsSet(true);
@@ -11064,7 +10975,7 @@ public class RecommenderService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 4: // DATABASE
+            case 3: // DATABASE
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.database = iprot.readString();
                 struct.setDatabaseIsSet(true);
@@ -11072,7 +10983,7 @@ public class RecommenderService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 5: // TABLE
+            case 4: // TABLE
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.table = iprot.readString();
                 struct.setTableIsSet(true);
@@ -11095,11 +11006,6 @@ public class RecommenderService {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
-        if (struct.key != null) {
-          oprot.writeFieldBegin(KEY_FIELD_DESC);
-          oprot.writeString(struct.key);
-          oprot.writeFieldEnd();
-        }
         if (struct.username != null) {
           oprot.writeFieldBegin(USERNAME_FIELD_DESC);
           oprot.writeString(struct.username);
@@ -11138,25 +11044,19 @@ public class RecommenderService {
       public void write(org.apache.thrift.protocol.TProtocol prot, createNewRecommender_args struct) throws org.apache.thrift.TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
         BitSet optionals = new BitSet();
-        if (struct.isSetKey()) {
+        if (struct.isSetUsername()) {
           optionals.set(0);
         }
-        if (struct.isSetUsername()) {
+        if (struct.isSetPassword()) {
           optionals.set(1);
         }
-        if (struct.isSetPassword()) {
+        if (struct.isSetDatabase()) {
           optionals.set(2);
         }
-        if (struct.isSetDatabase()) {
+        if (struct.isSetTable()) {
           optionals.set(3);
         }
-        if (struct.isSetTable()) {
-          optionals.set(4);
-        }
-        oprot.writeBitSet(optionals, 5);
-        if (struct.isSetKey()) {
-          oprot.writeString(struct.key);
-        }
+        oprot.writeBitSet(optionals, 4);
         if (struct.isSetUsername()) {
           oprot.writeString(struct.username);
         }
@@ -11174,24 +11074,20 @@ public class RecommenderService {
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, createNewRecommender_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(5);
+        BitSet incoming = iprot.readBitSet(4);
         if (incoming.get(0)) {
-          struct.key = iprot.readString();
-          struct.setKeyIsSet(true);
-        }
-        if (incoming.get(1)) {
           struct.username = iprot.readString();
           struct.setUsernameIsSet(true);
         }
-        if (incoming.get(2)) {
+        if (incoming.get(1)) {
           struct.password = iprot.readString();
           struct.setPasswordIsSet(true);
         }
-        if (incoming.get(3)) {
+        if (incoming.get(2)) {
           struct.database = iprot.readString();
           struct.setDatabaseIsSet(true);
         }
-        if (incoming.get(4)) {
+        if (incoming.get(3)) {
           struct.table = iprot.readString();
           struct.setTableIsSet(true);
         }

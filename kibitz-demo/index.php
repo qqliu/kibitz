@@ -13,40 +13,6 @@
     require_once($GLOBALS['THRIFT_ROOT'].'/type/TType.php');
     require_once($GLOBALS['THRIFT_ROOT'].'/type/TMessageType.php');
     require_once($GLOBALS['THRIFT_ROOT'].'/RecommenderService.php');
-    
-    // Create a thrift connection
-    //$socket = new Thrift\Transport\TSocket('kibitz.csail.mit.edu', '9888');
-    /*$socket = new Thrift\Transport\TSocket('localhost', '9888');
-    $transport = new Thrift\Transport\TBufferedTransport($socket);
-    $protocol = new Thrift\Protocol\TBinaryProtocol($transport);
-    // Create a reposearch service client
-    $client = new kibitz\RecommenderServiceClient($protocol);
-    
-    // Open up the connection
-    $transport->open();
-    $client -> initiateModel('f6afe418118814ae1c62aeae803ab049');
-    
-    $recommendations = $client->makeRecommendation(999999, 10);
-    foreach($recommendations as $rec) {
-      echo implode(", ", $rec);
-    }
-    
-    /*$allitems = $client -> getItems();
-    foreach($allitems as $item) {
-      echo implode(", ", $item);
-    }*/
-    
-    /*$client -> createNewUser("quanquan", "quanquan@mit.edu", "HelloThere123!");
-    $user = $client -> recordRatings(999996, 1000, 10);
-    echo $user;
-    $login = $client -> checkLogin("quanquan", "HelloThere123!");
-    echo $login;
-    $login2 = $client -> checkLogin("quanquan", "HelloThere123");
-    echo $login2;
-    $myratings = $client -> getUserRatedItems(999999);
-    foreach($myratings as $rating) {
-      echo implode(", ", $rating);
-    }*/
 ?>
 
 <!DOCTYPE html>
@@ -122,13 +88,15 @@ h1 {
         <div class="col-lg-12 text-center v-center">
           
           <h1>Kibitz</h1>
-          <p class="lead">Upload a file and start recommending.</p>
+          <p class="lead">Upload a file to <a href="\\datahub.csail.mit.edu">DataHub</a> and start recommending.</p>
           
           <br><br>
           
-          <form class="col-lg-12" enctype="multipart/form-data" action="upload_file.php" method="post"><br>
-            <h3>Choose a file to upload: </h3> <input style="margin-left:43%; margin-top:30px; margin-bottom:20px;" name="uploaded_file" type="file" />
-            <h3>Choose a name for your recommender: </h3><input style="margin-top:30px; margin-bottom:30px;" name="recommender_name" type="text" /><br>
+          <form class="col-lg-12" enctype="multipart/form-data" action="create_directory.php" method=""><br>
+            <h3>DataHub Username: </h3> <input style="margin-left:0%; margin-top:30px; margin-bottom:20px;" name="username" type="text" />
+            <h3>DataHub Password: </h3><input style="margin-top:30px; margin-bottom:30px;" name="password" type="password" /><br>
+            <h3>DataHub Repository: </h3><input style="margin-top:30px; margin-bottom:30px;" name="repo" type="text" /><br>
+            <h3>DataHub Table Name: </h3><input style="margin-top:30px; margin-bottom:30px;" name="tablename" type="text" /><br>
             <input type="submit" value="Create" />
           </form>
         </div>

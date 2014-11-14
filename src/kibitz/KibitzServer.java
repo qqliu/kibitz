@@ -1,22 +1,24 @@
 package kibitz;
 
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import kibitz.RecommenderService.Iface;
 
-import org.apache.mahout.cf.taste.impl.recommender.CachingRecommender;
+import org.apache.mahout.cf.taste.impl.recommender.AbstractRecommender;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
 public class KibitzServer implements Iface {
 	
 	public static Map<String, IndividualRecommender> SESSIONS = new HashMap<String, IndividualRecommender>();
-	public static Map<String, CachingRecommender> RECOMMENDERS = new HashMap<String, CachingRecommender>();
+	public static Map<String, AbstractRecommender> RECOMMENDERS = new HashMap<String, AbstractRecommender>();
 	public static boolean RUNNING = true;
 	
 	private MysqlDataSource dataSource;
+	private DatahubDataModel dataModel = null;
 	private Thread loop = null;
 	
 	public KibitzServer(MysqlDataSource dataSource) {
@@ -58,14 +60,19 @@ public class KibitzServer implements Iface {
 	}
 	
 	@Override
-	public boolean createNewRecommender(String key, String username, String password, String database, String table) {
-		if (key != null) {
-			if (SESSIONS.get(key) != null) {
-				return SESSIONS.get(key).createNewRecommender(table, username, password, database);
-			}
+    public boolean createNewRecommender(String username, String password, String database, String table) {
+		try {
+			this.dataModel = new DatahubDataModel(this.dataSource.getServerName(), database, 
+				username,
+				password,
+				null);
+			return this.dataModel.createNewRecommender(table);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return false;
-	}
+}
 	
 	@Override
 	public List<Item> getUserRatedItems(String key, int userId) {
@@ -154,9 +161,7 @@ public class KibitzServer implements Iface {
 		}
 	}
 	
-	public class RecommenderRunnable implements Runnable {
-		private int numRec = 0;
-		
+	public class RecommenderRunnable implements Runnable {	
 		public void run() {
 			while (RUNNING) {
 				if (RECOMMENDERS.size() != 0) {
@@ -167,8 +172,8 @@ public class KibitzServer implements Iface {
 			}
 		}
 		
-		private void updateRecommender(CachingRecommender recommender) {
-			recommender.clear();
+		private void updateRecommender(AbstractRecommender recommender) {
+			//recommender.clear();
 			recommender.refresh(null);
 		}
 	}

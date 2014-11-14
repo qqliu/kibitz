@@ -1,0 +1,1 @@
+<?php $client -> initiateModel("fb298da42e642a3dca4b670cf65d7929"); $name = "rec";?>

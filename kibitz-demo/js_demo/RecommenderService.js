@@ -7,10 +7,176 @@
 
 //HELPER FUNCTIONS AND STRUCTURES
 
+kibitz.RecommenderService_createNewIndividualServer_args = function(args) {
+  this.key = null;
+  if (args) {
+    if (args.key !== undefined) {
+      this.key = args.key;
+    }
+  }
+};
+kibitz.RecommenderService_createNewIndividualServer_args.prototype = {};
+kibitz.RecommenderService_createNewIndividualServer_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.key = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+kibitz.RecommenderService_createNewIndividualServer_args.prototype.write = function(output) {
+  output.writeStructBegin('RecommenderService_createNewIndividualServer_args');
+  if (this.key !== null && this.key !== undefined) {
+    output.writeFieldBegin('key', Thrift.Type.STRING, 1);
+    output.writeString(this.key);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+kibitz.RecommenderService_createNewIndividualServer_result = function(args) {
+};
+kibitz.RecommenderService_createNewIndividualServer_result.prototype = {};
+kibitz.RecommenderService_createNewIndividualServer_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    input.skip(ftype);
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+kibitz.RecommenderService_createNewIndividualServer_result.prototype.write = function(output) {
+  output.writeStructBegin('RecommenderService_createNewIndividualServer_result');
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+kibitz.RecommenderService_terminateSession_args = function(args) {
+  this.key = null;
+  if (args) {
+    if (args.key !== undefined) {
+      this.key = args.key;
+    }
+  }
+};
+kibitz.RecommenderService_terminateSession_args.prototype = {};
+kibitz.RecommenderService_terminateSession_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.key = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+kibitz.RecommenderService_terminateSession_args.prototype.write = function(output) {
+  output.writeStructBegin('RecommenderService_terminateSession_args');
+  if (this.key !== null && this.key !== undefined) {
+    output.writeFieldBegin('key', Thrift.Type.STRING, 1);
+    output.writeString(this.key);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+kibitz.RecommenderService_terminateSession_result = function(args) {
+};
+kibitz.RecommenderService_terminateSession_result.prototype = {};
+kibitz.RecommenderService_terminateSession_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    input.skip(ftype);
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+kibitz.RecommenderService_terminateSession_result.prototype.write = function(output) {
+  output.writeStructBegin('RecommenderService_terminateSession_result');
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 kibitz.RecommenderService_makeRecommendation_args = function(args) {
+  this.key = null;
   this.userId = null;
   this.numRecs = null;
   if (args) {
+    if (args.key !== undefined) {
+      this.key = args.key;
+    }
     if (args.userId !== undefined) {
       this.userId = args.userId;
     }
@@ -34,13 +200,20 @@ kibitz.RecommenderService_makeRecommendation_args.prototype.read = function(inpu
     switch (fid)
     {
       case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.key = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
       if (ftype == Thrift.Type.I32) {
         this.userId = input.readI32().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 2:
+      case 3:
       if (ftype == Thrift.Type.I32) {
         this.numRecs = input.readI32().value;
       } else {
@@ -58,13 +231,18 @@ kibitz.RecommenderService_makeRecommendation_args.prototype.read = function(inpu
 
 kibitz.RecommenderService_makeRecommendation_args.prototype.write = function(output) {
   output.writeStructBegin('RecommenderService_makeRecommendation_args');
+  if (this.key !== null && this.key !== undefined) {
+    output.writeFieldBegin('key', Thrift.Type.STRING, 1);
+    output.writeString(this.key);
+    output.writeFieldEnd();
+  }
   if (this.userId !== null && this.userId !== undefined) {
-    output.writeFieldBegin('userId', Thrift.Type.I32, 1);
+    output.writeFieldBegin('userId', Thrift.Type.I32, 2);
     output.writeI32(this.userId);
     output.writeFieldEnd();
   }
   if (this.numRecs !== null && this.numRecs !== undefined) {
-    output.writeFieldBegin('numRecs', Thrift.Type.I32, 2);
+    output.writeFieldBegin('numRecs', Thrift.Type.I32, 3);
     output.writeI32(this.numRecs);
     output.writeFieldEnd();
   }
@@ -107,20 +285,8 @@ kibitz.RecommenderService_makeRecommendation_result.prototype.read = function(in
         for (var _i5 = 0; _i5 < _size0; ++_i5)
         {
           var elem6 = null;
-          var _size7 = 0;
-          var _rtmp311;
-          elem6 = [];
-          var _etype10 = 0;
-          _rtmp311 = input.readListBegin();
-          _etype10 = _rtmp311.etype;
-          _size7 = _rtmp311.size;
-          for (var _i12 = 0; _i12 < _size7; ++_i12)
-          {
-            var elem13 = null;
-            elem13 = input.readString().value;
-            elem6.push(elem13);
-          }
-          input.readListEnd();
+          elem6 = new kibitz.Item();
+          elem6.read(input);
           this.success.push(elem6);
         }
         input.readListEnd();
@@ -144,22 +310,13 @@ kibitz.RecommenderService_makeRecommendation_result.prototype.write = function(o
   output.writeStructBegin('RecommenderService_makeRecommendation_result');
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
-    output.writeListBegin(Thrift.Type.LIST, this.success.length);
-    for (var iter14 in this.success)
+    output.writeListBegin(Thrift.Type.STRUCT, this.success.length);
+    for (var iter7 in this.success)
     {
-      if (this.success.hasOwnProperty(iter14))
+      if (this.success.hasOwnProperty(iter7))
       {
-        iter14 = this.success[iter14];
-        output.writeListBegin(Thrift.Type.STRING, iter14.length);
-        for (var iter15 in iter14)
-        {
-          if (iter14.hasOwnProperty(iter15))
-          {
-            iter15 = iter14[iter15];
-            output.writeString(iter15);
-          }
-        }
-        output.writeListEnd();
+        iter7 = this.success[iter7];
+        iter7.write(output);
       }
     }
     output.writeListEnd();
@@ -171,6 +328,12 @@ kibitz.RecommenderService_makeRecommendation_result.prototype.write = function(o
 };
 
 kibitz.RecommenderService_getItems_args = function(args) {
+  this.key = null;
+  if (args) {
+    if (args.key !== undefined) {
+      this.key = args.key;
+    }
+  }
 };
 kibitz.RecommenderService_getItems_args.prototype = {};
 kibitz.RecommenderService_getItems_args.prototype.read = function(input) {
@@ -184,7 +347,21 @@ kibitz.RecommenderService_getItems_args.prototype.read = function(input) {
     if (ftype == Thrift.Type.STOP) {
       break;
     }
-    input.skip(ftype);
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.key = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
     input.readFieldEnd();
   }
   input.readStructEnd();
@@ -193,6 +370,11 @@ kibitz.RecommenderService_getItems_args.prototype.read = function(input) {
 
 kibitz.RecommenderService_getItems_args.prototype.write = function(output) {
   output.writeStructBegin('RecommenderService_getItems_args');
+  if (this.key !== null && this.key !== undefined) {
+    output.writeFieldBegin('key', Thrift.Type.STRING, 1);
+    output.writeString(this.key);
+    output.writeFieldEnd();
+  }
   output.writeFieldStop();
   output.writeStructEnd();
   return;
@@ -222,31 +404,19 @@ kibitz.RecommenderService_getItems_result.prototype.read = function(input) {
     {
       case 0:
       if (ftype == Thrift.Type.LIST) {
-        var _size16 = 0;
-        var _rtmp320;
+        var _size8 = 0;
+        var _rtmp312;
         this.success = [];
-        var _etype19 = 0;
-        _rtmp320 = input.readListBegin();
-        _etype19 = _rtmp320.etype;
-        _size16 = _rtmp320.size;
-        for (var _i21 = 0; _i21 < _size16; ++_i21)
+        var _etype11 = 0;
+        _rtmp312 = input.readListBegin();
+        _etype11 = _rtmp312.etype;
+        _size8 = _rtmp312.size;
+        for (var _i13 = 0; _i13 < _size8; ++_i13)
         {
-          var elem22 = null;
-          var _size23 = 0;
-          var _rtmp327;
-          elem22 = [];
-          var _etype26 = 0;
-          _rtmp327 = input.readListBegin();
-          _etype26 = _rtmp327.etype;
-          _size23 = _rtmp327.size;
-          for (var _i28 = 0; _i28 < _size23; ++_i28)
-          {
-            var elem29 = null;
-            elem29 = input.readString().value;
-            elem22.push(elem29);
-          }
-          input.readListEnd();
-          this.success.push(elem22);
+          var elem14 = null;
+          elem14 = new kibitz.Item();
+          elem14.read(input);
+          this.success.push(elem14);
         }
         input.readListEnd();
       } else {
@@ -269,22 +439,13 @@ kibitz.RecommenderService_getItems_result.prototype.write = function(output) {
   output.writeStructBegin('RecommenderService_getItems_result');
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
-    output.writeListBegin(Thrift.Type.LIST, this.success.length);
-    for (var iter30 in this.success)
+    output.writeListBegin(Thrift.Type.STRUCT, this.success.length);
+    for (var iter15 in this.success)
     {
-      if (this.success.hasOwnProperty(iter30))
+      if (this.success.hasOwnProperty(iter15))
       {
-        iter30 = this.success[iter30];
-        output.writeListBegin(Thrift.Type.STRING, iter30.length);
-        for (var iter31 in iter30)
-        {
-          if (iter30.hasOwnProperty(iter31))
-          {
-            iter31 = iter30[iter31];
-            output.writeString(iter31);
-          }
-        }
-        output.writeListEnd();
+        iter15 = this.success[iter15];
+        iter15.write(output);
       }
     }
     output.writeListEnd();
@@ -296,10 +457,14 @@ kibitz.RecommenderService_getItems_result.prototype.write = function(output) {
 };
 
 kibitz.RecommenderService_recordRatings_args = function(args) {
+  this.key = null;
   this.userId = null;
   this.itemId = null;
   this.rating = null;
   if (args) {
+    if (args.key !== undefined) {
+      this.key = args.key;
+    }
     if (args.userId !== undefined) {
       this.userId = args.userId;
     }
@@ -326,20 +491,27 @@ kibitz.RecommenderService_recordRatings_args.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
-      if (ftype == Thrift.Type.I32) {
-        this.userId = input.readI32().value;
+      if (ftype == Thrift.Type.STRING) {
+        this.key = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 2:
       if (ftype == Thrift.Type.I32) {
-        this.itemId = input.readI32().value;
+        this.userId = input.readI32().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 3:
+      if (ftype == Thrift.Type.I32) {
+        this.itemId = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
       if (ftype == Thrift.Type.I32) {
         this.rating = input.readI32().value;
       } else {
@@ -357,18 +529,23 @@ kibitz.RecommenderService_recordRatings_args.prototype.read = function(input) {
 
 kibitz.RecommenderService_recordRatings_args.prototype.write = function(output) {
   output.writeStructBegin('RecommenderService_recordRatings_args');
+  if (this.key !== null && this.key !== undefined) {
+    output.writeFieldBegin('key', Thrift.Type.STRING, 1);
+    output.writeString(this.key);
+    output.writeFieldEnd();
+  }
   if (this.userId !== null && this.userId !== undefined) {
-    output.writeFieldBegin('userId', Thrift.Type.I32, 1);
+    output.writeFieldBegin('userId', Thrift.Type.I32, 2);
     output.writeI32(this.userId);
     output.writeFieldEnd();
   }
   if (this.itemId !== null && this.itemId !== undefined) {
-    output.writeFieldBegin('itemId', Thrift.Type.I32, 2);
+    output.writeFieldBegin('itemId', Thrift.Type.I32, 3);
     output.writeI32(this.itemId);
     output.writeFieldEnd();
   }
   if (this.rating !== null && this.rating !== undefined) {
-    output.writeFieldBegin('rating', Thrift.Type.I32, 3);
+    output.writeFieldBegin('rating', Thrift.Type.I32, 4);
     output.writeI32(this.rating);
     output.writeFieldEnd();
   }
@@ -406,9 +583,13 @@ kibitz.RecommenderService_recordRatings_result.prototype.write = function(output
 };
 
 kibitz.RecommenderService_deleteRatings_args = function(args) {
+  this.key = null;
   this.userId = null;
   this.itemId = null;
   if (args) {
+    if (args.key !== undefined) {
+      this.key = args.key;
+    }
     if (args.userId !== undefined) {
       this.userId = args.userId;
     }
@@ -432,13 +613,20 @@ kibitz.RecommenderService_deleteRatings_args.prototype.read = function(input) {
     switch (fid)
     {
       case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.key = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
       if (ftype == Thrift.Type.I32) {
         this.userId = input.readI32().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 2:
+      case 3:
       if (ftype == Thrift.Type.I32) {
         this.itemId = input.readI32().value;
       } else {
@@ -456,13 +644,18 @@ kibitz.RecommenderService_deleteRatings_args.prototype.read = function(input) {
 
 kibitz.RecommenderService_deleteRatings_args.prototype.write = function(output) {
   output.writeStructBegin('RecommenderService_deleteRatings_args');
+  if (this.key !== null && this.key !== undefined) {
+    output.writeFieldBegin('key', Thrift.Type.STRING, 1);
+    output.writeString(this.key);
+    output.writeFieldEnd();
+  }
   if (this.userId !== null && this.userId !== undefined) {
-    output.writeFieldBegin('userId', Thrift.Type.I32, 1);
+    output.writeFieldBegin('userId', Thrift.Type.I32, 2);
     output.writeI32(this.userId);
     output.writeFieldEnd();
   }
   if (this.itemId !== null && this.itemId !== undefined) {
-    output.writeFieldBegin('itemId', Thrift.Type.I32, 2);
+    output.writeFieldBegin('itemId', Thrift.Type.I32, 3);
     output.writeI32(this.itemId);
     output.writeFieldEnd();
   }
@@ -500,10 +693,15 @@ kibitz.RecommenderService_deleteRatings_result.prototype.write = function(output
 };
 
 kibitz.RecommenderService_createNewUser_args = function(args) {
+  this.key = null;
   this.username = null;
   this.email = null;
   this.password = null;
+  this.iskibitzuser = null;
   if (args) {
+    if (args.key !== undefined) {
+      this.key = args.key;
+    }
     if (args.username !== undefined) {
       this.username = args.username;
     }
@@ -512,6 +710,9 @@ kibitz.RecommenderService_createNewUser_args = function(args) {
     }
     if (args.password !== undefined) {
       this.password = args.password;
+    }
+    if (args.iskibitzuser !== undefined) {
+      this.iskibitzuser = args.iskibitzuser;
     }
   }
 };
@@ -531,21 +732,35 @@ kibitz.RecommenderService_createNewUser_args.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRING) {
-        this.username = input.readString().value;
+        this.key = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 2:
       if (ftype == Thrift.Type.STRING) {
-        this.email = input.readString().value;
+        this.username = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 3:
       if (ftype == Thrift.Type.STRING) {
+        this.email = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
+      if (ftype == Thrift.Type.STRING) {
         this.password = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 5:
+      if (ftype == Thrift.Type.BOOL) {
+        this.iskibitzuser = input.readBool().value;
       } else {
         input.skip(ftype);
       }
@@ -561,19 +776,29 @@ kibitz.RecommenderService_createNewUser_args.prototype.read = function(input) {
 
 kibitz.RecommenderService_createNewUser_args.prototype.write = function(output) {
   output.writeStructBegin('RecommenderService_createNewUser_args');
+  if (this.key !== null && this.key !== undefined) {
+    output.writeFieldBegin('key', Thrift.Type.STRING, 1);
+    output.writeString(this.key);
+    output.writeFieldEnd();
+  }
   if (this.username !== null && this.username !== undefined) {
-    output.writeFieldBegin('username', Thrift.Type.STRING, 1);
+    output.writeFieldBegin('username', Thrift.Type.STRING, 2);
     output.writeString(this.username);
     output.writeFieldEnd();
   }
   if (this.email !== null && this.email !== undefined) {
-    output.writeFieldBegin('email', Thrift.Type.STRING, 2);
+    output.writeFieldBegin('email', Thrift.Type.STRING, 3);
     output.writeString(this.email);
     output.writeFieldEnd();
   }
   if (this.password !== null && this.password !== undefined) {
-    output.writeFieldBegin('password', Thrift.Type.STRING, 3);
+    output.writeFieldBegin('password', Thrift.Type.STRING, 4);
     output.writeString(this.password);
+    output.writeFieldEnd();
+  }
+  if (this.iskibitzuser !== null && this.iskibitzuser !== undefined) {
+    output.writeFieldBegin('iskibitzuser', Thrift.Type.BOOL, 5);
+    output.writeBool(this.iskibitzuser);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -635,10 +860,18 @@ kibitz.RecommenderService_createNewUser_result.prototype.write = function(output
 };
 
 kibitz.RecommenderService_checkUsername_args = function(args) {
+  this.key = null;
   this.username = null;
+  this.iskibitzuser = null;
   if (args) {
+    if (args.key !== undefined) {
+      this.key = args.key;
+    }
     if (args.username !== undefined) {
       this.username = args.username;
+    }
+    if (args.iskibitzuser !== undefined) {
+      this.iskibitzuser = args.iskibitzuser;
     }
   }
 };
@@ -658,14 +891,25 @@ kibitz.RecommenderService_checkUsername_args.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRING) {
+        this.key = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
         this.username = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 0:
+      case 3:
+      if (ftype == Thrift.Type.BOOL) {
+        this.iskibitzuser = input.readBool().value;
+      } else {
         input.skip(ftype);
-        break;
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -677,9 +921,19 @@ kibitz.RecommenderService_checkUsername_args.prototype.read = function(input) {
 
 kibitz.RecommenderService_checkUsername_args.prototype.write = function(output) {
   output.writeStructBegin('RecommenderService_checkUsername_args');
+  if (this.key !== null && this.key !== undefined) {
+    output.writeFieldBegin('key', Thrift.Type.STRING, 1);
+    output.writeString(this.key);
+    output.writeFieldEnd();
+  }
   if (this.username !== null && this.username !== undefined) {
-    output.writeFieldBegin('username', Thrift.Type.STRING, 1);
+    output.writeFieldBegin('username', Thrift.Type.STRING, 2);
     output.writeString(this.username);
+    output.writeFieldEnd();
+  }
+  if (this.iskibitzuser !== null && this.iskibitzuser !== undefined) {
+    output.writeFieldBegin('iskibitzuser', Thrift.Type.BOOL, 3);
+    output.writeBool(this.iskibitzuser);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -741,14 +995,22 @@ kibitz.RecommenderService_checkUsername_result.prototype.write = function(output
 };
 
 kibitz.RecommenderService_checkLogin_args = function(args) {
+  this.key = null;
   this.username = null;
   this.password = null;
+  this.iskibitzuser = null;
   if (args) {
+    if (args.key !== undefined) {
+      this.key = args.key;
+    }
     if (args.username !== undefined) {
       this.username = args.username;
     }
     if (args.password !== undefined) {
       this.password = args.password;
+    }
+    if (args.iskibitzuser !== undefined) {
+      this.iskibitzuser = args.iskibitzuser;
     }
   }
 };
@@ -768,14 +1030,28 @@ kibitz.RecommenderService_checkLogin_args.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRING) {
-        this.username = input.readString().value;
+        this.key = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
       case 2:
       if (ftype == Thrift.Type.STRING) {
+        this.username = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
         this.password = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
+      if (ftype == Thrift.Type.BOOL) {
+        this.iskibitzuser = input.readBool().value;
       } else {
         input.skip(ftype);
       }
@@ -791,14 +1067,24 @@ kibitz.RecommenderService_checkLogin_args.prototype.read = function(input) {
 
 kibitz.RecommenderService_checkLogin_args.prototype.write = function(output) {
   output.writeStructBegin('RecommenderService_checkLogin_args');
+  if (this.key !== null && this.key !== undefined) {
+    output.writeFieldBegin('key', Thrift.Type.STRING, 1);
+    output.writeString(this.key);
+    output.writeFieldEnd();
+  }
   if (this.username !== null && this.username !== undefined) {
-    output.writeFieldBegin('username', Thrift.Type.STRING, 1);
+    output.writeFieldBegin('username', Thrift.Type.STRING, 2);
     output.writeString(this.username);
     output.writeFieldEnd();
   }
   if (this.password !== null && this.password !== undefined) {
-    output.writeFieldBegin('password', Thrift.Type.STRING, 2);
+    output.writeFieldBegin('password', Thrift.Type.STRING, 3);
     output.writeString(this.password);
+    output.writeFieldEnd();
+  }
+  if (this.iskibitzuser !== null && this.iskibitzuser !== undefined) {
+    output.writeFieldBegin('iskibitzuser', Thrift.Type.BOOL, 4);
+    output.writeBool(this.iskibitzuser);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -859,9 +1145,299 @@ kibitz.RecommenderService_checkLogin_result.prototype.write = function(output) {
   return;
 };
 
+kibitz.RecommenderService_retrieveUserId_args = function(args) {
+  this.key = null;
+  this.username = null;
+  this.password = null;
+  if (args) {
+    if (args.key !== undefined) {
+      this.key = args.key;
+    }
+    if (args.username !== undefined) {
+      this.username = args.username;
+    }
+    if (args.password !== undefined) {
+      this.password = args.password;
+    }
+  }
+};
+kibitz.RecommenderService_retrieveUserId_args.prototype = {};
+kibitz.RecommenderService_retrieveUserId_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.key = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.username = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.password = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+kibitz.RecommenderService_retrieveUserId_args.prototype.write = function(output) {
+  output.writeStructBegin('RecommenderService_retrieveUserId_args');
+  if (this.key !== null && this.key !== undefined) {
+    output.writeFieldBegin('key', Thrift.Type.STRING, 1);
+    output.writeString(this.key);
+    output.writeFieldEnd();
+  }
+  if (this.username !== null && this.username !== undefined) {
+    output.writeFieldBegin('username', Thrift.Type.STRING, 2);
+    output.writeString(this.username);
+    output.writeFieldEnd();
+  }
+  if (this.password !== null && this.password !== undefined) {
+    output.writeFieldBegin('password', Thrift.Type.STRING, 3);
+    output.writeString(this.password);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+kibitz.RecommenderService_retrieveUserId_result = function(args) {
+  this.success = null;
+  if (args) {
+    if (args.success !== undefined) {
+      this.success = args.success;
+    }
+  }
+};
+kibitz.RecommenderService_retrieveUserId_result.prototype = {};
+kibitz.RecommenderService_retrieveUserId_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+      if (ftype == Thrift.Type.I64) {
+        this.success = input.readI64().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+kibitz.RecommenderService_retrieveUserId_result.prototype.write = function(output) {
+  output.writeStructBegin('RecommenderService_retrieveUserId_result');
+  if (this.success !== null && this.success !== undefined) {
+    output.writeFieldBegin('success', Thrift.Type.I64, 0);
+    output.writeI64(this.success);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+kibitz.RecommenderService_createNewRecommender_args = function(args) {
+  this.username = null;
+  this.password = null;
+  this.database = null;
+  this.table = null;
+  if (args) {
+    if (args.username !== undefined) {
+      this.username = args.username;
+    }
+    if (args.password !== undefined) {
+      this.password = args.password;
+    }
+    if (args.database !== undefined) {
+      this.database = args.database;
+    }
+    if (args.table !== undefined) {
+      this.table = args.table;
+    }
+  }
+};
+kibitz.RecommenderService_createNewRecommender_args.prototype = {};
+kibitz.RecommenderService_createNewRecommender_args.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.username = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
+        this.password = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.database = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
+      if (ftype == Thrift.Type.STRING) {
+        this.table = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+kibitz.RecommenderService_createNewRecommender_args.prototype.write = function(output) {
+  output.writeStructBegin('RecommenderService_createNewRecommender_args');
+  if (this.username !== null && this.username !== undefined) {
+    output.writeFieldBegin('username', Thrift.Type.STRING, 1);
+    output.writeString(this.username);
+    output.writeFieldEnd();
+  }
+  if (this.password !== null && this.password !== undefined) {
+    output.writeFieldBegin('password', Thrift.Type.STRING, 2);
+    output.writeString(this.password);
+    output.writeFieldEnd();
+  }
+  if (this.database !== null && this.database !== undefined) {
+    output.writeFieldBegin('database', Thrift.Type.STRING, 3);
+    output.writeString(this.database);
+    output.writeFieldEnd();
+  }
+  if (this.table !== null && this.table !== undefined) {
+    output.writeFieldBegin('table', Thrift.Type.STRING, 4);
+    output.writeString(this.table);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
+kibitz.RecommenderService_createNewRecommender_result = function(args) {
+  this.success = null;
+  if (args) {
+    if (args.success !== undefined) {
+      this.success = args.success;
+    }
+  }
+};
+kibitz.RecommenderService_createNewRecommender_result.prototype = {};
+kibitz.RecommenderService_createNewRecommender_result.prototype.read = function(input) {
+  input.readStructBegin();
+  while (true)
+  {
+    var ret = input.readFieldBegin();
+    var fname = ret.fname;
+    var ftype = ret.ftype;
+    var fid = ret.fid;
+    if (ftype == Thrift.Type.STOP) {
+      break;
+    }
+    switch (fid)
+    {
+      case 0:
+      if (ftype == Thrift.Type.BOOL) {
+        this.success = input.readBool().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 0:
+        input.skip(ftype);
+        break;
+      default:
+        input.skip(ftype);
+    }
+    input.readFieldEnd();
+  }
+  input.readStructEnd();
+  return;
+};
+
+kibitz.RecommenderService_createNewRecommender_result.prototype.write = function(output) {
+  output.writeStructBegin('RecommenderService_createNewRecommender_result');
+  if (this.success !== null && this.success !== undefined) {
+    output.writeFieldBegin('success', Thrift.Type.BOOL, 0);
+    output.writeBool(this.success);
+    output.writeFieldEnd();
+  }
+  output.writeFieldStop();
+  output.writeStructEnd();
+  return;
+};
+
 kibitz.RecommenderService_getUserRatedItems_args = function(args) {
+  this.key = null;
   this.userId = null;
   if (args) {
+    if (args.key !== undefined) {
+      this.key = args.key;
+    }
     if (args.userId !== undefined) {
       this.userId = args.userId;
     }
@@ -882,15 +1458,19 @@ kibitz.RecommenderService_getUserRatedItems_args.prototype.read = function(input
     switch (fid)
     {
       case 1:
+      if (ftype == Thrift.Type.STRING) {
+        this.key = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
       if (ftype == Thrift.Type.I32) {
         this.userId = input.readI32().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 0:
-        input.skip(ftype);
-        break;
       default:
         input.skip(ftype);
     }
@@ -902,8 +1482,13 @@ kibitz.RecommenderService_getUserRatedItems_args.prototype.read = function(input
 
 kibitz.RecommenderService_getUserRatedItems_args.prototype.write = function(output) {
   output.writeStructBegin('RecommenderService_getUserRatedItems_args');
+  if (this.key !== null && this.key !== undefined) {
+    output.writeFieldBegin('key', Thrift.Type.STRING, 1);
+    output.writeString(this.key);
+    output.writeFieldEnd();
+  }
   if (this.userId !== null && this.userId !== undefined) {
-    output.writeFieldBegin('userId', Thrift.Type.I32, 1);
+    output.writeFieldBegin('userId', Thrift.Type.I32, 2);
     output.writeI32(this.userId);
     output.writeFieldEnd();
   }
@@ -936,31 +1521,19 @@ kibitz.RecommenderService_getUserRatedItems_result.prototype.read = function(inp
     {
       case 0:
       if (ftype == Thrift.Type.LIST) {
-        var _size32 = 0;
-        var _rtmp336;
+        var _size16 = 0;
+        var _rtmp320;
         this.success = [];
-        var _etype35 = 0;
-        _rtmp336 = input.readListBegin();
-        _etype35 = _rtmp336.etype;
-        _size32 = _rtmp336.size;
-        for (var _i37 = 0; _i37 < _size32; ++_i37)
+        var _etype19 = 0;
+        _rtmp320 = input.readListBegin();
+        _etype19 = _rtmp320.etype;
+        _size16 = _rtmp320.size;
+        for (var _i21 = 0; _i21 < _size16; ++_i21)
         {
-          var elem38 = null;
-          var _size39 = 0;
-          var _rtmp343;
-          elem38 = [];
-          var _etype42 = 0;
-          _rtmp343 = input.readListBegin();
-          _etype42 = _rtmp343.etype;
-          _size39 = _rtmp343.size;
-          for (var _i44 = 0; _i44 < _size39; ++_i44)
-          {
-            var elem45 = null;
-            elem45 = input.readString().value;
-            elem38.push(elem45);
-          }
-          input.readListEnd();
-          this.success.push(elem38);
+          var elem22 = null;
+          elem22 = new kibitz.Item();
+          elem22.read(input);
+          this.success.push(elem22);
         }
         input.readListEnd();
       } else {
@@ -983,22 +1556,13 @@ kibitz.RecommenderService_getUserRatedItems_result.prototype.write = function(ou
   output.writeStructBegin('RecommenderService_getUserRatedItems_result');
   if (this.success !== null && this.success !== undefined) {
     output.writeFieldBegin('success', Thrift.Type.LIST, 0);
-    output.writeListBegin(Thrift.Type.LIST, this.success.length);
-    for (var iter46 in this.success)
+    output.writeListBegin(Thrift.Type.STRUCT, this.success.length);
+    for (var iter23 in this.success)
     {
-      if (this.success.hasOwnProperty(iter46))
+      if (this.success.hasOwnProperty(iter23))
       {
-        iter46 = this.success[iter46];
-        output.writeListBegin(Thrift.Type.STRING, iter46.length);
-        for (var iter47 in iter46)
-        {
-          if (iter46.hasOwnProperty(iter47))
-          {
-            iter47 = iter46[iter47];
-            output.writeString(iter47);
-          }
-        }
-        output.writeListEnd();
+        iter23 = this.success[iter23];
+        iter23.write(output);
       }
     }
     output.writeListEnd();
@@ -1010,10 +1574,26 @@ kibitz.RecommenderService_getUserRatedItems_result.prototype.write = function(ou
 };
 
 kibitz.RecommenderService_initiateModel_args = function(args) {
+  this.key = null;
   this.table = null;
+  this.username = null;
+  this.password = null;
+  this.database = null;
   if (args) {
+    if (args.key !== undefined) {
+      this.key = args.key;
+    }
     if (args.table !== undefined) {
       this.table = args.table;
+    }
+    if (args.username !== undefined) {
+      this.username = args.username;
+    }
+    if (args.password !== undefined) {
+      this.password = args.password;
+    }
+    if (args.database !== undefined) {
+      this.database = args.database;
     }
   }
 };
@@ -1033,14 +1613,39 @@ kibitz.RecommenderService_initiateModel_args.prototype.read = function(input) {
     {
       case 1:
       if (ftype == Thrift.Type.STRING) {
+        this.key = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 2:
+      if (ftype == Thrift.Type.STRING) {
         this.table = input.readString().value;
       } else {
         input.skip(ftype);
       }
       break;
-      case 0:
+      case 3:
+      if (ftype == Thrift.Type.STRING) {
+        this.username = input.readString().value;
+      } else {
         input.skip(ftype);
-        break;
+      }
+      break;
+      case 4:
+      if (ftype == Thrift.Type.STRING) {
+        this.password = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 5:
+      if (ftype == Thrift.Type.STRING) {
+        this.database = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -1052,9 +1657,29 @@ kibitz.RecommenderService_initiateModel_args.prototype.read = function(input) {
 
 kibitz.RecommenderService_initiateModel_args.prototype.write = function(output) {
   output.writeStructBegin('RecommenderService_initiateModel_args');
+  if (this.key !== null && this.key !== undefined) {
+    output.writeFieldBegin('key', Thrift.Type.STRING, 1);
+    output.writeString(this.key);
+    output.writeFieldEnd();
+  }
   if (this.table !== null && this.table !== undefined) {
-    output.writeFieldBegin('table', Thrift.Type.STRING, 1);
+    output.writeFieldBegin('table', Thrift.Type.STRING, 2);
     output.writeString(this.table);
+    output.writeFieldEnd();
+  }
+  if (this.username !== null && this.username !== undefined) {
+    output.writeFieldBegin('username', Thrift.Type.STRING, 3);
+    output.writeString(this.username);
+    output.writeFieldEnd();
+  }
+  if (this.password !== null && this.password !== undefined) {
+    output.writeFieldBegin('password', Thrift.Type.STRING, 4);
+    output.writeString(this.password);
+    output.writeFieldEnd();
+  }
+  if (this.database !== null && this.database !== undefined) {
+    output.writeFieldBegin('database', Thrift.Type.STRING, 5);
+    output.writeString(this.database);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -1096,14 +1721,77 @@ kibitz.RecommenderServiceClient = function(input, output) {
     this.seqid = 0;
 };
 kibitz.RecommenderServiceClient.prototype = {};
-kibitz.RecommenderServiceClient.prototype.makeRecommendation = function(userId, numRecs) {
-  this.send_makeRecommendation(userId, numRecs);
+kibitz.RecommenderServiceClient.prototype.createNewIndividualServer = function(key) {
+  this.send_createNewIndividualServer(key);
+  this.recv_createNewIndividualServer();
+};
+
+kibitz.RecommenderServiceClient.prototype.send_createNewIndividualServer = function(key) {
+  this.output.writeMessageBegin('createNewIndividualServer', Thrift.MessageType.CALL, this.seqid);
+  var args = new kibitz.RecommenderService_createNewIndividualServer_args();
+  args.key = key;
+  args.write(this.output);
+  this.output.writeMessageEnd();
+  return this.output.getTransport().flush();
+};
+
+kibitz.RecommenderServiceClient.prototype.recv_createNewIndividualServer = function() {
+  var ret = this.input.readMessageBegin();
+  var fname = ret.fname;
+  var mtype = ret.mtype;
+  var rseqid = ret.rseqid;
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(this.input);
+    this.input.readMessageEnd();
+    throw x;
+  }
+  var result = new kibitz.RecommenderService_createNewIndividualServer_result();
+  result.read(this.input);
+  this.input.readMessageEnd();
+
+  return;
+};
+kibitz.RecommenderServiceClient.prototype.terminateSession = function(key) {
+  this.send_terminateSession(key);
+  this.recv_terminateSession();
+};
+
+kibitz.RecommenderServiceClient.prototype.send_terminateSession = function(key) {
+  this.output.writeMessageBegin('terminateSession', Thrift.MessageType.CALL, this.seqid);
+  var args = new kibitz.RecommenderService_terminateSession_args();
+  args.key = key;
+  args.write(this.output);
+  this.output.writeMessageEnd();
+  return this.output.getTransport().flush();
+};
+
+kibitz.RecommenderServiceClient.prototype.recv_terminateSession = function() {
+  var ret = this.input.readMessageBegin();
+  var fname = ret.fname;
+  var mtype = ret.mtype;
+  var rseqid = ret.rseqid;
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(this.input);
+    this.input.readMessageEnd();
+    throw x;
+  }
+  var result = new kibitz.RecommenderService_terminateSession_result();
+  result.read(this.input);
+  this.input.readMessageEnd();
+
+  return;
+};
+kibitz.RecommenderServiceClient.prototype.makeRecommendation = function(key, userId, numRecs) {
+  this.send_makeRecommendation(key, userId, numRecs);
   return this.recv_makeRecommendation();
 };
 
-kibitz.RecommenderServiceClient.prototype.send_makeRecommendation = function(userId, numRecs) {
+kibitz.RecommenderServiceClient.prototype.send_makeRecommendation = function(key, userId, numRecs) {
   this.output.writeMessageBegin('makeRecommendation', Thrift.MessageType.CALL, this.seqid);
   var args = new kibitz.RecommenderService_makeRecommendation_args();
+  args.key = key;
   args.userId = userId;
   args.numRecs = numRecs;
   args.write(this.output);
@@ -1131,14 +1819,15 @@ kibitz.RecommenderServiceClient.prototype.recv_makeRecommendation = function() {
   }
   throw 'makeRecommendation failed: unknown result';
 };
-kibitz.RecommenderServiceClient.prototype.getItems = function() {
-  this.send_getItems();
+kibitz.RecommenderServiceClient.prototype.getItems = function(key) {
+  this.send_getItems(key);
   return this.recv_getItems();
 };
 
-kibitz.RecommenderServiceClient.prototype.send_getItems = function() {
+kibitz.RecommenderServiceClient.prototype.send_getItems = function(key) {
   this.output.writeMessageBegin('getItems', Thrift.MessageType.CALL, this.seqid);
   var args = new kibitz.RecommenderService_getItems_args();
+  args.key = key;
   args.write(this.output);
   this.output.writeMessageEnd();
   return this.output.getTransport().flush();
@@ -1164,14 +1853,15 @@ kibitz.RecommenderServiceClient.prototype.recv_getItems = function() {
   }
   throw 'getItems failed: unknown result';
 };
-kibitz.RecommenderServiceClient.prototype.recordRatings = function(userId, itemId, rating) {
-  this.send_recordRatings(userId, itemId, rating);
+kibitz.RecommenderServiceClient.prototype.recordRatings = function(key, userId, itemId, rating) {
+  this.send_recordRatings(key, userId, itemId, rating);
   this.recv_recordRatings();
 };
 
-kibitz.RecommenderServiceClient.prototype.send_recordRatings = function(userId, itemId, rating) {
+kibitz.RecommenderServiceClient.prototype.send_recordRatings = function(key, userId, itemId, rating) {
   this.output.writeMessageBegin('recordRatings', Thrift.MessageType.CALL, this.seqid);
   var args = new kibitz.RecommenderService_recordRatings_args();
+  args.key = key;
   args.userId = userId;
   args.itemId = itemId;
   args.rating = rating;
@@ -1197,14 +1887,15 @@ kibitz.RecommenderServiceClient.prototype.recv_recordRatings = function() {
 
   return;
 };
-kibitz.RecommenderServiceClient.prototype.deleteRatings = function(userId, itemId) {
-  this.send_deleteRatings(userId, itemId);
+kibitz.RecommenderServiceClient.prototype.deleteRatings = function(key, userId, itemId) {
+  this.send_deleteRatings(key, userId, itemId);
   this.recv_deleteRatings();
 };
 
-kibitz.RecommenderServiceClient.prototype.send_deleteRatings = function(userId, itemId) {
+kibitz.RecommenderServiceClient.prototype.send_deleteRatings = function(key, userId, itemId) {
   this.output.writeMessageBegin('deleteRatings', Thrift.MessageType.CALL, this.seqid);
   var args = new kibitz.RecommenderService_deleteRatings_args();
+  args.key = key;
   args.userId = userId;
   args.itemId = itemId;
   args.write(this.output);
@@ -1229,17 +1920,19 @@ kibitz.RecommenderServiceClient.prototype.recv_deleteRatings = function() {
 
   return;
 };
-kibitz.RecommenderServiceClient.prototype.createNewUser = function(username, email, password) {
-  this.send_createNewUser(username, email, password);
+kibitz.RecommenderServiceClient.prototype.createNewUser = function(key, username, email, password, iskibitzuser) {
+  this.send_createNewUser(key, username, email, password, iskibitzuser);
   return this.recv_createNewUser();
 };
 
-kibitz.RecommenderServiceClient.prototype.send_createNewUser = function(username, email, password) {
+kibitz.RecommenderServiceClient.prototype.send_createNewUser = function(key, username, email, password, iskibitzuser) {
   this.output.writeMessageBegin('createNewUser', Thrift.MessageType.CALL, this.seqid);
   var args = new kibitz.RecommenderService_createNewUser_args();
+  args.key = key;
   args.username = username;
   args.email = email;
   args.password = password;
+  args.iskibitzuser = iskibitzuser;
   args.write(this.output);
   this.output.writeMessageEnd();
   return this.output.getTransport().flush();
@@ -1265,15 +1958,17 @@ kibitz.RecommenderServiceClient.prototype.recv_createNewUser = function() {
   }
   throw 'createNewUser failed: unknown result';
 };
-kibitz.RecommenderServiceClient.prototype.checkUsername = function(username) {
-  this.send_checkUsername(username);
+kibitz.RecommenderServiceClient.prototype.checkUsername = function(key, username, iskibitzuser) {
+  this.send_checkUsername(key, username, iskibitzuser);
   return this.recv_checkUsername();
 };
 
-kibitz.RecommenderServiceClient.prototype.send_checkUsername = function(username) {
+kibitz.RecommenderServiceClient.prototype.send_checkUsername = function(key, username, iskibitzuser) {
   this.output.writeMessageBegin('checkUsername', Thrift.MessageType.CALL, this.seqid);
   var args = new kibitz.RecommenderService_checkUsername_args();
+  args.key = key;
   args.username = username;
+  args.iskibitzuser = iskibitzuser;
   args.write(this.output);
   this.output.writeMessageEnd();
   return this.output.getTransport().flush();
@@ -1299,16 +1994,18 @@ kibitz.RecommenderServiceClient.prototype.recv_checkUsername = function() {
   }
   throw 'checkUsername failed: unknown result';
 };
-kibitz.RecommenderServiceClient.prototype.checkLogin = function(username, password) {
-  this.send_checkLogin(username, password);
+kibitz.RecommenderServiceClient.prototype.checkLogin = function(key, username, password, iskibitzuser) {
+  this.send_checkLogin(key, username, password, iskibitzuser);
   return this.recv_checkLogin();
 };
 
-kibitz.RecommenderServiceClient.prototype.send_checkLogin = function(username, password) {
+kibitz.RecommenderServiceClient.prototype.send_checkLogin = function(key, username, password, iskibitzuser) {
   this.output.writeMessageBegin('checkLogin', Thrift.MessageType.CALL, this.seqid);
   var args = new kibitz.RecommenderService_checkLogin_args();
+  args.key = key;
   args.username = username;
   args.password = password;
+  args.iskibitzuser = iskibitzuser;
   args.write(this.output);
   this.output.writeMessageEnd();
   return this.output.getTransport().flush();
@@ -1334,14 +2031,88 @@ kibitz.RecommenderServiceClient.prototype.recv_checkLogin = function() {
   }
   throw 'checkLogin failed: unknown result';
 };
-kibitz.RecommenderServiceClient.prototype.getUserRatedItems = function(userId) {
-  this.send_getUserRatedItems(userId);
+kibitz.RecommenderServiceClient.prototype.retrieveUserId = function(key, username, password) {
+  this.send_retrieveUserId(key, username, password);
+  return this.recv_retrieveUserId();
+};
+
+kibitz.RecommenderServiceClient.prototype.send_retrieveUserId = function(key, username, password) {
+  this.output.writeMessageBegin('retrieveUserId', Thrift.MessageType.CALL, this.seqid);
+  var args = new kibitz.RecommenderService_retrieveUserId_args();
+  args.key = key;
+  args.username = username;
+  args.password = password;
+  args.write(this.output);
+  this.output.writeMessageEnd();
+  return this.output.getTransport().flush();
+};
+
+kibitz.RecommenderServiceClient.prototype.recv_retrieveUserId = function() {
+  var ret = this.input.readMessageBegin();
+  var fname = ret.fname;
+  var mtype = ret.mtype;
+  var rseqid = ret.rseqid;
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(this.input);
+    this.input.readMessageEnd();
+    throw x;
+  }
+  var result = new kibitz.RecommenderService_retrieveUserId_result();
+  result.read(this.input);
+  this.input.readMessageEnd();
+
+  if (null !== result.success) {
+    return result.success;
+  }
+  throw 'retrieveUserId failed: unknown result';
+};
+kibitz.RecommenderServiceClient.prototype.createNewRecommender = function(username, password, database, table) {
+  this.send_createNewRecommender(username, password, database, table);
+  return this.recv_createNewRecommender();
+};
+
+kibitz.RecommenderServiceClient.prototype.send_createNewRecommender = function(username, password, database, table) {
+  this.output.writeMessageBegin('createNewRecommender', Thrift.MessageType.CALL, this.seqid);
+  var args = new kibitz.RecommenderService_createNewRecommender_args();
+  args.username = username;
+  args.password = password;
+  args.database = database;
+  args.table = table;
+  args.write(this.output);
+  this.output.writeMessageEnd();
+  return this.output.getTransport().flush();
+};
+
+kibitz.RecommenderServiceClient.prototype.recv_createNewRecommender = function() {
+  var ret = this.input.readMessageBegin();
+  var fname = ret.fname;
+  var mtype = ret.mtype;
+  var rseqid = ret.rseqid;
+  if (mtype == Thrift.MessageType.EXCEPTION) {
+    var x = new Thrift.TApplicationException();
+    x.read(this.input);
+    this.input.readMessageEnd();
+    throw x;
+  }
+  var result = new kibitz.RecommenderService_createNewRecommender_result();
+  result.read(this.input);
+  this.input.readMessageEnd();
+
+  if (null !== result.success) {
+    return result.success;
+  }
+  throw 'createNewRecommender failed: unknown result';
+};
+kibitz.RecommenderServiceClient.prototype.getUserRatedItems = function(key, userId) {
+  this.send_getUserRatedItems(key, userId);
   return this.recv_getUserRatedItems();
 };
 
-kibitz.RecommenderServiceClient.prototype.send_getUserRatedItems = function(userId) {
+kibitz.RecommenderServiceClient.prototype.send_getUserRatedItems = function(key, userId) {
   this.output.writeMessageBegin('getUserRatedItems', Thrift.MessageType.CALL, this.seqid);
   var args = new kibitz.RecommenderService_getUserRatedItems_args();
+  args.key = key;
   args.userId = userId;
   args.write(this.output);
   this.output.writeMessageEnd();
@@ -1368,15 +2139,19 @@ kibitz.RecommenderServiceClient.prototype.recv_getUserRatedItems = function() {
   }
   throw 'getUserRatedItems failed: unknown result';
 };
-kibitz.RecommenderServiceClient.prototype.initiateModel = function(table) {
-  this.send_initiateModel(table);
+kibitz.RecommenderServiceClient.prototype.initiateModel = function(key, table, username, password, database) {
+  this.send_initiateModel(key, table, username, password, database);
   this.recv_initiateModel();
 };
 
-kibitz.RecommenderServiceClient.prototype.send_initiateModel = function(table) {
+kibitz.RecommenderServiceClient.prototype.send_initiateModel = function(key, table, username, password, database) {
   this.output.writeMessageBegin('initiateModel', Thrift.MessageType.CALL, this.seqid);
   var args = new kibitz.RecommenderService_initiateModel_args();
+  args.key = key;
   args.table = table;
+  args.username = username;
+  args.password = password;
+  args.database = database;
   args.write(this.output);
   this.output.writeMessageEnd();
   return this.output.getTransport().flush();

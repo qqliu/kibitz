@@ -1,0 +1,1 @@
+<?php $client -> initiateModel("b39586a3c97e652346d4044cf995abd4"); $name = "ohmygosh";?>

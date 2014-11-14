@@ -1,0 +1,1 @@
+<?php $client -> initiateModel("ccf2a0f732a9a1c8d7775efd20125526"); $name = "Books!";?>
