@@ -2,6 +2,8 @@ package kibitz;
 
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -125,21 +127,25 @@ public class DatahubDataModel implements DataModel{
 			this.con_params.setUser(this.datahubUsername);
 			this.con_params.setPassword(this.datahubPassword);
 			this.conn = this.client.open_connection(con_params);
-		     
-			ResultSet res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + this.datahubTableName, null);
-	
-			for (Tuple t : res.getTuples()) {
-				List<ByteBuffer> cells = t.getCells();
-				int userID = Integer.parseInt(new String(cells.get(0).array()));
-				int itemID = Integer.parseInt(new String(cells.get(1).array()));
-				int ratingValue = Integer.parseInt(new String(cells.get(2).array()));
+			
+			if (this.datahubTableName != null) {
+				ResultSet res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + this.datahubTableName, null);
+		
+				if (res != null) {
+					for (Tuple t : res.getTuples()) {
+						List<ByteBuffer> cells = t.getCells();
+						long userID = Long.parseLong(new String(cells.get(0).array()));
+						long itemID = Long.parseLong(new String(cells.get(1).array()));
+						int ratingValue = Integer.parseInt(new String(cells.get(2).array()));
 
-				Collection<Preference> userPrefs = userIDPrefMap.get(userID);
-				if (userPrefs == null) {
-					userPrefs = Lists.newArrayListWithCapacity(2);
-					userIDPrefMap.put(userID, userPrefs);
+						Collection<Preference> userPrefs = userIDPrefMap.get(userID);
+						if (userPrefs == null) {
+							userPrefs = Lists.newArrayListWithCapacity(2);
+							userIDPrefMap.put(userID, userPrefs);
+						}
+						userPrefs.add(new GenericPreference(userID, itemID, ratingValue));
+					}
 				}
-				userPrefs.add(new GenericPreference(userID, itemID, ratingValue));
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -151,17 +157,17 @@ public class DatahubDataModel implements DataModel{
 	/**
 	 * Gets list of all items from items table
 	 */
-	public List<List<String>> getItems(String table) {
-		List<List<String>> items = new ArrayList<List<String>>();
+	public List<Item> getItems(String table) {
+		List<Item> items = new ArrayList<Item>();
 		try {
 			ResultSet res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + table, null);
 			for (Tuple t : res.getTuples()) {
 				List<ByteBuffer> cells = t.getCells();
-				List<String> item = new ArrayList<String>();
-				item.add(new String(cells.get(0).array()));
-				item.add(new String(cells.get(1).array()));
-				item.add(new String(cells.get(2).array()));
-				item.add(new String(cells.get(3).array()));
+				Item item = new Item();
+				item.setId(Long.parseLong(new String(cells.get(3).array())));
+				item.setTitle(new String(cells.get(0).array()));
+				item.setDescription(new String(cells.get(1).array()));
+				item.setImage(new String(cells.get(2).array()));
 				items.add(item);
 			}
 			return items;
@@ -180,10 +186,11 @@ public class DatahubDataModel implements DataModel{
 	 */
 	public boolean createNewRecommender(String table) {
 		try {
+			this.client.execute_sql(this.conn, "alter table " + this.datahubDatabase + "." + table + " add id serial", null);
 			this.client.execute_sql(this.conn, "create table " + this.datahubDatabase + "." + table + "_ratings (" + 
-					"user_id int NOT NULL, item_id varchar(255) NOT NULL, rating varchar(255))" , null);
+					"user_id int, item_id int, rating varchar(255))" , null);
 			this.client.execute_sql(this.conn, "create table " + this.datahubDatabase + "." + table + "_users (" + 
-					"id int NOT NULL, username varchar(255) NOT NULL, password varchar(255))" , null);
+					"id SERIAL PRIMARY KEY, username varchar(255), email varchar(255), password varchar(255))" , null);
 			return true;
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
@@ -198,20 +205,21 @@ public class DatahubDataModel implements DataModel{
 	/**
 	 * Gets list of items user has rated.
 	 */
-	 public List<List<String>> getUserRatedItems(int userId, String ratings_table, String items_table) {
-		List<List<String>> items = new ArrayList<List<String>>();
+	 public List<Item> getUserRatedItems(int userId, String ratings_table, String items_table) {
+		List<Item> items = new ArrayList<Item>();
 		try {
-			ResultSet res = this.client.execute_sql(this.conn, "SELECT id, rating FROM " + ratings_table + "ratings WHERE user_id=" + userId, null);
+			ResultSet res = this.client.execute_sql(this.conn, "SELECT item_id, rating FROM " + ratings_table + " WHERE user_id=" + userId, null);
 			for (Tuple t : res.getTuples()) {
 				List<ByteBuffer> cells = t.getCells();
-				List<String> item = new ArrayList<String>();
+				Item item = new Item();
 				ResultSet s = this.client.execute_sql(this.conn, "SELECT * FROM " + items_table + " WHERE id='" + new String(cells.get(0).array()) + "'", null);
 				for (Tuple tt : s.getTuples()) {
 					List<ByteBuffer> cc = tt.getCells();
-					item.add(new String(cc.get(0).array()));
-					item.add(new String(cc.get(1).array()));
-					item.add(new String(cc.get(2).array()));
-					item.add(new String(cc.get(3).array()));
+					item.setId(Long.parseLong(new String(cc.get(3).array())));
+					item.setTitle(new String(cc.get(0).array()));
+					item.setDescription(new String(cc.get(1).array()));
+					item.setImage(new String(cc.get(2).array()));
+					item.setRating(Integer.parseInt(new String(cells.get(1).array())));
 					items.add(item);
 				}
 			}
@@ -244,12 +252,44 @@ public class DatahubDataModel implements DataModel{
 	 }
 	 
 	 /**
+	  * Gets user ID
+	  */
+	 public long retrieveUserId(String username, String password, String table) {
+		 try {
+			 ResultSet res = this.client.execute_sql(this.conn, "SELECT id,password FROM " + table + " WHERE username = '" + username + "'", null);
+			 for (Tuple t : res.getTuples()) {
+				List<ByteBuffer> cells = t.getCells();
+				long id = Long.parseLong(new String((cells.get(0).array())));
+				String storedPassword = new String(cells.get(1).array());
+				try {
+					if (IndividualRecommender.validatePassword(password, storedPassword)) {
+						return id;
+					}
+				} catch (NoSuchAlgorithmException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InvalidKeySpecException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
+	 }
+	 
+	 /**
 	  * Deletes user ratings.
 	  */
 	 public void deleteRatings(int userId, int itemId, String table) {
 		 System.out.println("deleting");
 		 try {
-			 	this.client.execute_sql(this.conn, "DELETE FROM " + table + "ratings WHERE user_id = " + userId + " AND "
+			 	this.client.execute_sql(this.conn, "DELETE FROM " + table + " WHERE user_id = " + userId + " AND "
 			 			+ "item_id = " + itemId, null);
 		 } catch (DBException e) {
 				// TODO Auto-generated catch block
@@ -272,13 +312,13 @@ public class DatahubDataModel implements DataModel{
 	  */
 	 private boolean saveIntoDb(List<?> columns, String suffix, List<String>columnNames, String table) {
 			try {
-				String q = "SELECT COUNT(*) FROM " + table + suffix + " WHERE ";
+				String q = "SELECT COUNT(*) FROM " + table + " WHERE ";
 				for (int i = 0; i < columns.size(); i++) {
 					if (columnNames.get(i) != "rating") {
 						q = q + columnNames.get(i) + "=";
 						if (columns.get(i).getClass().getName() != "java.lang.Integer") {
 							System.out.println(columns.get(i).getClass().getName());
-							q = q + "'" + columns.get(i) + "' AND ";
+							q = q + columns.get(i) + " AND ";
 						} else {
 							q = q + columns.get(i) + " AND ";
 						}
@@ -292,7 +332,7 @@ public class DatahubDataModel implements DataModel{
 					List<ByteBuffer> cells = t.getCells();
 					int num = Integer.parseInt(new String((cells.get(0).array())));
 					if (num == 0) {
-						this.client.execute_sql(this.conn, "INSERT INTO " + table + suffix + "(" + StringUtils.join(columnNames, ",") + ") VALUES (" + StringUtils.join(columns, ",") + ");", null);
+						this.client.execute_sql(this.conn, "INSERT INTO " + table + "(" + StringUtils.join(columnNames, ",") + ") VALUES (" + StringUtils.join(columns, ",") + ");", null);
 						return true;
 					}
 				}
@@ -319,20 +359,19 @@ public class DatahubDataModel implements DataModel{
 				params.setPassword(DatahubDataModel.getDefaultDatahubPassword());
 				Connection connection = client.open_connection(con_params);
 				
-				ResultSet res = client.execute_sql(connection, "SELECT password FROM " + DatahubDataModel.getDefaultDatahubTablename() + "users WHERE username='" + username + "'", null);
+				ResultSet res = client.execute_sql(connection, "SELECT password FROM " + DatahubDataModel.getDefaultDatahubTablename() + " WHERE username='" + username + "'", null);
 				for (Tuple t : res.getTuples()) {
 					List<ByteBuffer> cells = t.getCells();
 					String hash = new String((cells.get(0).array()));
 					return hash;
 				}
 			 } else {
-				ResultSet res;
-					res = this.client.execute_sql(this.conn, "SELECT password FROM " + table + "users WHERE username='" + username + "'", null);
-					for (Tuple t : res.getTuples()) {
-						List<ByteBuffer> cells = t.getCells();
-						String hash = new String((cells.get(0).array()));
-						return hash;
-					}
+				ResultSet res = this.client.execute_sql(this.conn, "SELECT password FROM " + table + " WHERE username='" + username + "'", null);
+				for (Tuple t : res.getTuples()) {
+					List<ByteBuffer> cells = t.getCells();
+					String hash = new String((cells.get(0).array()));
+					return hash;
+				}
 			 }
 		 } catch (TTransportException e) {
 			// TODO Auto-generated catch block
@@ -365,7 +404,7 @@ public class DatahubDataModel implements DataModel{
 					params.setPassword(DatahubDataModel.getDefaultDatahubPassword());
 					Connection connection = client.open_connection(con_params);
 					
-					ResultSet res = this.client.execute_sql(connection, "SELECT COUNT(*) FROM " + DatahubDataModel.getDefaultDatahubTablename() + "users WHERE username='" + username + "'", null);
+					ResultSet res = this.client.execute_sql(connection, "SELECT COUNT(*) FROM " + DatahubDataModel.getDefaultDatahubTablename() + " WHERE username='" + username + "'", null);
 					for (Tuple t : res.getTuples()) {
 						List<ByteBuffer> cells = t.getCells();
 						int num = Integer.parseInt(new String((cells.get(0).array())));
@@ -376,7 +415,7 @@ public class DatahubDataModel implements DataModel{
 						}
 					}
 				} else {
-					ResultSet res = this.client.execute_sql(this.conn, "SELECT COUNT(*) FROM " + table + "users WHERE username='" + username + "'", null);
+					ResultSet res = this.client.execute_sql(this.conn, "SELECT COUNT(*) FROM " + table + " WHERE username='" + username + "'", null);
 					for (Tuple t : res.getTuples()) {
 						List<ByteBuffer> cells = t.getCells();
 						int num = Integer.parseInt(new String((cells.get(0).array())));
@@ -408,6 +447,31 @@ public class DatahubDataModel implements DataModel{
 		return id;
 	}
 	
+	/**
+	 * Gets item from item id
+	 */
+	public Item getItemFromId(long id, String table) {
+		try {
+			ResultSet res = this.client.execute_sql(this.conn, "SELECT * FROM " + table + " WHERE id='" + id + "'", null);
+			for (Tuple t : res.getTuples()) {
+				List<ByteBuffer> cells = t.getCells();
+				Item item = new Item();
+				item.setId(Long.parseLong(new String(cells.get(3).array())));
+				item.setTitle(new String(cells.get(0).array()));
+				item.setDescription(new String(cells.get(1).array()));
+				item.setImage(new String(cells.get(2).array()));
+				return item;
+			}
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+ 	
 	/**
 	 * Maps Mahout long value to Datahub ID
 	 */

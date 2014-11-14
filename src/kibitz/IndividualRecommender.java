@@ -49,17 +49,19 @@ public class IndividualRecommender implements Iface {
 		this.databaseName = this.dataSource.getDatabaseName();
 	}
 	
-	public List<List<String>> makeRecommendation(int userId, int numRecs) {
+	public List<Item> makeRecommendation(int userId, int numRecs) {
 		System.out.println("Making recommendation: ");
 		try {
 			if (this.dataModel != null) {
-				List<RecommendedItem> recommendations = this.cachingRecommender.recommend(userId, numRecs);
+				List<RecommendedItem> recommendations = this.recommender.recommend(userId, numRecs);
 				ArrayList<Long> recommendationNames = new ArrayList<Long>();
+				ArrayList<Item> recs = new ArrayList<Item>();
 				for (int i = 0; i < recommendations.size(); i++) {
 					recommendationNames.add(recommendations.get(i).getItemID());
+					recs.add(this.dataModel.getItemFromId(recommendations.get(i).getItemID(), this.databaseName + "." + this.items_table));
 				}
 				System.out.println(recommendationNames);
-				return new ArrayList<List<String>>();
+				return recs;
 			}
 		} catch (TasteException e) {
 			e.printStackTrace();
@@ -67,17 +69,22 @@ public class IndividualRecommender implements Iface {
 		return null;
 	}
 	
-	public List<List<String>> getItems() {
-		List<List<String>> results = this.dataModel.getItems(this.items_table);
+	public List<Item> getItems() {
+		List<Item> results = this.dataModel.getItems(this.items_table);
+		System.out.println(results);
 		return results;
 	}
 	
 	public void recordRatings(int userId, int itemId, int rating) {
-		this.dataModel.recordRatings(userId, itemId, rating, ratings_table);
+		this.dataModel.recordRatings(userId, itemId, rating, this.databaseName + "." + this.ratings_table);
 	}
 	
 	public void deleteRatings(int userId, int itemId) {
-		this.dataModel.deleteRatings(userId, itemId, this.ratings_table);
+		this.dataModel.deleteRatings(userId, itemId, this.databaseName + "." + this.ratings_table);
+	}
+	
+	public long retrieveUserId(String username, String password) {
+		return this.dataModel.retrieveUserId(username, password, this.databaseName + "." + this.users_table);
 	}
 	
 	public String createNewUser(String username, String email, String password, boolean isKibitzUser) {
@@ -99,8 +106,9 @@ public class IndividualRecommender implements Iface {
 			if (isKibitzUser) {
 				this.dataModel.createNewUser(columns, null, columnNames, null, true);
 			} else {
-				this.dataModel.createNewUser(columns, null, columnNames, this.users_table, false);
+				this.dataModel.createNewUser(columns, null, columnNames, this.databaseName + "." + this.users_table, false);
 			}
+			return "New user created";
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -115,7 +123,7 @@ public class IndividualRecommender implements Iface {
 		if (isKibitzUser) {
 			return this.dataModel.checkUsername(username, null, true);
 		} else {
-			return this.dataModel.checkUsername(username, this.users_table, false);
+			return this.dataModel.checkUsername(username, this.databaseName + "." + this.users_table, false);
 		}
 	}
 	
@@ -124,10 +132,12 @@ public class IndividualRecommender implements Iface {
 		if (isKibitzUser) {
 			hash = this.dataModel.checkLogin(username, password, null, true); 
 		} else {
-			hash = this.dataModel.checkLogin(username, password, this.users_table, false); 
+			hash = this.dataModel.checkLogin(username, password, this.databaseName + "." + this.users_table, false); 
 		}
 		try {
-			return validatePassword(password, hash);
+			if (hash != null) {
+				return validatePassword(password, hash);
+			}
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -168,7 +178,7 @@ public class IndividualRecommender implements Iface {
         }
     }
     
-    private boolean validatePassword(String originalPassword, String storedPassword) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public static boolean validatePassword(String originalPassword, String storedPassword) throws NoSuchAlgorithmException, InvalidKeySpecException {
         String[] parts = storedPassword.split(":");
         int iterations = Integer.parseInt(parts[0]);
         byte[] salt = fromHex(parts[1]);
@@ -187,7 +197,7 @@ public class IndividualRecommender implements Iface {
         return diff == 0;
     }
     
-    private byte[] fromHex(String hex) throws NoSuchAlgorithmException {
+    private static byte[] fromHex(String hex) throws NoSuchAlgorithmException {
         byte[] bytes = new byte[hex.length() / 2];
         for(int i = 0; i<bytes.length ;i++)
         {
@@ -196,22 +206,24 @@ public class IndividualRecommender implements Iface {
         return bytes;
     }
     
-    public List<List<String>> getUserRatedItems(int userId) {
-		List<List<String>> items = this.dataModel.getUserRatedItems(userId, this.ratings_table, this.items_table);
+    public List<Item> getUserRatedItems(int userId) {
+		List<Item> items = this.dataModel.getUserRatedItems(userId, this.databaseName + "." + this.ratings_table, this.databaseName + "." + this.items_table);
+		System.out.println(items);
 		return items;
     }
     
-    public void createNewRecommender(String username, String password, String database, String table) {
+    public boolean createNewRecommender(String username, String password, String database, String table) {
     		try {
 				this.dataModel = new DatahubDataModel(this.dataSource.getServerName(), database, 
 					username,
 					password,
-					table);
-				this.dataModel.createNewRecommender(table);
+					null);
+				return this.dataModel.createNewRecommender(table);
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}		
+			}
+    		return false;
     }
 	
 	public void initiateModel(String table, String username, String password, String database) {
@@ -241,7 +253,7 @@ public class IndividualRecommender implements Iface {
 			this.neighborhood =
 				      new NearestNUserNeighborhood(30, userSimilarity, this.dataModel);
 			this.recommender = new GenericUserBasedRecommender(this.dataModel, neighborhood, userSimilarity);
-			this.cachingRecommender = new CachingRecommender(recommender);
+			//this.cachingRecommender = new CachingRecommender(recommender);
 		} catch (UnknownHostException e) {
 			System.err.println(e);
 		} catch (TasteException e) {
