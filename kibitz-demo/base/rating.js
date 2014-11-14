@@ -80,22 +80,20 @@ jQuery.fn.rating = function(url, options) {
 
     stars.click(function(){
 		if(settings.cancel == true){
-            settings.curvalue = stars.index(this) + 1;
-            jQuery.post(container.url, {
-                "rating": jQuery(this).children('a')[0].href.split('#')[1], 
-                "item": 
-                    $(jQuery(this).parent()[0]).attr("id").split("rate")[1]
-            });
+			settings.curvalue = stars.index(this) + 1;
+			var num_rating = jQuery(this).children('a')[0].href.split('#')[1];
+			var item_id = $(jQuery(this).parent()[0]).attr("id").split("rate")[1];
+			var userId = parseInt(getCookie("userId"));
+			client.recordRatings(userId, item_id, num_rating);
 			return false;
 		}
 		else if(settings.maxvalue == 1){
 			settings.curvalue = (settings.curvalue == 0) ? 1 : 0;
 			$(this).toggleClass('on');
-			jQuery.post(container.url, {
-                "rating": jQuery(this).children('a')[0].href.split('#')[1],
-                "item": 
-                    $(jQuery(this).parent()[0]).attr("id").split("rate")[1] 
-            });
+			var num_rating = jQuery(this).children('a')[0].href.split('#')[1];
+			var item_id = $(jQuery(this).parent()[0]).attr("id").split("rate")[1];
+			var userId = parseInt(getCookie("userId"));
+			client.recordRatings(userId, item_id, num_rating);
 			return false;
 		}
 		return true;
@@ -104,7 +102,7 @@ jQuery.fn.rating = function(url, options) {
 
         // cancel button events
 	if(cancel){
-        cancel
+		cancel
             .mouseover(function(){
                 event.drain();
                 jQuery(this).addClass('on')
@@ -121,19 +119,18 @@ jQuery.fn.rating = function(url, options) {
                 event.reset();
                 jQuery(this).removeClass('on')
             });
+	}
         
         // click events.
         cancel.click(function(){
-            event.drain();
-			settings.curvalue = 0;
-            jQuery.post(container.url, {
-                "rating": jQuery(this).children('a')[0].href.split('#')[1],
-                "item": 
-                    $(jQuery(this).parent()[0]).attr("id").split("rate")[1]
-            });
-            return false;
-        });
-	}
+		event.drain();
+		settings.curvalue = 0;
+		var num_rating = jQuery(this).children('a')[0].href.split('#')[1];
+		var item_id = $(jQuery(this).parent()[0]).attr("id").split("rate")[1];
+		var userId = parseInt(getCookie("userId"));
+		client.deleteRatings(userId, item_id);
+		return false;
+	});
         
 	var event = {
 		fill: function(el){ // fill to the current mouse position.
