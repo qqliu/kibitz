@@ -73,6 +73,16 @@ public class IndividualRecommender {
 		return results;
 	}
 	
+	public List<Item> getPageItems(int page, int numPerPage) {
+		List<Item> results = this.dataModel.getPageItems(this.items_table, page, numPerPage);
+		System.out.println(results);
+		return results;
+	}
+	
+	public int getItemCount() {
+		return this.dataModel.getItemCount(this.items_table);
+	}
+	
 	public void recordRatings(int userId, int itemId, int rating) {
 		this.dataModel.recordRatings(userId, itemId, rating, this.databaseName + "." + this.ratings_table);
 	}

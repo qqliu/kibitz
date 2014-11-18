@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -130,13 +131,14 @@ public class DatahubDataModel implements DataModel{
 			
 			if (this.datahubTableName != null) {
 				ResultSet res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + this.datahubTableName, null);
-		
+				HashMap<String, Integer> colToIndex = this.getFieldNames(res);
+				
 				if (res != null) {
 					for (Tuple t : res.getTuples()) {
 						List<ByteBuffer> cells = t.getCells();
-						long userID = Long.parseLong(new String(cells.get(0).array()));
-						long itemID = Long.parseLong(new String(cells.get(1).array()));
-						int ratingValue = Integer.parseInt(new String(cells.get(2).array()));
+						long userID = Long.parseLong(new String(cells.get(colToIndex.get("user_id")).array()));
+						long itemID = Long.parseLong(new String(cells.get(colToIndex.get("item_id")).array()));
+						int ratingValue = Integer.parseInt(new String(cells.get(colToIndex.get("rating")).array()));
 
 						Collection<Preference> userPrefs = userIDPrefMap.get(userID);
 						if (userPrefs == null) {
@@ -161,13 +163,15 @@ public class DatahubDataModel implements DataModel{
 		List<Item> items = new ArrayList<Item>();
 		try {
 			ResultSet res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + table, null);
+			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
+			
 			for (Tuple t : res.getTuples()) {
 				List<ByteBuffer> cells = t.getCells();
 				Item item = new Item();
-				item.setId(Long.parseLong(new String(cells.get(3).array())));
-				item.setTitle(new String(cells.get(0).array()));
-				item.setDescription(new String(cells.get(1).array()));
-				item.setImage(new String(cells.get(2).array()));
+				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("id")).array())));
+				item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
+				item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
+				item.setImage(new String(cells.get(colToIndex.get("image")).array()));
 				items.add(item);
 			}
 			return items;
@@ -179,6 +183,56 @@ public class DatahubDataModel implements DataModel{
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	/**
+	 * Display a page of items
+	 */
+	public List<Item> getPageItems(String table, int page, int numPerPage) {
+		List<Item> items = new ArrayList<Item>();
+		try {
+			ResultSet res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + table + " limit " + numPerPage + " offset " + numPerPage * page, null);
+			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
+			
+			for (Tuple t : res.getTuples()) {
+				List<ByteBuffer> cells = t.getCells();
+				Item item = new Item();
+				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("id")).array())));
+				item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
+				item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
+				item.setImage(new String(cells.get(colToIndex.get("image")).array()));
+				items.add(item);
+			}
+			return items;
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	/**
+	 * Counts the number of items in the database
+	 */
+	public int getItemCount(String table) {
+		try {
+			ResultSet res = this.client.execute_sql(this.conn, "select count(*) from " + table, null);
+			
+			for (Tuple t : res.getTuples()) {
+				List<ByteBuffer> cells = t.getCells();
+				return Integer.parseInt(new String(cells.get(0).array()));
+			}
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
 	}
 	
 	/**
@@ -209,17 +263,19 @@ public class DatahubDataModel implements DataModel{
 		List<Item> items = new ArrayList<Item>();
 		try {
 			ResultSet res = this.client.execute_sql(this.conn, "SELECT item_id, rating FROM " + ratings_table + " WHERE user_id=" + userId, null);
+			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
+
 			for (Tuple t : res.getTuples()) {
 				List<ByteBuffer> cells = t.getCells();
 				Item item = new Item();
 				ResultSet s = this.client.execute_sql(this.conn, "SELECT * FROM " + items_table + " WHERE id='" + new String(cells.get(0).array()) + "'", null);
 				for (Tuple tt : s.getTuples()) {
 					List<ByteBuffer> cc = tt.getCells();
-					item.setId(Long.parseLong(new String(cc.get(3).array())));
-					item.setTitle(new String(cc.get(0).array()));
-					item.setDescription(new String(cc.get(1).array()));
-					item.setImage(new String(cc.get(2).array()));
-					item.setRating(Integer.parseInt(new String(cells.get(1).array())));
+					item.setId(Long.parseLong(new String(cc.get(colToIndex.get("id")).array())));
+					item.setTitle(new String(cc.get(colToIndex.get("title")).array()));
+					item.setDescription(new String(cc.get(colToIndex.get("description")).array()));
+					item.setImage(new String(cc.get(colToIndex.get("image")).array()));
+					item.setRating(Integer.parseInt(new String(cells.get(colToIndex.get("rating")).array())));
 					items.add(item);
 				}
 			}
@@ -257,10 +313,12 @@ public class DatahubDataModel implements DataModel{
 	 public long retrieveUserId(String username, String password, String table) {
 		 try {
 			 ResultSet res = this.client.execute_sql(this.conn, "SELECT id,password FROM " + table + " WHERE username = '" + username + "'", null);
+			 HashMap<String, Integer> colToIndex = this.getFieldNames(res);
+
 			 for (Tuple t : res.getTuples()) {
 				List<ByteBuffer> cells = t.getCells();
-				long id = Long.parseLong(new String((cells.get(0).array())));
-				String storedPassword = new String(cells.get(1).array());
+				long id = Long.parseLong(new String(cells.get(colToIndex.get("id")).array()));
+				String storedPassword = new String(cells.get(colToIndex.get("password")).array());
 				try {
 					if (IndividualRecommender.validatePassword(password, storedPassword)) {
 						return id;
@@ -453,13 +511,15 @@ public class DatahubDataModel implements DataModel{
 	public Item getItemFromId(long id, String table) {
 		try {
 			ResultSet res = this.client.execute_sql(this.conn, "SELECT * FROM " + table + " WHERE id='" + id + "'", null);
+			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
+			
 			for (Tuple t : res.getTuples()) {
 				List<ByteBuffer> cells = t.getCells();
 				Item item = new Item();
-				item.setId(Long.parseLong(new String(cells.get(3).array())));
-				item.setTitle(new String(cells.get(0).array()));
-				item.setDescription(new String(cells.get(1).array()));
-				item.setImage(new String(cells.get(2).array()));
+				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("id")).array())));
+				item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
+				item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
+				item.setImage(new String(cells.get(colToIndex.get("image")).array()));
 				return item;
 			}
 		} catch (DBException e) {
@@ -494,6 +554,15 @@ public class DatahubDataModel implements DataModel{
 	private DataModel removeUserItem(long userID, Iterable<List<String>> items) {
 		FastByIDMap<PreferenceArray> rawData = ((GenericDataModel) delegate).getRawUserData();
 		return new GenericDataModel(rawData);
+	}
+	
+	private HashMap<String, Integer> getFieldNames(ResultSet res) {
+		List<String> fieldNames = res.getField_names();
+		HashMap<String, Integer> colToIndex = new HashMap<String, Integer>();
+		for (int i = 0; i < fieldNames.size(); i++) {
+			colToIndex.put(fieldNames.get(i), i);
+	    }
+		return colToIndex;
 	}
 
 	/**

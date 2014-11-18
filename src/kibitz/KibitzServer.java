@@ -153,6 +153,26 @@ public class KibitzServer implements Iface {
 	}
 	
 	@Override
+	public List<Item> getPageItems(String key, String table, int page, int numPerPage) {
+		if (key != null) {
+			if (SESSIONS.get(key) != null) {
+				return SESSIONS.get(key).getPageItems(page, numPerPage);
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public int getItemCount(String key, String table) {
+		if (key != null) {
+			if (SESSIONS.get(key) != null) {
+				return SESSIONS.get(key).getItemCount();
+			}
+		}
+		return 0;
+	}
+	
+	@Override
 	public void terminateSession(String key) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
