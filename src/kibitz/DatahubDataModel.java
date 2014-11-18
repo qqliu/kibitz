@@ -192,6 +192,7 @@ public class DatahubDataModel implements DataModel{
 		List<Item> items = new ArrayList<Item>();
 		try {
 			ResultSet res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + table + " limit " + numPerPage + " offset " + numPerPage * page, null);
+			System.out.println("select * from " + this.datahubDatabase + "." + table + " limit " + numPerPage + " offset " + numPerPage * page);
 			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
 			
 			for (Tuple t : res.getTuples()) {
@@ -219,7 +220,7 @@ public class DatahubDataModel implements DataModel{
 	 */
 	public int getItemCount(String table) {
 		try {
-			ResultSet res = this.client.execute_sql(this.conn, "select count(*) from " + table, null);
+			ResultSet res = this.client.execute_sql(this.conn, "select count(*) from " + this.datahubDatabase + "." + table, null);
 			
 			for (Tuple t : res.getTuples()) {
 				List<ByteBuffer> cells = t.getCells();

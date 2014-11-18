@@ -153,7 +153,7 @@ public class KibitzServer implements Iface {
 	}
 	
 	@Override
-	public List<Item> getPageItems(String key, String table, int page, int numPerPage) {
+	public List<Item> getPageItems(String key, int page, int numPerPage) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
 				return SESSIONS.get(key).getPageItems(page, numPerPage);
@@ -163,7 +163,7 @@ public class KibitzServer implements Iface {
 	}
 
 	@Override
-	public int getItemCount(String key, String table) {
+	public int getItemCount(String key) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
 				return SESSIONS.get(key).getItemCount();

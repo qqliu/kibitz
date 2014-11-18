@@ -44,9 +44,9 @@ public class RecommenderService {
 
     public List<Item> getItems(String key) throws org.apache.thrift.TException;
 
-    public List<Item> getPageItems(String key, String table, int page, int numPerPage) throws org.apache.thrift.TException;
+    public List<Item> getPageItems(String key, int page, int numPerPage) throws org.apache.thrift.TException;
 
-    public int getItemCount(String key, String table) throws org.apache.thrift.TException;
+    public int getItemCount(String key) throws org.apache.thrift.TException;
 
     public void recordRatings(String key, int userId, int itemId, int rating) throws org.apache.thrift.TException;
 
@@ -78,9 +78,9 @@ public class RecommenderService {
 
     public void getItems(String key, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void getPageItems(String key, String table, int page, int numPerPage, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void getPageItems(String key, int page, int numPerPage, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void getItemCount(String key, String table, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void getItemCount(String key, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void recordRatings(String key, int userId, int itemId, int rating, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
@@ -210,17 +210,16 @@ public class RecommenderService {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getItems failed: unknown result");
     }
 
-    public List<Item> getPageItems(String key, String table, int page, int numPerPage) throws org.apache.thrift.TException
+    public List<Item> getPageItems(String key, int page, int numPerPage) throws org.apache.thrift.TException
     {
-      send_getPageItems(key, table, page, numPerPage);
+      send_getPageItems(key, page, numPerPage);
       return recv_getPageItems();
     }
 
-    public void send_getPageItems(String key, String table, int page, int numPerPage) throws org.apache.thrift.TException
+    public void send_getPageItems(String key, int page, int numPerPage) throws org.apache.thrift.TException
     {
       getPageItems_args args = new getPageItems_args();
       args.setKey(key);
-      args.setTable(table);
       args.setPage(page);
       args.setNumPerPage(numPerPage);
       sendBase("getPageItems", args);
@@ -236,17 +235,16 @@ public class RecommenderService {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getPageItems failed: unknown result");
     }
 
-    public int getItemCount(String key, String table) throws org.apache.thrift.TException
+    public int getItemCount(String key) throws org.apache.thrift.TException
     {
-      send_getItemCount(key, table);
+      send_getItemCount(key);
       return recv_getItemCount();
     }
 
-    public void send_getItemCount(String key, String table) throws org.apache.thrift.TException
+    public void send_getItemCount(String key) throws org.apache.thrift.TException
     {
       getItemCount_args args = new getItemCount_args();
       args.setKey(key);
-      args.setTable(table);
       sendBase("getItemCount", args);
     }
 
@@ -634,22 +632,20 @@ public class RecommenderService {
       }
     }
 
-    public void getPageItems(String key, String table, int page, int numPerPage, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void getPageItems(String key, int page, int numPerPage, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      getPageItems_call method_call = new getPageItems_call(key, table, page, numPerPage, resultHandler, this, ___protocolFactory, ___transport);
+      getPageItems_call method_call = new getPageItems_call(key, page, numPerPage, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
 
     public static class getPageItems_call extends org.apache.thrift.async.TAsyncMethodCall {
       private String key;
-      private String table;
       private int page;
       private int numPerPage;
-      public getPageItems_call(String key, String table, int page, int numPerPage, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      public getPageItems_call(String key, int page, int numPerPage, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.key = key;
-        this.table = table;
         this.page = page;
         this.numPerPage = numPerPage;
       }
@@ -658,7 +654,6 @@ public class RecommenderService {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getPageItems", org.apache.thrift.protocol.TMessageType.CALL, 0));
         getPageItems_args args = new getPageItems_args();
         args.setKey(key);
-        args.setTable(table);
         args.setPage(page);
         args.setNumPerPage(numPerPage);
         args.write(prot);
@@ -675,27 +670,24 @@ public class RecommenderService {
       }
     }
 
-    public void getItemCount(String key, String table, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void getItemCount(String key, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      getItemCount_call method_call = new getItemCount_call(key, table, resultHandler, this, ___protocolFactory, ___transport);
+      getItemCount_call method_call = new getItemCount_call(key, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
 
     public static class getItemCount_call extends org.apache.thrift.async.TAsyncMethodCall {
       private String key;
-      private String table;
-      public getItemCount_call(String key, String table, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      public getItemCount_call(String key, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.key = key;
-        this.table = table;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getItemCount", org.apache.thrift.protocol.TMessageType.CALL, 0));
         getItemCount_args args = new getItemCount_args();
         args.setKey(key);
-        args.setTable(table);
         args.write(prot);
         prot.writeMessageEnd();
       }
@@ -1196,7 +1188,7 @@ public class RecommenderService {
 
       public getPageItems_result getResult(I iface, getPageItems_args args) throws org.apache.thrift.TException {
         getPageItems_result result = new getPageItems_result();
-        result.success = iface.getPageItems(args.key, args.table, args.page, args.numPerPage);
+        result.success = iface.getPageItems(args.key, args.page, args.numPerPage);
         return result;
       }
     }
@@ -1216,7 +1208,7 @@ public class RecommenderService {
 
       public getItemCount_result getResult(I iface, getItemCount_args args) throws org.apache.thrift.TException {
         getItemCount_result result = new getItemCount_result();
-        result.success = iface.getItemCount(args.key, args.table);
+        result.success = iface.getItemCount(args.key);
         result.setSuccessIsSet(true);
         return result;
       }
@@ -1686,7 +1678,7 @@ public class RecommenderService {
       }
 
       public void start(I iface, getPageItems_args args, org.apache.thrift.async.AsyncMethodCallback<List<Item>> resultHandler) throws TException {
-        iface.getPageItems(args.key, args.table, args.page, args.numPerPage,resultHandler);
+        iface.getPageItems(args.key, args.page, args.numPerPage,resultHandler);
       }
     }
 
@@ -1738,7 +1730,7 @@ public class RecommenderService {
       }
 
       public void start(I iface, getItemCount_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
-        iface.getItemCount(args.key, args.table,resultHandler);
+        iface.getItemCount(args.key,resultHandler);
       }
     }
 
@@ -5124,9 +5116,8 @@ public class RecommenderService {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getPageItems_args");
 
     private static final org.apache.thrift.protocol.TField KEY_FIELD_DESC = new org.apache.thrift.protocol.TField("key", org.apache.thrift.protocol.TType.STRING, (short)1);
-    private static final org.apache.thrift.protocol.TField TABLE_FIELD_DESC = new org.apache.thrift.protocol.TField("table", org.apache.thrift.protocol.TType.STRING, (short)2);
-    private static final org.apache.thrift.protocol.TField PAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("page", org.apache.thrift.protocol.TType.I32, (short)3);
-    private static final org.apache.thrift.protocol.TField NUM_PER_PAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("numPerPage", org.apache.thrift.protocol.TType.I32, (short)4);
+    private static final org.apache.thrift.protocol.TField PAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("page", org.apache.thrift.protocol.TType.I32, (short)2);
+    private static final org.apache.thrift.protocol.TField NUM_PER_PAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("numPerPage", org.apache.thrift.protocol.TType.I32, (short)3);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -5135,16 +5126,14 @@ public class RecommenderService {
     }
 
     public String key; // required
-    public String table; // required
     public int page; // required
     public int numPerPage; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       KEY((short)1, "key"),
-      TABLE((short)2, "table"),
-      PAGE((short)3, "page"),
-      NUM_PER_PAGE((short)4, "numPerPage");
+      PAGE((short)2, "page"),
+      NUM_PER_PAGE((short)3, "numPerPage");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -5161,11 +5150,9 @@ public class RecommenderService {
         switch(fieldId) {
           case 1: // KEY
             return KEY;
-          case 2: // TABLE
-            return TABLE;
-          case 3: // PAGE
+          case 2: // PAGE
             return PAGE;
-          case 4: // NUM_PER_PAGE
+          case 3: // NUM_PER_PAGE
             return NUM_PER_PAGE;
           default:
             return null;
@@ -5215,8 +5202,6 @@ public class RecommenderService {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.KEY, new org.apache.thrift.meta_data.FieldMetaData("key", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.TABLE, new org.apache.thrift.meta_data.FieldMetaData("table", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.PAGE, new org.apache.thrift.meta_data.FieldMetaData("page", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       tmpMap.put(_Fields.NUM_PER_PAGE, new org.apache.thrift.meta_data.FieldMetaData("numPerPage", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -5230,13 +5215,11 @@ public class RecommenderService {
 
     public getPageItems_args(
       String key,
-      String table,
       int page,
       int numPerPage)
     {
       this();
       this.key = key;
-      this.table = table;
       this.page = page;
       setPageIsSet(true);
       this.numPerPage = numPerPage;
@@ -5251,9 +5234,6 @@ public class RecommenderService {
       if (other.isSetKey()) {
         this.key = other.key;
       }
-      if (other.isSetTable()) {
-        this.table = other.table;
-      }
       this.page = other.page;
       this.numPerPage = other.numPerPage;
     }
@@ -5265,7 +5245,6 @@ public class RecommenderService {
     @Override
     public void clear() {
       this.key = null;
-      this.table = null;
       setPageIsSet(false);
       this.page = 0;
       setNumPerPageIsSet(false);
@@ -5293,30 +5272,6 @@ public class RecommenderService {
     public void setKeyIsSet(boolean value) {
       if (!value) {
         this.key = null;
-      }
-    }
-
-    public String getTable() {
-      return this.table;
-    }
-
-    public getPageItems_args setTable(String table) {
-      this.table = table;
-      return this;
-    }
-
-    public void unsetTable() {
-      this.table = null;
-    }
-
-    /** Returns true if field table is set (has been assigned a value) and false otherwise */
-    public boolean isSetTable() {
-      return this.table != null;
-    }
-
-    public void setTableIsSet(boolean value) {
-      if (!value) {
-        this.table = null;
       }
     }
 
@@ -5376,14 +5331,6 @@ public class RecommenderService {
         }
         break;
 
-      case TABLE:
-        if (value == null) {
-          unsetTable();
-        } else {
-          setTable((String)value);
-        }
-        break;
-
       case PAGE:
         if (value == null) {
           unsetPage();
@@ -5408,9 +5355,6 @@ public class RecommenderService {
       case KEY:
         return getKey();
 
-      case TABLE:
-        return getTable();
-
       case PAGE:
         return Integer.valueOf(getPage());
 
@@ -5430,8 +5374,6 @@ public class RecommenderService {
       switch (field) {
       case KEY:
         return isSetKey();
-      case TABLE:
-        return isSetTable();
       case PAGE:
         return isSetPage();
       case NUM_PER_PAGE:
@@ -5459,15 +5401,6 @@ public class RecommenderService {
         if (!(this_present_key && that_present_key))
           return false;
         if (!this.key.equals(that.key))
-          return false;
-      }
-
-      boolean this_present_table = true && this.isSetTable();
-      boolean that_present_table = true && that.isSetTable();
-      if (this_present_table || that_present_table) {
-        if (!(this_present_table && that_present_table))
-          return false;
-        if (!this.table.equals(that.table))
           return false;
       }
 
@@ -5511,16 +5444,6 @@ public class RecommenderService {
       }
       if (isSetKey()) {
         lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.key, other.key);
-        if (lastComparison != 0) {
-          return lastComparison;
-        }
-      }
-      lastComparison = Boolean.valueOf(isSetTable()).compareTo(other.isSetTable());
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-      if (isSetTable()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.table, other.table);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -5570,14 +5493,6 @@ public class RecommenderService {
         sb.append("null");
       } else {
         sb.append(this.key);
-      }
-      first = false;
-      if (!first) sb.append(", ");
-      sb.append("table:");
-      if (this.table == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.table);
       }
       first = false;
       if (!first) sb.append(", ");
@@ -5641,15 +5556,7 @@ public class RecommenderService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 2: // TABLE
-              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-                struct.table = iprot.readString();
-                struct.setTableIsSet(true);
-              } else { 
-                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-              }
-              break;
-            case 3: // PAGE
+            case 2: // PAGE
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.page = iprot.readI32();
                 struct.setPageIsSet(true);
@@ -5657,7 +5564,7 @@ public class RecommenderService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 4: // NUM_PER_PAGE
+            case 3: // NUM_PER_PAGE
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.numPerPage = iprot.readI32();
                 struct.setNumPerPageIsSet(true);
@@ -5683,11 +5590,6 @@ public class RecommenderService {
         if (struct.key != null) {
           oprot.writeFieldBegin(KEY_FIELD_DESC);
           oprot.writeString(struct.key);
-          oprot.writeFieldEnd();
-        }
-        if (struct.table != null) {
-          oprot.writeFieldBegin(TABLE_FIELD_DESC);
-          oprot.writeString(struct.table);
           oprot.writeFieldEnd();
         }
         oprot.writeFieldBegin(PAGE_FIELD_DESC);
@@ -5717,21 +5619,15 @@ public class RecommenderService {
         if (struct.isSetKey()) {
           optionals.set(0);
         }
-        if (struct.isSetTable()) {
+        if (struct.isSetPage()) {
           optionals.set(1);
         }
-        if (struct.isSetPage()) {
+        if (struct.isSetNumPerPage()) {
           optionals.set(2);
         }
-        if (struct.isSetNumPerPage()) {
-          optionals.set(3);
-        }
-        oprot.writeBitSet(optionals, 4);
+        oprot.writeBitSet(optionals, 3);
         if (struct.isSetKey()) {
           oprot.writeString(struct.key);
-        }
-        if (struct.isSetTable()) {
-          oprot.writeString(struct.table);
         }
         if (struct.isSetPage()) {
           oprot.writeI32(struct.page);
@@ -5744,20 +5640,16 @@ public class RecommenderService {
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, getPageItems_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(4);
+        BitSet incoming = iprot.readBitSet(3);
         if (incoming.get(0)) {
           struct.key = iprot.readString();
           struct.setKeyIsSet(true);
         }
         if (incoming.get(1)) {
-          struct.table = iprot.readString();
-          struct.setTableIsSet(true);
-        }
-        if (incoming.get(2)) {
           struct.page = iprot.readI32();
           struct.setPageIsSet(true);
         }
-        if (incoming.get(3)) {
+        if (incoming.get(2)) {
           struct.numPerPage = iprot.readI32();
           struct.setNumPerPageIsSet(true);
         }
@@ -6178,7 +6070,6 @@ public class RecommenderService {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getItemCount_args");
 
     private static final org.apache.thrift.protocol.TField KEY_FIELD_DESC = new org.apache.thrift.protocol.TField("key", org.apache.thrift.protocol.TType.STRING, (short)1);
-    private static final org.apache.thrift.protocol.TField TABLE_FIELD_DESC = new org.apache.thrift.protocol.TField("table", org.apache.thrift.protocol.TType.STRING, (short)2);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -6187,12 +6078,10 @@ public class RecommenderService {
     }
 
     public String key; // required
-    public String table; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-      KEY((short)1, "key"),
-      TABLE((short)2, "table");
+      KEY((short)1, "key");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -6209,8 +6098,6 @@ public class RecommenderService {
         switch(fieldId) {
           case 1: // KEY
             return KEY;
-          case 2: // TABLE
-            return TABLE;
           default:
             return null;
         }
@@ -6256,8 +6143,6 @@ public class RecommenderService {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.KEY, new org.apache.thrift.meta_data.FieldMetaData("key", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.TABLE, new org.apache.thrift.meta_data.FieldMetaData("table", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getItemCount_args.class, metaDataMap);
     }
@@ -6266,12 +6151,10 @@ public class RecommenderService {
     }
 
     public getItemCount_args(
-      String key,
-      String table)
+      String key)
     {
       this();
       this.key = key;
-      this.table = table;
     }
 
     /**
@@ -6280,9 +6163,6 @@ public class RecommenderService {
     public getItemCount_args(getItemCount_args other) {
       if (other.isSetKey()) {
         this.key = other.key;
-      }
-      if (other.isSetTable()) {
-        this.table = other.table;
       }
     }
 
@@ -6293,7 +6173,6 @@ public class RecommenderService {
     @Override
     public void clear() {
       this.key = null;
-      this.table = null;
     }
 
     public String getKey() {
@@ -6320,30 +6199,6 @@ public class RecommenderService {
       }
     }
 
-    public String getTable() {
-      return this.table;
-    }
-
-    public getItemCount_args setTable(String table) {
-      this.table = table;
-      return this;
-    }
-
-    public void unsetTable() {
-      this.table = null;
-    }
-
-    /** Returns true if field table is set (has been assigned a value) and false otherwise */
-    public boolean isSetTable() {
-      return this.table != null;
-    }
-
-    public void setTableIsSet(boolean value) {
-      if (!value) {
-        this.table = null;
-      }
-    }
-
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case KEY:
@@ -6354,14 +6209,6 @@ public class RecommenderService {
         }
         break;
 
-      case TABLE:
-        if (value == null) {
-          unsetTable();
-        } else {
-          setTable((String)value);
-        }
-        break;
-
       }
     }
 
@@ -6369,9 +6216,6 @@ public class RecommenderService {
       switch (field) {
       case KEY:
         return getKey();
-
-      case TABLE:
-        return getTable();
 
       }
       throw new IllegalStateException();
@@ -6386,8 +6230,6 @@ public class RecommenderService {
       switch (field) {
       case KEY:
         return isSetKey();
-      case TABLE:
-        return isSetTable();
       }
       throw new IllegalStateException();
     }
@@ -6411,15 +6253,6 @@ public class RecommenderService {
         if (!(this_present_key && that_present_key))
           return false;
         if (!this.key.equals(that.key))
-          return false;
-      }
-
-      boolean this_present_table = true && this.isSetTable();
-      boolean that_present_table = true && that.isSetTable();
-      if (this_present_table || that_present_table) {
-        if (!(this_present_table && that_present_table))
-          return false;
-        if (!this.table.equals(that.table))
           return false;
       }
 
@@ -6449,16 +6282,6 @@ public class RecommenderService {
           return lastComparison;
         }
       }
-      lastComparison = Boolean.valueOf(isSetTable()).compareTo(other.isSetTable());
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-      if (isSetTable()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.table, other.table);
-        if (lastComparison != 0) {
-          return lastComparison;
-        }
-      }
       return 0;
     }
 
@@ -6484,14 +6307,6 @@ public class RecommenderService {
         sb.append("null");
       } else {
         sb.append(this.key);
-      }
-      first = false;
-      if (!first) sb.append(", ");
-      sb.append("table:");
-      if (this.table == null) {
-        sb.append("null");
-      } else {
-        sb.append(this.table);
       }
       first = false;
       sb.append(")");
@@ -6545,14 +6360,6 @@ public class RecommenderService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 2: // TABLE
-              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-                struct.table = iprot.readString();
-                struct.setTableIsSet(true);
-              } else { 
-                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-              }
-              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -6571,11 +6378,6 @@ public class RecommenderService {
         if (struct.key != null) {
           oprot.writeFieldBegin(KEY_FIELD_DESC);
           oprot.writeString(struct.key);
-          oprot.writeFieldEnd();
-        }
-        if (struct.table != null) {
-          oprot.writeFieldBegin(TABLE_FIELD_DESC);
-          oprot.writeString(struct.table);
           oprot.writeFieldEnd();
         }
         oprot.writeFieldStop();
@@ -6599,29 +6401,19 @@ public class RecommenderService {
         if (struct.isSetKey()) {
           optionals.set(0);
         }
-        if (struct.isSetTable()) {
-          optionals.set(1);
-        }
-        oprot.writeBitSet(optionals, 2);
+        oprot.writeBitSet(optionals, 1);
         if (struct.isSetKey()) {
           oprot.writeString(struct.key);
-        }
-        if (struct.isSetTable()) {
-          oprot.writeString(struct.table);
         }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, getItemCount_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(2);
+        BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {
           struct.key = iprot.readString();
           struct.setKeyIsSet(true);
-        }
-        if (incoming.get(1)) {
-          struct.table = iprot.readString();
-          struct.setTableIsSet(true);
         }
       }
     }
