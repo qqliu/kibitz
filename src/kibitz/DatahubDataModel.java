@@ -269,13 +269,14 @@ public class DatahubDataModel implements DataModel{
 			for (Tuple t : res.getTuples()) {
 				List<ByteBuffer> cells = t.getCells();
 				Item item = new Item();
-				ResultSet s = this.client.execute_sql(this.conn, "SELECT * FROM " + items_table + " WHERE id='" + new String(cells.get(0).array()) + "'", null);
+				ResultSet s = this.client.execute_sql(this.conn, "SELECT * FROM " + items_table + " WHERE id='" + new String(cells.get(colToIndex.get("item_id")).array()) + "'", null);
+				HashMap<String, Integer> itemColsToIndex = this.getFieldNames(s);
 				for (Tuple tt : s.getTuples()) {
 					List<ByteBuffer> cc = tt.getCells();
-					item.setId(Long.parseLong(new String(cc.get(colToIndex.get("id")).array())));
-					item.setTitle(new String(cc.get(colToIndex.get("title")).array()));
-					item.setDescription(new String(cc.get(colToIndex.get("description")).array()));
-					item.setImage(new String(cc.get(colToIndex.get("image")).array()));
+					item.setId(Long.parseLong(new String(cc.get(itemColsToIndex.get("id")).array())));
+					item.setTitle(new String(cc.get(itemColsToIndex.get("title")).array()));
+					item.setDescription(new String(cc.get(itemColsToIndex.get("description")).array()));
+					item.setImage(new String(cc.get(itemColsToIndex.get("image")).array()));
 					item.setRating(Integer.parseInt(new String(cells.get(colToIndex.get("rating")).array())));
 					items.add(item);
 				}
