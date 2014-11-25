@@ -117,8 +117,8 @@ var processNextPages = function(start) {
    document.getElementById("pages").innerHTML = pages;
 };
 
-var transport = new Thrift.Transport("http://kibitz.csail.mit.edu:9888/kibitz/");
-//var transport = new Thrift.Transport("http://localhost:9888/kibitz/");
+//var transport = new Thrift.Transport("http://kibitz.csail.mit.edu:9888/kibitz/");
+var transport = new Thrift.Transport("http://localhost:9888/kibitz/");
 var protocol = new Thrift.Protocol(transport);
 var client = new kibitz.RecommenderServiceClient(protocol);
 
@@ -128,6 +128,54 @@ var client_key = "XXXX";
 $(document).ready(function() {
     transport.open();
     client.createNewIndividualServer(client_key);
-    client.initiateModel(client_key, 'qqbooks', 'quanquan', 'hof9924ne@!', 'books');
+    client.initiateModel(client_key, 'qqb2', 'quanquan', 'hof9924ne@!', 'galore');
     document.getElementById("title").innerHTML = title + " Recommender";
+    $("#search").keyup(function(ev) {
+        if (ev.which === 13) {
+            var items = client.getSearchItems(client_key, $("#search").val());
+
+            document.getElementById('listofitems').innerHTML = "";
+            var itemslist ="";
+            for (var i =0; i < items.length; i++) {
+                var item = items[i];
+                if (item.id != null && item.title != null) {
+                    currItem = '<tr><tr><div class="relative">';
+                    if (item.image.indexOf("http") > -1) {
+                        currItem += '<img src = "' + item.image + '" />';
+                    }
+                    currItem += '<div class="inline-block user-info"><h2>' + item.title + '</h2>';
+                    if (item.description != null){
+                        currItem += '<div class="icons"><ul class="list-inline"><li>' + item.description + '</li>';
+                    }
+                    currItem += '<div id="rate' + item.id + '" class="rating">&nbsp;</div><div class="implementation"></div>';
+                    if (item.description != null) {
+                        currItem += '</ul></div>';
+                    }
+                    currItem += '</div></div></td></tr>';
+                                                                                                                    itemslist += currItem;
+                                                                                                                          }
+                                                }
+                            document.getElementById('listofitems').innerHTML = itemslist;
+
+                                if(userId != null) {
+                                                var my_rated_items = client.getUserRatedItems(client_key, userId);
+                                                        for (i = 0; i < my_rated_items.length; i++) {
+                                                                            item = my_rated_items[i];
+                                                                                        var r = document.getElementById("rate" + item.id);
+                                                                                                    if (r != null) {
+                                                                                                                            r.setAttribute("value", item.rating ? item.rating: -1);
+                                                                                                                                        }
+                                                                                                            }
+                                                            }
+                                    var ratings = $(".rating");
+                                        ratings.each(function (i, el) {
+                                                        var rating = parseInt($(el).attr('value'));
+                                                                if (rating > -1) {
+                                                                                    $(el).rating('', {maxvalue: 10, curvalue: rating});
+                                                                                            } else {
+                                                                                                                $(el).rating('', {maxvalue: 10});
+                                                                                                                        }
+        });
+        }
+    });
 });

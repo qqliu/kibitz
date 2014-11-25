@@ -17,6 +17,7 @@ import org.apache.mahout.cf.taste.impl.common.FastIDSet;
 import org.apache.mahout.cf.taste.impl.common.LongPrimitiveIterator;
 import org.apache.mahout.cf.taste.impl.model.GenericDataModel;
 import org.apache.mahout.cf.taste.impl.model.GenericPreference;
+import org.apache.mahout.cf.taste.impl.model.PlusAnonymousConcurrentUserDataModel;
 import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.model.Preference;
 import org.apache.mahout.cf.taste.model.PreferenceArray;
@@ -57,6 +58,8 @@ public class DatahubDataModel implements DataModel{
 	private String datahubPassword = getDefaultDatahubPassword();
 	private String datahubDatabase = DEFAULT_DATAHUB_DATABASE;
 	private String datahubTableName = getDefaultDatahubTablename();
+	private GenericDataModel generalModel = null;
+	private String lastTimestamp;
 	
 	private TTransport transport;
 	private TProtocol protocol;
@@ -64,7 +67,7 @@ public class DatahubDataModel implements DataModel{
 	private ConnectionParams con_params;
 	private Connection conn;
 
-	private GenericDataModel delegate;
+	private PlusAnonymousConcurrentUserDataModel delegate;
 
 	/**
 	* Creates a new DatahubDataModel
@@ -94,6 +97,7 @@ public class DatahubDataModel implements DataModel{
 		this.datahubUsername = username;
 		this.datahubPassword = password;
 		this.datahubTableName = tablename;
+		this.lastTimestamp = "";
 		buildModel();
 	}
 
@@ -111,6 +115,30 @@ public class DatahubDataModel implements DataModel{
 	* @see #refreshData(String, Iterable, boolean)
 	*/
 	public void refresh(Collection<Refreshable> alreadyRefreshed) {
+		try {
+			ResultSet lastTimestamp = this.client.execute_sql(this.conn, "SELECT MAX(updated) FROM " + this.datahubDatabase + "." + "update_log where table_name='" + this.datahubTableName + "_ratings'", null);
+			
+			if(lastTimestamp != null) {
+				for (Tuple t : lastTimestamp.getTuples()) {
+					List<ByteBuffer> cells = t.getCells();
+					String stamp = new String(cells.get(0).array());
+					System.out.println(this.lastTimestamp);
+					System.out.println(stamp);
+					if (this.lastTimestamp != stamp && stamp != "None") {
+						this.buildModel();
+					}
+				}
+			}
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnknownHostException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		}
 	}
 	
 	private void buildModel() throws UnknownHostException {
@@ -138,7 +166,7 @@ public class DatahubDataModel implements DataModel{
 						List<ByteBuffer> cells = t.getCells();
 						long userID = Long.parseLong(new String(cells.get(colToIndex.get("user_id")).array()));
 						long itemID = Long.parseLong(new String(cells.get(colToIndex.get("item_id")).array()));
-						int ratingValue = Integer.parseInt(new String(cells.get(colToIndex.get("rating")).array()));
+						long ratingValue = Long.parseLong(new String(cells.get(colToIndex.get("rating")).array()));
 
 						Collection<Preference> userPrefs = userIDPrefMap.get(userID);
 						if (userPrefs == null) {
@@ -149,11 +177,24 @@ public class DatahubDataModel implements DataModel{
 					}
 				}
 			}
+			
+			synchronized(this.client) {
+				ResultSet lastTimestamp = this.client.execute_sql(this.conn, "SELECT MAX(updated) FROM " + this.datahubDatabase + "." + "update_log where table_name='" + this.datahubTableName + "_ratings'", null);
+				
+				if(lastTimestamp != null) {
+					for (Tuple t : lastTimestamp.getTuples()) {
+						List<ByteBuffer> cells = t.getCells();
+						this.lastTimestamp = new String(cells.get(0).array());
+					}
+				}
+				
+				this.generalModel = new GenericDataModel(GenericDataModel.toDataMap(userIDPrefMap, true));
+				this.delegate = new PlusAnonymousConcurrentUserDataModel(this.generalModel, 10);
+			}
+			
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-		
-		this.delegate = new GenericDataModel(GenericDataModel.toDataMap(userIDPrefMap, true));
 	}
 	
 	/**
@@ -162,7 +203,11 @@ public class DatahubDataModel implements DataModel{
 	public List<Item> getItems(String table) {
 		List<Item> items = new ArrayList<Item>();
 		try {
-			ResultSet res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + table, null);
+			ResultSet res;
+			synchronized(this.client) {
+				res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + table, null);
+			}
+			
 			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
 			
 			for (Tuple t : res.getTuples()) {
@@ -188,10 +233,13 @@ public class DatahubDataModel implements DataModel{
 	/**
 	 * Display a page of items
 	 */
-	public List<Item> getPageItems(String table, int page, int numPerPage) {
+	public List<Item> getPageItems(String table, long page, long numPerPage) {
 		List<Item> items = new ArrayList<Item>();
 		try {
-			ResultSet res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + table + " limit " + numPerPage + " offset " + numPerPage * page, null);
+			ResultSet res;
+			synchronized(this.client) {
+				res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + table + " limit " + numPerPage + " offset " + numPerPage * page, null);
+			}
 			System.out.println("select * from " + this.datahubDatabase + "." + table + " limit " + numPerPage + " offset " + numPerPage * page);
 			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
 			
@@ -220,8 +268,10 @@ public class DatahubDataModel implements DataModel{
 	 */
 	public int getItemCount(String table) {
 		try {
-			ResultSet res = this.client.execute_sql(this.conn, "select count(*) from " + this.datahubDatabase + "." + table, null);
-			
+			ResultSet res;
+			synchronized(this.client) {
+				res = this.client.execute_sql(this.conn, "select count(*) from " + this.datahubDatabase + "." + table, null);
+			}
 			for (Tuple t : res.getTuples()) {
 				List<ByteBuffer> cells = t.getCells();
 				return Integer.parseInt(new String(cells.get(0).array()));
@@ -246,6 +296,14 @@ public class DatahubDataModel implements DataModel{
 					"user_id int, item_id int, rating varchar(255))" , null);
 			this.client.execute_sql(this.conn, "create table " + this.datahubDatabase + "." + table + "_users (" + 
 					"id SERIAL PRIMARY KEY, username varchar(255), email varchar(255), password varchar(255))" , null);
+			this.client.execute_sql(this.conn, "CREATE TABLE " + this.datahubDatabase + ".update_log(table_name text, updated timestamp NOT NULL DEFAULT now());" 
+										+ "CREATE FUNCTION timestamp_update_log() RETURNS TRIGGER LANGUAGE 'plpgsql' AS $$" 
+									    + "BEGIN INSERT INTO " + this.datahubDatabase + ".update_log(table_name) VALUES(TG_TABLE_NAME); RETURN NEW;"
+									    + "END $$", null);
+			this.client.execute_sql(this.conn, "CREATE TRIGGER " + table + "_timestamp_update_log"
+												+ "AFTER INSERT OR UPDATE ON " + this.datahubDatabase + "." + table + " FOR EACH STATEMENT EXECUTE procedure timestamp_update_log();", null);
+			this.client.execute_sql(this.conn, "CREATE TRIGGER " + table + "_ratings_timestamp_update_log"
+												+ "AFTER INSERT OR UPDATE ON " + this.datahubDatabase + "." + table + "_ratings FOR EACH STATEMENT EXECUTE procedure timestamp_update_log();", null);
 			return true;
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
@@ -260,10 +318,13 @@ public class DatahubDataModel implements DataModel{
 	/**
 	 * Gets list of items user has rated.
 	 */
-	 public List<Item> getUserRatedItems(int userId, String ratings_table, String items_table) {
+	 public List<Item> getUserRatedItems(long userId, String ratings_table, String items_table) {
 		List<Item> items = new ArrayList<Item>();
 		try {
-			ResultSet res = this.client.execute_sql(this.conn, "SELECT item_id, rating FROM " + ratings_table + " WHERE user_id=" + userId, null);
+			ResultSet res;
+			synchronized(this.client) {
+				res = this.client.execute_sql(this.conn, "SELECT item_id, rating FROM " + ratings_table + " WHERE user_id=" + userId, null);
+			}
 			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
 
 			for (Tuple t : res.getTuples()) {
@@ -277,7 +338,7 @@ public class DatahubDataModel implements DataModel{
 					item.setTitle(new String(cc.get(itemColsToIndex.get("title")).array()));
 					item.setDescription(new String(cc.get(itemColsToIndex.get("description")).array()));
 					item.setImage(new String(cc.get(itemColsToIndex.get("image")).array()));
-					item.setRating(Integer.parseInt(new String(cells.get(colToIndex.get("rating")).array())));
+					item.setRating(Long.parseLong(new String(cells.get(colToIndex.get("rating")).array())));
 					items.add(item);
 				}
 			}
@@ -294,8 +355,8 @@ public class DatahubDataModel implements DataModel{
 	/**
 	 * Records user ratings
 	 */
-	 public void recordRatings(int userId, int itemId, int rating, String ratings_table) {
-		List<Integer> columns = new ArrayList<Integer>();
+	 public void recordRatings(long userId, long itemId, long rating, String ratings_table) {
+		List<Long> columns = new ArrayList<Long>();
 		columns.add(userId);
 		columns.add(itemId);
 		columns.add(rating);
@@ -307,6 +368,13 @@ public class DatahubDataModel implements DataModel{
 			deleteRatings(userId, itemId, ratings_table);
 			saveIntoDb(columns, null, columnNames, ratings_table);
 		}
+		/*try {
+			this.delegate.setPreference(userId, itemId, (float) rating);
+		} catch (TasteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+		this.delegate.refresh(null);
 	 }
 	 
 	 /**
@@ -346,18 +414,25 @@ public class DatahubDataModel implements DataModel{
 	 /**
 	  * Deletes user ratings.
 	  */
-	 public void deleteRatings(int userId, int itemId, String table) {
+	 public void deleteRatings(long userId, long itemId, String table) {
 		 System.out.println("deleting");
 		 try {
+			  synchronized(this.client) {
 			 	this.client.execute_sql(this.conn, "DELETE FROM " + table + " WHERE user_id = " + userId + " AND "
 			 			+ "item_id = " + itemId, null);
+			  }
+			 	//this.delegate.removePreference(userId, itemId);
 		 } catch (DBException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 		 } catch (TException e) {
 			 	// TODO Auto-generated catch block
 			 	e.printStackTrace();
-		 }
+		 } /*catch (TasteException e) {
+			 // TODO Auto-generated catch block
+			 e.printStackTrace();
+		 }*/
+		 this.delegate.refresh(null);
 	 }
 	 
 	 public void createNewUser(List<?> columns, String suffix, List<String>columnNames, String table, boolean isCentralRepo) {
@@ -513,6 +588,7 @@ public class DatahubDataModel implements DataModel{
 	public Item getItemFromId(long id, String table) {
 		try {
 			ResultSet res = this.client.execute_sql(this.conn, "SELECT * FROM " + table + " WHERE id='" + id + "'", null);
+			System.out.println("SELECT * FROM " + table + " WHERE id='" + id + "'");
 			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
 			
 			for (Tuple t : res.getTuples()) {
@@ -535,6 +611,42 @@ public class DatahubDataModel implements DataModel{
 	}
  	
 	/**
+	 * Return search results
+	 */
+	public List<Item> getSearchItems(String table, String query) {
+		List<Item> items = new ArrayList<Item>();
+		
+		String q = "select * from " + table + " where title like ";
+		String[] words = query.split(" ");
+		for (int i = 0; i < words.length - 1; i++) {
+			q += "'%" + words[i] + "%' AND title like ";
+		}
+		q += "'%" + words[words.length -1] + "%'";
+		try {
+			ResultSet res = this.client.execute_sql(this.conn, q, null);
+			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
+			
+			for (Tuple t : res.getTuples()) {
+				List<ByteBuffer> cells = t.getCells();
+				Item item = new Item();
+				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("id")).array())));
+				item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
+				item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
+				item.setImage(new String(cells.get(colToIndex.get("image")).array()));
+				items.add(item);
+			}
+			return items;
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return items;
+	}
+	
+	/**
 	 * Maps Mahout long value to Datahub ID
 	 */
 	public String fromLongToId(long id) {
@@ -553,10 +665,10 @@ public class DatahubDataModel implements DataModel{
 	private void addDatahubUserItem(String userID, String itemID) {
 	}
 	
-	private DataModel removeUserItem(long userID, Iterable<List<String>> items) {
+	/*private DataModel removeUserItem(long userID, Iterable<List<String>> items) {
 		FastByIDMap<PreferenceArray> rawData = ((GenericDataModel) delegate).getRawUserData();
 		return new GenericDataModel(rawData);
-	}
+	}*/
 	
 	private HashMap<String, Integer> getFieldNames(ResultSet res) {
 		List<String> fieldNames = res.getField_names();
@@ -580,7 +692,7 @@ public class DatahubDataModel implements DataModel{
 
 	@Override
 	public PreferenceArray getPreferencesFromUser(long id) throws TasteException {
-	  return delegate.getPreferencesFromUser(id);
+		return delegate.getPreferencesFromUser(id);
 	}
 	
 	@Override

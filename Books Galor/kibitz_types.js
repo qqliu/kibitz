@@ -75,8 +75,8 @@ kibitz.Item.prototype.read = function(input) {
       }
       break;
       case 5:
-      if (ftype == Thrift.Type.I32) {
-        this.rating = input.readI32().value;
+      if (ftype == Thrift.Type.I64) {
+        this.rating = input.readI64().value;
       } else {
         input.skip(ftype);
       }
@@ -113,8 +113,8 @@ kibitz.Item.prototype.write = function(output) {
     output.writeFieldEnd();
   }
   if (this.rating !== null && this.rating !== undefined) {
-    output.writeFieldBegin('rating', Thrift.Type.I32, 5);
-    output.writeI32(this.rating);
+    output.writeFieldBegin('rating', Thrift.Type.I64, 5);
+    output.writeI64(this.rating);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

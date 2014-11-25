@@ -84,7 +84,7 @@ jQuery.fn.rating = function(url, options) {
 			var num_rating = jQuery(this).children('a')[0].href.split('#')[1];
 			var item_id = $(jQuery(this).parent()[0]).attr("id").split("rate")[1];
 			var userId = parseInt(getCookie("userId"));
-			client.recordRatings(userId, item_id, num_rating);
+			client.recordRatings(client_key, userId, item_id, num_rating);
 			return false;
 		}
 		else if(settings.maxvalue == 1){
@@ -93,7 +93,7 @@ jQuery.fn.rating = function(url, options) {
 			var num_rating = jQuery(this).children('a')[0].href.split('#')[1];
 			var item_id = $(jQuery(this).parent()[0]).attr("id").split("rate")[1];
 			var userId = parseInt(getCookie("userId"));
-			client.recordRatings(userId, item_id, num_rating);
+			client.recordRatings(client_key,userId, item_id, num_rating);
 			return false;
 		}
 		return true;
@@ -128,7 +128,7 @@ jQuery.fn.rating = function(url, options) {
 		var num_rating = jQuery(this).children('a')[0].href.split('#')[1];
 		var item_id = $(jQuery(this).parent()[0]).attr("id").split("rate")[1];
 		var userId = parseInt(getCookie("userId"));
-		client.deleteRatings(userId, item_id);
+		client.deleteRatings(client_key, userId, item_id);
 		return false;
 	});
         

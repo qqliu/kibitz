@@ -47,18 +47,21 @@ public class IndividualRecommender {
 		this.databaseName = this.dataSource.getDatabaseName();
 	}
 	
-	public List<Item> makeRecommendation(int userId, int numRecs) {
+	public List<Item> makeRecommendation(long userId, long numRecs) {
 		System.out.println("Making recommendation: ");
 		try {
 			if (this.dataModel != null) {
-				List<RecommendedItem> recommendations = this.recommender.recommend(userId, numRecs);
+				List<RecommendedItem> recommendations = this.recommender.recommend((int) userId, (int) numRecs);
 				ArrayList<Long> recommendationNames = new ArrayList<Long>();
 				ArrayList<Item> recs = new ArrayList<Item>();
 				for (int i = 0; i < recommendations.size(); i++) {
 					recommendationNames.add(recommendations.get(i).getItemID());
-					recs.add(this.dataModel.getItemFromId(recommendations.get(i).getItemID(), this.databaseName + "." + this.items_table));
+					Item rec = this.dataModel.getItemFromId(recommendations.get(i).getItemID(), this.databaseName + "." + this.items_table);
+					if (rec != null)
+						recs.add(rec);
 				}
 				System.out.println(recommendationNames);
+				System.out.println(recs);
 				return recs;
 			}
 		} catch (TasteException e) {
@@ -73,7 +76,13 @@ public class IndividualRecommender {
 		return results;
 	}
 	
-	public List<Item> getPageItems(int page, int numPerPage) {
+	public List<Item> getSearchItems(String query) {
+		List<Item> results = this.dataModel.getItems(this.databaseName + "." + this.items_table);
+		System.out.println(results);
+		return results;
+	}
+	
+	public List<Item> getPageItems(long page, long numPerPage) {
 		List<Item> results = this.dataModel.getPageItems(this.items_table, page, numPerPage);
 		System.out.println(results);
 		return results;
@@ -83,11 +92,11 @@ public class IndividualRecommender {
 		return this.dataModel.getItemCount(this.items_table);
 	}
 	
-	public void recordRatings(int userId, int itemId, int rating) {
+	public void recordRatings(long userId, long itemId, long rating) {
 		this.dataModel.recordRatings(userId, itemId, rating, this.databaseName + "." + this.ratings_table);
 	}
 	
-	public void deleteRatings(int userId, int itemId) {
+	public void deleteRatings(long userId, long itemId) {
 		this.dataModel.deleteRatings(userId, itemId, this.databaseName + "." + this.ratings_table);
 	}
 	
@@ -214,7 +223,7 @@ public class IndividualRecommender {
         return bytes;
     }
     
-    public List<Item> getUserRatedItems(int userId) {
+    public List<Item> getUserRatedItems(long userId) {
 		List<Item> items = this.dataModel.getUserRatedItems(userId, this.databaseName + "." + this.ratings_table, this.databaseName + "." + this.items_table);
 		System.out.println(items);
 		return items;
@@ -238,10 +247,12 @@ public class IndividualRecommender {
 			this.ratings_table = table + "_ratings";
 			this.users_table = table + "_users";
 			
-			this.dataModel = new DatahubDataModel(this.dataSource.getServerName(), this.databaseName, 
-					this.username,
-					this.password,
-					this.ratings_table);
+			if (this.dataModel == null) {
+				this.dataModel = new DatahubDataModel(this.dataSource.getServerName(), this.databaseName, 
+						this.username,
+						this.password,
+						this.ratings_table);
+			}
 			
 			if (KibitzServer.RECOMMENDERS.get(table + username + password + database) != null) {
 				this.recommender = (GenericUserBasedRecommender) KibitzServer.RECOMMENDERS.get(table + username + password + database);
@@ -262,5 +273,9 @@ public class IndividualRecommender {
 	
 	public static IndividualRecommender createNewIndividualServer(MysqlDataSource dataSource) {
 		return new IndividualRecommender(dataSource);
+	}
+	
+	public void updateDataModel() {
+		this.dataModel.refresh(null);
 	}
 }

@@ -41,11 +41,16 @@ public class KibitzServer implements Iface {
 	}
 	
 	@Override
-	public List<Item> makeRecommendation(String key, int userId, int numRecs) {
+	public List<Item> makeRecommendation(String key, long userId, long numRecs) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
 				return SESSIONS.get(key).makeRecommendation(userId, numRecs);
 			}
+		}
+		
+		if(!this.loop.isAlive()) {
+			this.loop = new Thread(new RecommenderRunnable());
+			this.loop.start();
 		}
 		return null;
 	}
@@ -56,6 +61,11 @@ public class KibitzServer implements Iface {
 			if (SESSIONS.get(key) != null) {
 				SESSIONS.get(key).initiateModel(table, username, password, database);
 			}
+		}
+		
+		if(!this.loop.isAlive()) {
+			this.loop = new Thread(new RecommenderRunnable());
+			this.loop.start();
 		}
 	}
 	
@@ -75,11 +85,16 @@ public class KibitzServer implements Iface {
 }
 	
 	@Override
-	public List<Item> getUserRatedItems(String key, int userId) {
+	public List<Item> getUserRatedItems(String key, long userId) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
 				return SESSIONS.get(key).getUserRatedItems(userId);
 			}
+		}
+		
+		if(!this.loop.isAlive()) {
+			this.loop = new Thread(new RecommenderRunnable());
+			this.loop.start();
 		}
 		return null;
     }
@@ -111,6 +126,11 @@ public class KibitzServer implements Iface {
 				return SESSIONS.get(key).createNewUser(username, email, password, isKibitzUser);
 			}
 		}
+		
+		if(!this.loop.isAlive()) {
+			this.loop = new Thread(new RecommenderRunnable());
+			this.loop.start();
+		}
 		return null;
 	}
 	
@@ -120,6 +140,10 @@ public class KibitzServer implements Iface {
 			if (SESSIONS.get(key) != null) {
 				return SESSIONS.get(key).retrieveUserId(username, password);
 			}
+		}
+		if(!this.loop.isAlive()) {
+			this.loop = new Thread(new RecommenderRunnable());
+			this.loop.start();
 		}
 		return 0;
 	}
@@ -131,39 +155,56 @@ public class KibitzServer implements Iface {
 				return SESSIONS.get(key).getItems();
 			}
 		}
+		if(!this.loop.isAlive()) {
+			this.loop = new Thread(new RecommenderRunnable());
+			this.loop.start();
+		}
+		
 		return null;
 	}
 	
 	@Override
-	public void recordRatings(String key, int userId, int itemId, int rating) {
+	public void recordRatings(String key, long userId, long itemId, long rating) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
 				SESSIONS.get(key).recordRatings(userId, itemId, rating);;
 			}
 		}
+		if(!this.loop.isAlive()) {
+			this.loop = new Thread(new RecommenderRunnable());
+			this.loop.start();
+		}
 	}
 	
 	@Override
-	public void deleteRatings(String key, int userId, int itemId) {
+	public void deleteRatings(String key, long userId, long itemId) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
 				SESSIONS.get(key).deleteRatings(userId, itemId);
 			}
 		}
+		if(!this.loop.isAlive()) {
+			this.loop = new Thread(new RecommenderRunnable());
+			this.loop.start();
+		}
 	}
 	
 	@Override
-	public List<Item> getPageItems(String key, int page, int numPerPage) {
+	public List<Item> getPageItems(String key, long page, long numPerPage) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
 				return SESSIONS.get(key).getPageItems(page, numPerPage);
 			}
 		}
+		if(!this.loop.isAlive()) {
+			this.loop = new Thread(new RecommenderRunnable());
+			this.loop.start();
+		}
 		return null;
 	}
 
 	@Override
-	public int getItemCount(String key) {
+	public long getItemCount(String key) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
 				return SESSIONS.get(key).getItemCount();
@@ -181,6 +222,20 @@ public class KibitzServer implements Iface {
 		}
 	}
 	
+	@Override
+	public List<Item> getSearchItems(String key, String query) {
+		if (key != null) {
+			if (SESSIONS.get(key) != null) {
+				return SESSIONS.get(key).getSearchItems(query);
+			}
+		}
+		if(!this.loop.isAlive()) {
+			this.loop = new Thread(new RecommenderRunnable());
+			this.loop.start();
+		}
+		return null;
+	}
+	
 	public class RecommenderRunnable implements Runnable {	
 		public void run() {
 			while (RUNNING) {
@@ -189,12 +244,22 @@ public class KibitzServer implements Iface {
 						updateRecommender(RECOMMENDERS.get(cur_key));
 					}
 				}
+				
+				if(SESSIONS.size() != 0) {
+					for (String key: SESSIONS.keySet()) {
+						updateDataModel(SESSIONS.get(key));
+					}
+				}
 			}
 		}
 		
 		private void updateRecommender(AbstractRecommender recommender) {
 			//recommender.clear();
 			recommender.refresh(null);
+		}
+		
+		private void updateDataModel(IndividualRecommender rec) {
+			rec.updateDataModel();
 		}
 	}
 }

@@ -39,7 +39,7 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
   private static final org.apache.thrift.protocol.TField TITLE_FIELD_DESC = new org.apache.thrift.protocol.TField("title", org.apache.thrift.protocol.TType.STRING, (short)2);
   private static final org.apache.thrift.protocol.TField DESCRIPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("description", org.apache.thrift.protocol.TType.STRING, (short)3);
   private static final org.apache.thrift.protocol.TField IMAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("image", org.apache.thrift.protocol.TType.STRING, (short)4);
-  private static final org.apache.thrift.protocol.TField RATING_FIELD_DESC = new org.apache.thrift.protocol.TField("rating", org.apache.thrift.protocol.TType.I32, (short)5);
+  private static final org.apache.thrift.protocol.TField RATING_FIELD_DESC = new org.apache.thrift.protocol.TField("rating", org.apache.thrift.protocol.TType.I64, (short)5);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -51,7 +51,7 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
   public String title; // required
   public String description; // required
   public String image; // required
-  public int rating; // required
+  public long rating; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -139,7 +139,7 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
     tmpMap.put(_Fields.IMAGE, new org.apache.thrift.meta_data.FieldMetaData("image", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.RATING, new org.apache.thrift.meta_data.FieldMetaData("rating", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Item.class, metaDataMap);
   }
@@ -152,7 +152,7 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
     String title,
     String description,
     String image,
-    int rating)
+    long rating)
   {
     this();
     this.id = id;
@@ -292,11 +292,11 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
     }
   }
 
-  public int getRating() {
+  public long getRating() {
     return this.rating;
   }
 
-  public Item setRating(int rating) {
+  public Item setRating(long rating) {
     this.rating = rating;
     setRatingIsSet(true);
     return this;
@@ -353,7 +353,7 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
       if (value == null) {
         unsetRating();
       } else {
-        setRating((Integer)value);
+        setRating((Long)value);
       }
       break;
 
@@ -375,7 +375,7 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
       return getImage();
 
     case RATING:
-      return Integer.valueOf(getRating());
+      return Long.valueOf(getRating());
 
     }
     throw new IllegalStateException();
@@ -665,8 +665,8 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
             }
             break;
           case 5: // RATING
-            if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-              struct.rating = iprot.readI32();
+            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+              struct.rating = iprot.readI64();
               struct.setRatingIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
@@ -709,7 +709,7 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
         oprot.writeFieldEnd();
       }
       oprot.writeFieldBegin(RATING_FIELD_DESC);
-      oprot.writeI32(struct.rating);
+      oprot.writeI64(struct.rating);
       oprot.writeFieldEnd();
       oprot.writeFieldStop();
       oprot.writeStructEnd();
@@ -738,7 +738,7 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
       }
       oprot.writeBitSet(optionals, 1);
       if (struct.isSetRating()) {
-        oprot.writeI32(struct.rating);
+        oprot.writeI64(struct.rating);
       }
     }
 
@@ -755,7 +755,7 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
       struct.setImageIsSet(true);
       BitSet incoming = iprot.readBitSet(1);
       if (incoming.get(0)) {
-        struct.rating = iprot.readI32();
+        struct.rating = iprot.readI64();
         struct.setRatingIsSet(true);
       }
     }

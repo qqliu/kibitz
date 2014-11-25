@@ -59,7 +59,7 @@
 
         <form class="search-form">
           <div class="form-group has-feedback">
-            <input type="text" class="form-control" id="">
+            <input type="text" class="form-control" id="search">
             <span class="glyphicon glyphicon-search form-control-feedback"></span>
           </div>
         </form>
@@ -125,7 +125,7 @@
 		}
 	    });
 
-	    numPages = parseInt(client.getItemCount("XXXX"));
+	    numPages = parseInt(client.getItemCount(client_key));
 	    var pages = "";
         for (var i = 0; i < Math.min(numPages, 100); i += 10) {
             var displayPages = i/10 + 1;
