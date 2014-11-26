@@ -48,7 +48,6 @@ public class IndividualRecommender {
 	}
 	
 	public List<Item> makeRecommendation(long userId, long numRecs) {
-		System.out.println("Making recommendation: ");
 		try {
 			if (this.dataModel != null) {
 				List<RecommendedItem> recommendations = this.recommender.recommend((int) userId, (int) numRecs);
@@ -60,8 +59,6 @@ public class IndividualRecommender {
 					if (rec != null)
 						recs.add(rec);
 				}
-				System.out.println(recommendationNames);
-				System.out.println(recs);
 				return recs;
 			}
 		} catch (TasteException e) {
@@ -72,19 +69,16 @@ public class IndividualRecommender {
 	
 	public List<Item> getItems() {
 		List<Item> results = this.dataModel.getItems(this.items_table);
-		System.out.println(results);
 		return results;
 	}
 	
 	public List<Item> getSearchItems(String query) {
 		List<Item> results = this.dataModel.getSearchItems(this.databaseName + "." + this.items_table, query);
-		System.out.println(results);
 		return results;
 	}
 	
 	public List<Item> getPageItems(long page, long numPerPage) {
 		List<Item> results = this.dataModel.getPageItems(this.items_table, page, numPerPage);
-		System.out.println(results);
 		return results;
 	}
 	
@@ -106,7 +100,6 @@ public class IndividualRecommender {
 	
 	public String createNewUser(String username, String email, String password, boolean isKibitzUser) {
 		if (this.checkUsername(username, isKibitzUser)) {
-			System.out.println("User exists");
 			return "User already exists, please pick another username.";
 		}
 		List<String> columns = new ArrayList<String>();
@@ -210,7 +203,6 @@ public class IndividualRecommender {
         {
             diff |= hash[i] ^ testHash[i];
         }
-        System.out.println(diff == 0);
         return diff == 0;
     }
     
@@ -225,7 +217,6 @@ public class IndividualRecommender {
     
     public List<Item> getUserRatedItems(long userId) {
 		List<Item> items = this.dataModel.getUserRatedItems(userId, this.databaseName + "." + this.ratings_table, this.databaseName + "." + this.items_table);
-		System.out.println(items);
 		return items;
     }
 	
@@ -277,5 +268,25 @@ public class IndividualRecommender {
 	
 	public void updateDataModel() {
 		this.dataModel.refresh(null);
+	}
+	
+	public String getUsername() {
+		return this.username;
+	}
+	
+	public String getPassword() {
+		return this.password;
+	}
+	
+	public String getTable() {
+		return this.items_table;
+	}
+	
+	public String getDatabase() {
+		return this.databaseName;
+	}
+	
+	public boolean getRefreshed() {
+		return this.dataModel.getRefreshed();
 	}
 }

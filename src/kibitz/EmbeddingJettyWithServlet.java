@@ -15,7 +15,8 @@ public class EmbeddingJettyWithServlet {
 	
 	public static void main(String[] args) throws Exception {
 		Server server = new Server(9888);
-        
+		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+		
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath("/kibitz");
 		context.addFilter(CrossOriginFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));

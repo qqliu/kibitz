@@ -59,6 +59,7 @@ public class KibitzServer implements Iface {
 	public void initiateModel(String key, String table, String username, String password, String database) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
+				Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 				SESSIONS.get(key).initiateModel(table, username, password, database);
 			}
 		}
@@ -88,6 +89,7 @@ public class KibitzServer implements Iface {
 	public List<Item> getUserRatedItems(String key, long userId) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
+				Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 				return SESSIONS.get(key).getUserRatedItems(userId);
 			}
 		}
@@ -239,15 +241,20 @@ public class KibitzServer implements Iface {
 	public class RecommenderRunnable implements Runnable {	
 		public void run() {
 			while (RUNNING) {
-				if (RECOMMENDERS.size() != 0) {
-					for(String cur_key: RECOMMENDERS.keySet()) {
-						updateRecommender(RECOMMENDERS.get(cur_key));
-					}
-				}
+				Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 				
+				try {
+					Thread.sleep(4000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				if(SESSIONS.size() != 0) {
 					for (String key: SESSIONS.keySet()) {
-						updateDataModel(SESSIONS.get(key));
+						IndividualRecommender rec = SESSIONS.get(key);
+						updateDataModel(rec);
+						if(updateDataModel(rec))
+							updateRecommender(RECOMMENDERS.get(rec.getTable() + rec.getUsername() + rec.getPassword() + rec.getDatabase()));
 					}
 				}
 			}
@@ -258,8 +265,9 @@ public class KibitzServer implements Iface {
 			recommender.refresh(null);
 		}
 		
-		private void updateDataModel(IndividualRecommender rec) {
+		private boolean updateDataModel(IndividualRecommender rec) {
 			rec.updateDataModel();
+			return rec.getRefreshed();
 		}
 	}
 }
