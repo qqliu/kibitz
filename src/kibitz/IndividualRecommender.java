@@ -77,7 +77,7 @@ public class IndividualRecommender {
 	}
 	
 	public List<Item> getSearchItems(String query) {
-		List<Item> results = this.dataModel.getItems(this.databaseName + "." + this.items_table);
+		List<Item> results = this.dataModel.getSearchItems(this.databaseName + "." + this.items_table, query);
 		System.out.println(results);
 		return results;
 	}
