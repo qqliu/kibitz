@@ -149,13 +149,10 @@ var transport = new Thrift.Transport("http://kibitz.csail.mit.edu:9888/kibitz/")
 var protocol = new Thrift.Protocol(transport);
 var client = new kibitz.RecommenderServiceClient(protocol);
 
-var title = "Books Galor";
-var client_key = "XXXX";
-
 $(document).ready(function() {
     transport.open();
     client.createNewIndividualServer(client_key);
-    client.initiateModel(client_key, 'qqb2', 'quanquan', 'hof9924ne@!', 'galore');
+    client.initiateModel(client_key, datahub_table, datahub_username, datahub_password, datahub_repo);
     if ($("#title").length != 0)
         document.getElementById("title").innerHTML = title + " Recommender";
     if($("#search").length != 0) {
