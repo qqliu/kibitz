@@ -50,15 +50,17 @@ public class IndividualRecommender {
 	public List<Item> makeRecommendation(long userId, long numRecs) {
 		try {
 			if (this.dataModel != null) {
+				long startTime = System.nanoTime();
 				List<RecommendedItem> recommendations = this.recommender.recommend((int) userId, (int) numRecs);
+				
 				ArrayList<Long> recommendationNames = new ArrayList<Long>();
-				ArrayList<Item> recs = new ArrayList<Item>();
 				for (int i = 0; i < recommendations.size(); i++) {
 					recommendationNames.add(recommendations.get(i).getItemID());
-					Item rec = this.dataModel.getItemFromId(recommendations.get(i).getItemID(), this.databaseName + "." + this.items_table);
-					if (rec != null)
-						recs.add(rec);
 				}
+				List<Item> recs = this.dataModel.getItemsFromIds(recommendationNames, this.databaseName + "." + this.items_table, 
+						this.databaseName + "." + this.ratings_table, userId);
+				long endTime = System.nanoTime();
+				System.out.println("Time it takes to get recommendation: " + (endTime - startTime));
 				return recs;
 			}
 		} catch (TasteException e) {

@@ -1,5 +1,8 @@
 package kibitz;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
@@ -18,6 +21,7 @@ import org.apache.mahout.cf.taste.impl.common.LongPrimitiveIterator;
 import org.apache.mahout.cf.taste.impl.model.GenericDataModel;
 import org.apache.mahout.cf.taste.impl.model.GenericPreference;
 import org.apache.mahout.cf.taste.impl.model.PlusAnonymousConcurrentUserDataModel;
+import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.model.Preference;
 import org.apache.mahout.cf.taste.model.PreferenceArray;
@@ -58,7 +62,7 @@ public class DatahubDataModel implements DataModel{
 	private String datahubPassword = getDefaultDatahubPassword();
 	private String datahubDatabase = DEFAULT_DATAHUB_DATABASE;
 	private String datahubTableName = getDefaultDatahubTablename();
-	private GenericDataModel generalModel = null;
+	private FileDataModel delegate = null;
 	private String lastTimestamp;
 	private boolean refreshed;
 	
@@ -67,8 +71,6 @@ public class DatahubDataModel implements DataModel{
 	private DataHub.Client client;
 	private ConnectionParams con_params;
 	private Connection conn;
-
-	private PlusAnonymousConcurrentUserDataModel delegate;
 
 	/**
 	* Creates a new DatahubDataModel
@@ -150,11 +152,12 @@ public class DatahubDataModel implements DataModel{
 	
 	private void buildModel() throws UnknownHostException {
 		// Map of user preferences by Mahout user id
-		FastByIDMap<Collection<Preference>> userIDPrefMap = new FastByIDMap<Collection<Preference>>();
-		System.out.println("Building model");
+		/*FastByIDMap<Collection<Preference>> userIDPrefMap = new FastByIDMap<Collection<Preference>>();
+		System.out.println("Building model");*/
 		
 		try {
 			this.transport = new THttpClient(this.datahubHost);
+			
 			this.protocol = new  TBinaryProtocol(transport);
 			this.client = new DataHub.Client(protocol);
 			System.out.println("Connected to Datahub Successfully");
@@ -164,7 +167,7 @@ public class DatahubDataModel implements DataModel{
 			this.con_params.setPassword(this.datahubPassword);
 			this.conn = this.client.open_connection(con_params);
 			
-			if (this.datahubTableName != null) {
+			/*if (this.datahubTableName != null) {
 				int numItems = this.getItemCount(this.datahubTableName);
 				System.out.println(this.datahubTableName);
 				System.out.println(numItems);
@@ -172,7 +175,12 @@ public class DatahubDataModel implements DataModel{
 					ResultSet res;
 					Thread.sleep(4000);
 					synchronized(this.client) {
-						res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + this.datahubTableName + " limit " + 10000 + " offset " + i, null);
+						long startTime = System.nanoTime();
+					    res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + this.datahubTableName + " limit " + 10000 + " offset " + i, null);
+						//res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + this.datahubTableName, null);
+						long endTime = System.nanoTime();
+						long duration = (endTime - startTime);  //divide by 1000000 to get milliseconds.
+						System.out.println("Time buildModel took to run on iteration " + i + ": " + duration);
 					}
 					HashMap<String, Integer> colToIndex = this.getFieldNames(res);
 					
@@ -206,9 +214,26 @@ public class DatahubDataModel implements DataModel{
 				
 				this.generalModel = new GenericDataModel(GenericDataModel.toDataMap(userIDPrefMap, true));
 				this.delegate = new PlusAnonymousConcurrentUserDataModel(this.generalModel, 10);
+				userIDPrefMap = null;
 			}
-			
 		} catch(Exception e) {
+			e.printStackTrace();
+		}*/
+			long startTime = System.nanoTime();
+			this.delegate = new FileDataModel(new File("/Users/qliu/Documents/kibitz/BX-CSV-Dump/qqb2_ratings_f.csv"));
+			long endTime = System.nanoTime();
+			System.out.println("Time it takes to retrieve items from file: " + (endTime - startTime));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -219,10 +244,20 @@ public class DatahubDataModel implements DataModel{
 	public List<Item> getItems(String table) {
 		List<Item> items = new ArrayList<Item>();
 		try {
+			long startTime = System.nanoTime();
 			ResultSet res;
+			//ResultSet ratings;
 			synchronized(this.client) {
 				res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + table, null);
+				System.out.println("select * from " + this.datahubDatabase + "." + this.datahubTableName);
+				/*long start = System.nanoTime();
+				ratings = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + this.datahubTableName, null);
+				long end = System.nanoTime();
+				System.out.println("Time takes to get all ratings: " + (end - start));*/
 			}
+			long endTime = System.nanoTime();
+			long duration = (endTime - startTime);  //divide by 1000000 to get milliseconds.
+			System.out.println("Time getItems took to run: " + duration);
 			
 			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
 			
@@ -283,10 +318,15 @@ public class DatahubDataModel implements DataModel{
 	 */
 	public int getItemCount(String table) {
 		try {
+			long startTime = System.nanoTime();
 			ResultSet res;
 			synchronized(this.client) {
 				res = this.client.execute_sql(this.conn, "select count(*) from " + this.datahubDatabase + "." + table, null);
 			}
+			long endTime = System.nanoTime();
+			long duration = (endTime - startTime);  //divide by 1000000 to get milliseconds.
+			System.out.println("Time getItemCount took to run: " + duration);
+			
 			for (Tuple t : res.getTuples()) {
 				List<ByteBuffer> cells = t.getCells();
 				return Integer.parseInt(new String(cells.get(0).array()));
@@ -340,27 +380,25 @@ public class DatahubDataModel implements DataModel{
 		try {
 			ResultSet res;
 			synchronized(this.client) {
-				res = this.client.execute_sql(this.conn, "SELECT item_id, rating FROM " + ratings_table + " WHERE user_id=" + userId, null);
+				long startTime = System.nanoTime();
+				res = this.client.execute_sql(this.conn, "SELECT " + ratings_table + ".item_id, " + ratings_table + 
+						".rating, " + items_table + ".title, " + items_table + ".description, " + items_table + 
+						".image, " + ratings_table + ".user_id FROM " + ratings_table + " INNER JOIN " + items_table + 
+						" ON " + ratings_table + ".item_id = " + items_table + ".id" + " WHERE user_id=" + userId, null);
+				long endTime = System.nanoTime();
+				System.out.println("Time getUserRatedItems took: " + (endTime - startTime));
 			}
 			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
 
 			for (Tuple t : res.getTuples()) {
 				List<ByteBuffer> cells = t.getCells();
 				Item item = new Item();
-				ResultSet s;
-				synchronized(this.client) {
-					s = this.client.execute_sql(this.conn, "SELECT * FROM " + items_table + " WHERE id='" + new String(cells.get(colToIndex.get("item_id")).array()) + "'", null);
-				}
-				HashMap<String, Integer> itemColsToIndex = this.getFieldNames(s);
-				for (Tuple tt : s.getTuples()) {
-					List<ByteBuffer> cc = tt.getCells();
-					item.setId(Long.parseLong(new String(cc.get(itemColsToIndex.get("id")).array())));
-					item.setTitle(new String(cc.get(itemColsToIndex.get("title")).array()));
-					item.setDescription(new String(cc.get(itemColsToIndex.get("description")).array()));
-					item.setImage(new String(cc.get(itemColsToIndex.get("image")).array()));
-					item.setRating(Long.parseLong(new String(cells.get(colToIndex.get("rating")).array())));
-					items.add(item);
-				}
+				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("item_id")).array())));
+				item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
+				item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
+				item.setImage(new String(cells.get(colToIndex.get("image")).array()));
+				item.setRating(Long.parseLong(new String(cells.get(colToIndex.get("rating")).array())));
+				items.add(item);
 			}
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
@@ -384,17 +422,23 @@ public class DatahubDataModel implements DataModel{
 		columnNames.add("user_id");
 		columnNames.add("item_id");
 		columnNames.add("rating");
+		long startTime = System.nanoTime();
 		if (!saveIntoDb(columns, null , columnNames, ratings_table)) {
-			deleteRatings(userId, itemId, ratings_table);
-			saveIntoDb(columns, null, columnNames, ratings_table);
+			this.deleteRatings(userId, itemId, ratings_table);
+			this.saveIntoDb(columns, null, columnNames, ratings_table);
 		}
+		long finishDBTime = System.nanoTime();
+		this.writeNewRatings(userId, itemId, rating);
+		long finishRecordTime = System.nanoTime();
+		System.out.println("Time saveIntoDb took: " + (finishDBTime - startTime));
+		System.out.println("Time writeNewRatings took: " + (finishRecordTime - startTime));
 		/*try {
 			this.delegate.setPreference(userId, itemId, (float) rating);
 		} catch (TasteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}*/
-		this.delegate.refresh(null);
+		//this.delegate.refresh(null);
 	 }
 	 
 	 /**
@@ -615,6 +659,48 @@ public class DatahubDataModel implements DataModel{
 	}
 	
 	/**
+	 * Gets list of items from list of ids
+	 */
+	public List<Item> getItemsFromIds(ArrayList<Long> ids, String table, String ratings_table, long userId) {
+		List<Item> items = new ArrayList<Item>();
+		try {
+			ResultSet res;
+			
+			synchronized(this.client) {
+				String query = "SELECT " + table + ".id, " + table + ".title, " + 
+						table + ".description, " + table + ".image, " + ratings_table + ".rating FROM " 
+						+ table + " LEFT JOIN " + ratings_table + " ON " + ratings_table + ".item_id=" +
+						table + ".id" + " AND user_id=" + userId + " WHERE (id='";
+				for (int i = 0; i < ids.size() - 1; i++) {
+					query += ids.get(i) + "' OR id='";
+				}
+				query += ids.get(ids.size() - 1) + "')";
+				res = this.client.execute_sql(this.conn, query, null);
+			}
+			
+			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
+			for (Tuple t : res.getTuples()) {
+				List<ByteBuffer> cells = t.getCells();
+				Item item = new Item();
+				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("id")).array())));
+				item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
+				item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
+				item.setImage(new String(cells.get(colToIndex.get("image")).array()));
+				if (!new String(cells.get(colToIndex.get("rating")).array()).equals("None"))
+					item.setRating(Long.parseLong(new String(cells.get(colToIndex.get("rating")).array())));
+				items.add(item);
+			}
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return items;
+	}
+	
+	/**
 	 * Gets item from item id
 	 */
 	public Item getItemFromId(long id, String table) {
@@ -622,7 +708,8 @@ public class DatahubDataModel implements DataModel{
 			ResultSet res;
 			
 			synchronized(this.client) {
-				res = this.client.execute_sql(this.conn, "SELECT * FROM " + table + " WHERE id='" + id + "'", null);
+				res = this.client.execute_sql(this.conn, "SELECT id, title, description, image FROM " + table 
+						+ " WHERE id='" + id + "'", null);
 			}
 			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
 			
@@ -720,7 +807,20 @@ public class DatahubDataModel implements DataModel{
 	    }
 		return colToIndex;
 	}
-
+	
+	/**
+	 * Writes newest preferences to delta files
+	 */
+	private void writeNewRatings(long userId, long itemId, long rating) {
+		try {
+		    FileWriter fw = new FileWriter("/Users/qliu/Documents/kibitz/BX-CSV-Dump/qqb2_ratings_f.update.csv",true);
+		    fw.write(userId + "," + itemId + "," + rating + "\n");
+		    fw.close();
+		} catch(IOException e) {
+		    System.err.println("IOException: " + e.getMessage());
+		}
+	}
+ 
 	/**
 	* Cleanup mapping collection.
 	*/

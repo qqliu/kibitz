@@ -26,7 +26,9 @@ public class KibitzServer implements Iface {
 		
 		// Start thread to continuously train recommenders
 		if (this.loop == null) {
-			this.loop = new Thread(new RecommenderRunnable());
+			Thread training = new Thread(new RecommenderRunnable());
+			training.setName("Training Thread");
+			this.loop = training;
 			this.loop.start();
 		}
 	}
@@ -49,7 +51,9 @@ public class KibitzServer implements Iface {
 		}
 		
 		if(!this.loop.isAlive()) {
-			this.loop = new Thread(new RecommenderRunnable());
+			Thread training = new Thread(new RecommenderRunnable());
+			training.setName("Training Thread");
+			this.loop = training;
 			this.loop.start();
 		}
 		return null;
@@ -65,7 +69,9 @@ public class KibitzServer implements Iface {
 		}
 		
 		if(!this.loop.isAlive()) {
-			this.loop = new Thread(new RecommenderRunnable());
+			Thread training = new Thread(new RecommenderRunnable());
+			training.setName("Training Thread");
+			this.loop = training;
 			this.loop.start();
 		}
 	}
@@ -95,7 +101,9 @@ public class KibitzServer implements Iface {
 		}
 		
 		if(!this.loop.isAlive()) {
-			this.loop = new Thread(new RecommenderRunnable());
+			Thread training = new Thread(new RecommenderRunnable());
+			training.setName("Training Thread");
+			this.loop = training;
 			this.loop.start();
 		}
 		return null;
@@ -130,7 +138,9 @@ public class KibitzServer implements Iface {
 		}
 		
 		if(!this.loop.isAlive()) {
-			this.loop = new Thread(new RecommenderRunnable());
+			Thread training = new Thread(new RecommenderRunnable());
+			training.setName("Training Thread");
+			this.loop = training;
 			this.loop.start();
 		}
 		return null;
@@ -144,7 +154,9 @@ public class KibitzServer implements Iface {
 			}
 		}
 		if(!this.loop.isAlive()) {
-			this.loop = new Thread(new RecommenderRunnable());
+			Thread training = new Thread(new RecommenderRunnable());
+			training.setName("Training Thread");
+			this.loop = training;
 			this.loop.start();
 		}
 		return 0;
@@ -158,7 +170,9 @@ public class KibitzServer implements Iface {
 			}
 		}
 		if(!this.loop.isAlive()) {
-			this.loop = new Thread(new RecommenderRunnable());
+			Thread training = new Thread(new RecommenderRunnable());
+			training.setName("Training Thread");
+			this.loop = training;
 			this.loop.start();
 		}
 		
@@ -173,7 +187,9 @@ public class KibitzServer implements Iface {
 			}
 		}
 		if(!this.loop.isAlive()) {
-			this.loop = new Thread(new RecommenderRunnable());
+			Thread training = new Thread(new RecommenderRunnable());
+			training.setName("Training Thread");
+			this.loop = training;
 			this.loop.start();
 		}
 	}
@@ -186,7 +202,9 @@ public class KibitzServer implements Iface {
 			}
 		}
 		if(!this.loop.isAlive()) {
-			this.loop = new Thread(new RecommenderRunnable());
+			Thread training = new Thread(new RecommenderRunnable());
+			training.setName("Training Thread");
+			this.loop = training;
 			this.loop.start();
 		}
 	}
@@ -199,7 +217,9 @@ public class KibitzServer implements Iface {
 			}
 		}
 		if(!this.loop.isAlive()) {
-			this.loop = new Thread(new RecommenderRunnable());
+			Thread training = new Thread(new RecommenderRunnable());
+			training.setName("Training Thread");
+			this.loop = training;
 			this.loop.start();
 		}
 		return null;
@@ -232,7 +252,9 @@ public class KibitzServer implements Iface {
 			}
 		}
 		if(!this.loop.isAlive()) {
-			this.loop = new Thread(new RecommenderRunnable());
+			Thread training = new Thread(new RecommenderRunnable());
+			training.setName("Training Thread");
+			this.loop = training;
 			this.loop.start();
 		}
 		return null;
