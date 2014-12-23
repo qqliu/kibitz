@@ -1,15 +1,21 @@
 package kibitz;
 
 import java.net.UnknownHostException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import kibitz.RecommenderService.Iface;
 
 import org.apache.mahout.cf.taste.impl.recommender.AbstractRecommender;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+
+import static java.util.concurrent.TimeUnit.*;
 
 public class KibitzServer implements Iface {
 	
@@ -20,16 +26,21 @@ public class KibitzServer implements Iface {
 	private MysqlDataSource dataSource;
 	private DatahubDataModel dataModel = null;
 	private Thread loop = null;
+	private Thread terminateModelRecs = null;
 	
 	public KibitzServer(MysqlDataSource dataSource) {
 		this.dataSource = dataSource;
 		
-		// Start thread to continuously train recommenders
+		// Start thread to continuously train recommenders and terminate recommenders
 		if (this.loop == null) {
 			Thread training = new Thread(new RecommenderRunnable());
+			Thread terminateModel = new Thread(new TerminateModels());
 			training.setName("Training Thread");
+			terminateModel.setName("Terminate Model Thread");
 			this.loop = training;
 			this.loop.start();
+			this.terminateModelRecs = terminateModel;
+			this.terminateModelRecs.start();
 		}
 	}
 	
@@ -56,6 +67,14 @@ public class KibitzServer implements Iface {
 			this.loop = training;
 			this.loop.start();
 		}
+		
+		if(!this.terminateModelRecs.isAlive()) {
+			Thread terminateModel = new Thread(new TerminateModels());
+			terminateModel.setName("Terminate Model Thread");			
+			this.terminateModelRecs = terminateModel;
+			this.terminateModelRecs.start();
+		}
+		
 		return null;
 	}
 	
@@ -73,6 +92,13 @@ public class KibitzServer implements Iface {
 			training.setName("Training Thread");
 			this.loop = training;
 			this.loop.start();
+		}
+		
+		if(!this.terminateModelRecs.isAlive()) {
+			Thread terminateModel = new Thread(new TerminateModels());
+			terminateModel.setName("Terminate Model Thread");			
+			this.terminateModelRecs = terminateModel;
+			this.terminateModelRecs.start();
 		}
 	}
 	
@@ -106,6 +132,14 @@ public class KibitzServer implements Iface {
 			this.loop = training;
 			this.loop.start();
 		}
+		
+		if(!this.terminateModelRecs.isAlive()) {
+			Thread terminateModel = new Thread(new TerminateModels());
+			terminateModel.setName("Terminate Model Thread");			
+			this.terminateModelRecs = terminateModel;
+			this.terminateModelRecs.start();
+		}
+		
 		return null;
     }
 	
@@ -143,6 +177,14 @@ public class KibitzServer implements Iface {
 			this.loop = training;
 			this.loop.start();
 		}
+		
+		if(!this.terminateModelRecs.isAlive()) {
+			Thread terminateModel = new Thread(new TerminateModels());
+			terminateModel.setName("Terminate Model Thread");			
+			this.terminateModelRecs = terminateModel;
+			this.terminateModelRecs.start();
+		}
+		
 		return null;
 	}
 	
@@ -159,6 +201,14 @@ public class KibitzServer implements Iface {
 			this.loop = training;
 			this.loop.start();
 		}
+		
+		if(!this.terminateModelRecs.isAlive()) {
+			Thread terminateModel = new Thread(new TerminateModels());
+			terminateModel.setName("Terminate Model Thread");			
+			this.terminateModelRecs = terminateModel;
+			this.terminateModelRecs.start();
+		}
+		
 		return 0;
 	}
 	
@@ -174,6 +224,13 @@ public class KibitzServer implements Iface {
 			training.setName("Training Thread");
 			this.loop = training;
 			this.loop.start();
+		}
+		
+		if(!this.terminateModelRecs.isAlive()) {
+			Thread terminateModel = new Thread(new TerminateModels());
+			terminateModel.setName("Terminate Model Thread");			
+			this.terminateModelRecs = terminateModel;
+			this.terminateModelRecs.start();
 		}
 		
 		return null;
@@ -192,6 +249,13 @@ public class KibitzServer implements Iface {
 			this.loop = training;
 			this.loop.start();
 		}
+		
+		if(!this.terminateModelRecs.isAlive()) {
+			Thread terminateModel = new Thread(new TerminateModels());
+			terminateModel.setName("Terminate Model Thread");			
+			this.terminateModelRecs = terminateModel;
+			this.terminateModelRecs.start();
+		}
 	}
 	
 	@Override
@@ -206,6 +270,13 @@ public class KibitzServer implements Iface {
 			training.setName("Training Thread");
 			this.loop = training;
 			this.loop.start();
+		}
+		
+		if(!this.terminateModelRecs.isAlive()) {
+			Thread terminateModel = new Thread(new TerminateModels());
+			terminateModel.setName("Terminate Model Thread");			
+			this.terminateModelRecs = terminateModel;
+			this.terminateModelRecs.start();
 		}
 	}
 	
@@ -222,6 +293,14 @@ public class KibitzServer implements Iface {
 			this.loop = training;
 			this.loop.start();
 		}
+		
+		if(!this.terminateModelRecs.isAlive()) {
+			Thread terminateModel = new Thread(new TerminateModels());
+			terminateModel.setName("Terminate Model Thread");			
+			this.terminateModelRecs = terminateModel;
+			this.terminateModelRecs.start();
+		}
+		
 		return null;
 	}
 
@@ -257,6 +336,14 @@ public class KibitzServer implements Iface {
 			this.loop = training;
 			this.loop.start();
 		}
+		
+		if(!this.terminateModelRecs.isAlive()) {
+			Thread terminateModel = new Thread(new TerminateModels());
+			terminateModel.setName("Terminate Model Thread");			
+			this.terminateModelRecs = terminateModel;
+			this.terminateModelRecs.start();
+		}
+		
 		return null;
 	}
 	
@@ -290,6 +377,39 @@ public class KibitzServer implements Iface {
 		private boolean updateDataModel(IndividualRecommender rec) {
 			rec.updateDataModel();
 			return rec.getRefreshed();
+		}
+	}
+	
+	public class TerminateModels implements Runnable {	
+		public void run() {
+			while (RUNNING) {
+				Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+				
+				try {
+					Thread.sleep(400000000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				if(SESSIONS.size() != 0) {
+					for (String key: SESSIONS.keySet()) {
+						IndividualRecommender rec = SESSIONS.get(key);
+						String stamp = Pattern.quote(rec.getTimestamp()).split("\\.")[0].substring(2);
+						SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+						Date lastUpdateTime;
+						try {
+							lastUpdateTime = formatter.parse(stamp);
+							Date today = new Date();
+							if ((today.getTime() - lastUpdateTime.getTime()) >= MILLISECONDS.convert(20, DAYS)) {
+								SESSIONS.remove(key);
+							}
+						} catch (ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+			}
 		}
 	}
 }

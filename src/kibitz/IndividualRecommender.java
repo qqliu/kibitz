@@ -291,4 +291,8 @@ public class IndividualRecommender {
 	public boolean getRefreshed() {
 		return this.dataModel.getRefreshed();
 	}
+	
+	public String getTimestamp() {
+		return this.dataModel.getTimestamp();
+	}
 }

@@ -216,6 +216,15 @@ public class DatahubDataModel implements DataModel{
 		} catch(Exception e) {
 			e.printStackTrace();
 		}*/
+			ResultSet last = this.client.execute_sql(this.conn, "SELECT MAX(updated) FROM " + this.datahubDatabase + "." + "update_log where table_name='" + this.datahubTableName + "'", null);
+			
+			if(last != null) {
+				for (Tuple t : last.getTuples()) {
+					List<ByteBuffer> cells = t.getCells();
+					this.lastTimestamp = new String(cells.get(0).array());
+				}
+			}
+			
 			long startTime = System.nanoTime();
 			this.delegate = new FileDataModel(new File("/Users/qliu/Documents/kibitz/BX-CSV-Dump/qqb2_ratings_f.csv"));
 			long endTime = System.nanoTime();
@@ -781,6 +790,13 @@ public class DatahubDataModel implements DataModel{
 	
 	public boolean getRefreshed() {
 		return this.refreshed;
+	}
+	
+	/**
+	 * Returns last timestamp; used to terminate old recommenders
+	 */
+	public String getTimestamp() {
+		return this.lastTimestamp;
 	}
 	
 	/**
