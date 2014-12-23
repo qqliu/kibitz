@@ -50,7 +50,7 @@ public class DatahubDataModel implements DataModel{
 	/** Default Datahub Table Name*/
 	private static final String DEFAULT_DATAHUB_TABLENAME = "users";
 	
-	private String datahubHost = DEFAULT_DATAHUB_HOST;
+	private String datahubHost = getDefaultDatahubHost();
 	private String datahubUsername = getDefaultDatahubUsername();
 	private String datahubPassword = getDefaultDatahubPassword();
 	private String datahubDatabase = DEFAULT_DATAHUB_DATABASE;
@@ -800,6 +800,31 @@ public class DatahubDataModel implements DataModel{
 	}
 	
 	/**
+	 * Adds this Kibitz user to database
+	 */
+	public void addKibitzUser(String databaseName, String username, String password, String ratings_table) {
+		try {
+			THttpClient transport = new THttpClient(this.datahubHost);
+			TBinaryProtocol protocol = new  TBinaryProtocol(transport);
+			DataHub.Client clnt = new DataHub.Client(protocol);
+	
+			ConnectionParams params = new ConnectionParams();
+			params.setUser(DatahubDataModel.getDefaultDatahubUsername());
+			params.setPassword(DatahubDataModel.getDefaultDatahubPassword());
+			Connection connection = clnt.open_connection(params);
+			
+			clnt.execute_sql(connection, "INSERT INTO kibitz_users.users (database, username, password, ratings_table) "
+					+ " VALUES (" + databaseName + ", " + username + ", " + password + ", " + ratings_table + ")", null);
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/**
 	 * Removes Datahub User Item
 	 */
 	private void removeDatahubUserItem(String userID, String itemID) {
@@ -937,5 +962,9 @@ public class DatahubDataModel implements DataModel{
 
 	public static String getDefaultDatahubTablename() {
 		return DEFAULT_DATAHUB_TABLENAME;
+	}
+
+	public static String getDefaultDatahubHost() {
+		return DEFAULT_DATAHUB_HOST;
 	}
 }
