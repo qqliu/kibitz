@@ -15,15 +15,10 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.mahout.cf.taste.common.Refreshable;
 import org.apache.mahout.cf.taste.common.TasteException;
-import org.apache.mahout.cf.taste.impl.common.FastByIDMap;
 import org.apache.mahout.cf.taste.impl.common.FastIDSet;
 import org.apache.mahout.cf.taste.impl.common.LongPrimitiveIterator;
-import org.apache.mahout.cf.taste.impl.model.GenericDataModel;
-import org.apache.mahout.cf.taste.impl.model.GenericPreference;
-import org.apache.mahout.cf.taste.impl.model.PlusAnonymousConcurrentUserDataModel;
 import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.model.DataModel;
-import org.apache.mahout.cf.taste.model.Preference;
 import org.apache.mahout.cf.taste.model.PreferenceArray;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -33,8 +28,6 @@ import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
 import datahub.*;
-
-import com.google.common.collect.Lists;
 
 public class DatahubDataModel implements DataModel{
 	/**
@@ -121,6 +114,12 @@ public class DatahubDataModel implements DataModel{
 	public void refresh(Collection<Refreshable> alreadyRefreshed) {
 		Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
 		try {
+			Thread.sleep(100000);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		try {
 			ResultSet last;
 			synchronized(this.client) {
 				last = this.client.execute_sql(this.conn, "SELECT MAX(updated) FROM " + this.datahubDatabase + "." + "update_log where table_name='" + this.datahubTableName + "'", null);
@@ -130,9 +129,10 @@ public class DatahubDataModel implements DataModel{
 					List<ByteBuffer> cells = t.getCells();
 					String stamp = new String(cells.get(0).array());
 					if (!this.lastTimestamp.equals(stamp) && !stamp.equals("None")) {
-						this.buildModel();
+						//this.buildModel();
 						this.lastTimestamp = stamp;
 						this.refreshed = true;
+						this.delegate.refresh(null);
 					} else {
 						this.refreshed = false;
 					}
@@ -144,9 +144,6 @@ public class DatahubDataModel implements DataModel{
 		} catch (TException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (UnknownHostException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
 		}
 	}
 	
@@ -498,7 +495,7 @@ public class DatahubDataModel implements DataModel{
 			 // TODO Auto-generated catch block
 			 e.printStackTrace();
 		 }*/
-		 this.delegate.refresh(null);
+		 //this.delegate.refresh(null);
 	 }
 	 
 	 public void createNewUser(List<?> columns, String suffix, List<String>columnNames, String table, boolean isCentralRepo) {
@@ -667,15 +664,19 @@ public class DatahubDataModel implements DataModel{
 			ResultSet res;
 			
 			synchronized(this.client) {
-				String query = "SELECT " + table + ".id, " + table + ".title, " + 
+				if(ids.size() > 0) {
+					String query = "SELECT " + table + ".id, " + table + ".title, " + 
 						table + ".description, " + table + ".image, " + ratings_table + ".rating FROM " 
 						+ table + " LEFT JOIN " + ratings_table + " ON " + ratings_table + ".item_id=" +
 						table + ".id" + " AND user_id=" + userId + " WHERE (id='";
-				for (int i = 0; i < ids.size() - 1; i++) {
-					query += ids.get(i) + "' OR id='";
+					for (int i = 0; i < ids.size() - 1; i++) {
+						query += ids.get(i) + "' OR id='";
+					}
+					query += ids.get(ids.size() - 1) + "')";
+					res = this.client.execute_sql(this.conn, query, null);
+				} else {
+					return new ArrayList<Item>();
 				}
-				query += ids.get(ids.size() - 1) + "')";
-				res = this.client.execute_sql(this.conn, query, null);
 			}
 			
 			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
@@ -814,7 +815,10 @@ public class DatahubDataModel implements DataModel{
 	private void writeNewRatings(long userId, long itemId, long rating) {
 		try {
 		    FileWriter fw = new FileWriter("/Users/qliu/Documents/kibitz/BX-CSV-Dump/qqb2_ratings_f.update.csv",true);
-		    fw.write(userId + "," + itemId + "," + rating + "\n");
+		    if (rating == -1) 
+		    	fw.write(userId + "," + itemId + ", \n");
+		    else 
+		    	fw.write(userId + "," + itemId + "," + rating + "\n");
 		    fw.close();
 		} catch(IOException e) {
 		    System.err.println("IOException: " + e.getMessage());
