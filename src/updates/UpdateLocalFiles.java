@@ -1,9 +1,8 @@
 package updates;
 
-import static java.util.concurrent.TimeUnit.DAYS;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.HOURS;
+import static java.util.concurrent.TimeUnit.*;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -61,13 +60,17 @@ public class UpdateLocalFiles {
 							kibitzUserParams.setPassword(password);
 							Connection client_con = client.open_connection(kibitzUserParams);
 							
+							File file = new File(KIBITZ_LOCAL_STORAGE_ADDR + database);
+							file.mkdir();
+							file = new File(KIBITZ_LOCAL_STORAGE_ADDR + database + "/" + ratings_table + ".csv");
+							file.createNewFile();
 							FileWriter writer = new FileWriter(KIBITZ_LOCAL_STORAGE_ADDR + database + "/" + ratings_table + ".csv"); 
 							
 							ResultSet count = client.execute_sql(client_con, "select count(*) from " + ratings_table, null);;
 							int numItems = Integer.parseInt(new String(count.getTuples().get(0).getCells().get(0).array()));
 									
 							for (int i = 0; i < numItems; i += 10000) {
-								ResultSet res = client.execute_sql(client_con, "SELECT * FROM " + database + "." + ratings_table + 
+								ResultSet res = client.execute_sql(client_con, "SELECT * FROM " + ratings_table + 
 										" LIMIT " + 10000 + " OFFSET " + i, null);
 								for (Tuple tt : res.getTuples()) {
 									List<ByteBuffer> c = tt.getCells();
@@ -90,6 +93,6 @@ public class UpdateLocalFiles {
 		}
 		
 		Timer timer = new Timer();
-		timer.schedule(new GetDataTask(), MILLISECONDS.convert(3, HOURS), MILLISECONDS.convert(1, DAYS));
+		timer.schedule(new GetDataTask(), MILLISECONDS.convert(12, HOURS), MILLISECONDS.convert(24, HOURS));
 	}
 }
