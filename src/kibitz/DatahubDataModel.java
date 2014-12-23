@@ -27,6 +27,7 @@ import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
+import updates.UpdateLocalFiles;
 import datahub.*;
 
 public class DatahubDataModel implements DataModel{
@@ -226,7 +227,8 @@ public class DatahubDataModel implements DataModel{
 			}
 			
 			long startTime = System.nanoTime();
-			this.delegate = new FileDataModel(new File("/Users/qliu/Documents/kibitz/BX-CSV-Dump/qqb2_ratings_f.csv"));
+			this.delegate = new FileDataModel(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.datahubDatabase + 
+					"/" + this.datahubDatabase + "." + this.datahubTableName + ".csv"));
 			long endTime = System.nanoTime();
 			System.out.println("Time it takes to retrieve items from file: " + (endTime - startTime));
 		} catch (IOException e) {
@@ -855,7 +857,8 @@ public class DatahubDataModel implements DataModel{
 	 */
 	private void writeNewRatings(long userId, long itemId, long rating) {
 		try {
-		    FileWriter fw = new FileWriter("/Users/qliu/Documents/kibitz/BX-CSV-Dump/qqb2_ratings_f.update.csv",true);
+		    FileWriter fw = new FileWriter(UpdateLocalFiles.getKibitzLocalStorageAddr() + 
+		    		this.datahubDatabase + "/" + this.datahubTableName + ".update.csv",true);
 		    if (rating == -1) 
 		    	fw.write(userId + "," + itemId + ", \n");
 		    else 

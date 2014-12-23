@@ -245,7 +245,7 @@ public class IndividualRecommender {
 						this.username,
 						this.password,
 						this.ratings_table);
-				this.dataModel.addKibitzUser(this.databaseName, this.username, this.password, this.ratings_table);
+				this.dataModel.addKibitzUser(this.databaseName, this.username, this.password, this.databaseName + "." + this.ratings_table);
 			}
 			
 			if (KibitzServer.RECOMMENDERS.get(table + username + password + database) != null) {

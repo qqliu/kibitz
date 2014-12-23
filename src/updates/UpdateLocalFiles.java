@@ -60,11 +60,11 @@ public class UpdateLocalFiles {
 							kibitzUserParams.setPassword(password);
 							Connection client_con = client.open_connection(kibitzUserParams);
 							
-							File file = new File(KIBITZ_LOCAL_STORAGE_ADDR + database);
+							File file = new File(getKibitzLocalStorageAddr() + database);
 							file.mkdir();
-							file = new File(KIBITZ_LOCAL_STORAGE_ADDR + database + "/" + ratings_table + ".csv");
+							file = new File(getKibitzLocalStorageAddr() + database + "/" + ratings_table + ".csv");
 							file.createNewFile();
-							FileWriter writer = new FileWriter(KIBITZ_LOCAL_STORAGE_ADDR + database + "/" + ratings_table + ".csv"); 
+							FileWriter writer = new FileWriter(getKibitzLocalStorageAddr() + database + "/" + ratings_table + ".csv"); 
 							
 							ResultSet count = client.execute_sql(client_con, "select count(*) from " + ratings_table, null);;
 							int numItems = Integer.parseInt(new String(count.getTuples().get(0).getCells().get(0).array()));
@@ -94,5 +94,9 @@ public class UpdateLocalFiles {
 		
 		Timer timer = new Timer();
 		timer.schedule(new GetDataTask(), MILLISECONDS.convert(12, HOURS), MILLISECONDS.convert(24, HOURS));
+	}
+
+	public static String getKibitzLocalStorageAddr() {
+		return KIBITZ_LOCAL_STORAGE_ADDR;
 	}
 }
