@@ -1,8 +1,10 @@
 package kibitz;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
@@ -13,6 +15,11 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.mahout.cf.taste.common.Refreshable;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.common.FastIDSet;
@@ -51,6 +58,8 @@ public class DatahubDataModel implements DataModel{
 	/** Default Datahub Table Name*/
 	private static final String DEFAULT_DATAHUB_TABLENAME = "users";
 	
+	private static final String USER_AGENT = "Mozilla/5.0";
+	
 	private String datahubHost = getDefaultDatahubHost();
 	private String datahubUsername = getDefaultDatahubUsername();
 	private String datahubPassword = getDefaultDatahubPassword();
@@ -65,6 +74,9 @@ public class DatahubDataModel implements DataModel{
 	private DataHub.Client client;
 	private ConnectionParams con_params;
 	private Connection conn;
+
+	private FileWriter writer = null;
+	private File file = null;
 
 	/**
 	* Creates a new DatahubDataModel
@@ -352,7 +364,8 @@ public class DatahubDataModel implements DataModel{
 	/**
 	 * Creates all associated tables associated with a new recommender.
 	 */
-	public boolean createNewRecommender(String table) {
+	public boolean createNewRecommender(String table, String firstColumnName, String secondColumnName, String thirdColumnName,
+    		String firstColumnType, String secondColumnType, String thirdColumnType) {
 		try {
 			synchronized(this.client) {
 				this.client.execute_sql(this.conn, "alter table " + this.datahubDatabase + "." + table + " add id serial", null);
@@ -369,6 +382,89 @@ public class DatahubDataModel implements DataModel{
 				this.client.execute_sql(this.conn, "CREATE TRIGGER " + table + "_ratings_timestamp_update_log"
 												+ "AFTER INSERT OR UPDATE ON " + this.datahubDatabase + "." + table + "_ratings FOR EACH STATEMENT EXECUTE procedure timestamp_update_log();", null);
 			}
+			
+			float firstColumnScore = 0;
+			float secondColumnScore = 0;
+			float thirdColumnScore = 0;
+			int numItems = this.getItemCount(table);
+			
+			String query = "SELECT DISTINCT p1.id AS firstId, p2.id AS secondId, ";
+			
+			if (firstColumnName != null) {
+				query += "p1." + firstColumnName + " AS first1, p2." + firstColumnName + " AS second1";
+			}
+			
+			if (secondColumnName != null) {
+				query += ",p1." + secondColumnName + " AS first2, p2." + secondColumnName + " AS second2";
+			}
+			
+			if (thirdColumnName != null) {
+				query += ",p1." + thirdColumnName + " AS first3, p2." + thirdColumnName + " AS second3";
+			}
+			
+			for (int i = 0; i < numItems; i+= 10000) {
+				query += " FROM " + this.datahubDatabase + "." + table + " AS p1, " + this.datahubDatabase + "." + table + " AS p2 ORDER BY p1.id, p2.id LIMIT " + 10000 + " OFFSET " + i;
+			
+				ResultSet res;
+				synchronized(this.client) {
+					res = this.client.execute_sql(this.conn, query, null);
+				}
+				HashMap<String, Integer> colToIndex = this.getFieldNames(res);
+			
+				for (Tuple t : res.getTuples()) {
+					List<ByteBuffer> cells = t.getCells();
+					if (firstColumnName != null) {
+						String first1 = new String(cells.get(colToIndex.get("first1")).array());
+						String second1 = new String(cells.get(colToIndex.get("second1")).array());
+						if (firstColumnType.equals("ssn")) {
+							firstColumnScore += evaluateShortNounsSimilarity(first1, second1);
+						} else if (firstColumnType.equals("ssv")) {
+							firstColumnScore += evaluateShortVerbsSimilarity(first1, second1);
+						} else if (firstColumnType.equals("ss")) {
+							firstColumnScore += evaluateShortVarietySimilarity(first1, second1);
+						} else if (firstColumnType.equals("number")) {
+							firstColumnScore += evaluateNumberSimilarity(first1, second1);
+						} else {
+							firstColumnScore += evaluateLongPhraseSimilarity(first1, second1);
+						}
+					}
+					
+					if (secondColumnName != null) {
+						String first2 = new String(cells.get(colToIndex.get("first2")).array());
+						String second2 = new String(cells.get(colToIndex.get("second2")).array());
+						if (secondColumnType.equals("ssn")) {
+							secondColumnScore += evaluateShortNounsSimilarity(first2, second2);
+						} else if (secondColumnType.equals("ssv")) {
+							secondColumnScore += evaluateShortVerbsSimilarity(first2, second2);
+						} else if (secondColumnType.equals("ss")) {
+							secondColumnScore += evaluateShortVarietySimilarity(first2, second2);
+						} else if (secondColumnType.equals("number")) {
+							secondColumnScore += evaluateNumberSimilarity(first2, second2);
+						} else {
+							secondColumnScore += evaluateLongPhraseSimilarity(first2, second2);
+						}
+					}
+					
+					if (thirdColumnName != null) {
+						String first3 = new String(cells.get(colToIndex.get("first3")).array());
+						String second3 = new String(cells.get(colToIndex.get("second3")).array());
+						if (thirdColumnType.equals("ssn")) {
+							thirdColumnScore += evaluateShortNounsSimilarity(first3, second3);
+						} else if (thirdColumnType.equals("ssv")) {
+							thirdColumnScore += evaluateShortVerbsSimilarity(first3, second3);
+						} else if (thirdColumnType.equals("ss")) {
+							thirdColumnScore += evaluateShortVarietySimilarity(first3, second3);
+						} else if (thirdColumnType.equals("number")) {
+							thirdColumnScore += evaluateNumberSimilarity(first3, second3);
+						} else {
+							thirdColumnScore += evaluateLongPhraseSimilarity(first3, second3);
+						}
+					}
+					
+					this.writeSimilarityScore(table, new String(cells.get(colToIndex.get("firstId")).array()), 
+							new String(cells.get(colToIndex.get("secondId")).array()), firstColumnScore + secondColumnScore + thirdColumnScore);
+				}
+			}
 			return true;
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
@@ -376,8 +472,83 @@ public class DatahubDataModel implements DataModel{
 		} catch (TException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return false;
+	}
+	
+	private float evaluateShortNounsSimilarity(String first, String second) throws IllegalStateException, IOException {
+		String url = "http://swoogle.umbc.edu/SimService/GetSimilarity?operation=api&phrase1="
+				+ first + "_NN&phrase2=" + second + "_NN";
+		return querySimilarityEngine(url);
+	}
+	
+	private float evaluateShortVerbsSimilarity(String first, String second) throws ClientProtocolException, IOException {
+		String url = "http://swoogle.umbc.edu/SimService/GetSimilarity?operation=api&phrase1="
+				+ first + "_VB&phrase2=" + second + "_VB";
+		return querySimilarityEngine(url);
+	}
+	
+	private float evaluateShortVarietySimilarity(String first, String second) throws ClientProtocolException, IOException {
+		String url = "http://swoogle.umbc.edu/SimService/GetSimilarity?operation=api&phrase1="
+				+ first + "&phrase2=" + second;
+		return querySimilarityEngine(url);
+	}
+	
+	private float evaluateLongPhraseSimilarity(String first, String second) throws ClientProtocolException, IOException {
+		String url = "http://swoogle.umbc.edu/StsService/GetStsSim?operation=api&phrase1="
+				+ first + "&phrase2=" + second;
+		return querySimilarityEngine(url);
+	}
+	
+	private float evaluateNumberSimilarity(String first, String second) {
+		try {
+			float firstNum = Float.parseFloat(first);
+			float secondNum = Float.parseFloat(second);
+			return Math.abs(firstNum - secondNum);
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	private void writeSimilarityScore(String table, String firstId, String secondId, float score) {
+		try {	
+			if (this.file == null || this.writer == null) {
+				String storageDir = UpdateLocalFiles.getKibitzLocalStorageAddr();
+				this.file = new File(storageDir + this.datahubDatabase);
+				this.file.mkdir();
+				this.file = new File(storageDir + this.datahubDatabase + "/" + table + "_item_similarity.csv");
+				this.file.createNewFile();
+				this.writer  = new FileWriter(storageDir + this.datahubDatabase + "/" + table + "_item_similarity.csv");
+			}
+			this.writer .write(firstId + "," + secondId + (double) Math.round(score * 100) / 100 + "\n");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private float querySimilarityEngine(String url) throws ClientProtocolException, IOException {
+		HttpClient client = new DefaultHttpClient();
+		HttpGet request = new HttpGet(url);
+		request.addHeader("User-Agent", USER_AGENT);
+		
+		HttpResponse response = client.execute(request);
+		
+		BufferedReader rd = new BufferedReader(
+                new InputStreamReader(response.getEntity().getContent()));
+		
+		String line;
+		while ((line = rd.readLine()) != null) {
+			return new Float(line.toString());
+		}
+		return 0;
 	}
 	
 	/**

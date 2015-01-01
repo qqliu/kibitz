@@ -60,7 +60,7 @@ public class RecommenderService {
 
     public long retrieveUserId(String key, String username, String password) throws org.apache.thrift.TException;
 
-    public boolean createNewRecommender(String username, String password, String database, String table) throws org.apache.thrift.TException;
+    public boolean createNewRecommender(String username, String password, String database, String table, String firstColumnName, String secondColumnName, String thirdColumnName, String firstColumnType, String secondColumnType, String thirdColumnType) throws org.apache.thrift.TException;
 
     public List<Item> getUserRatedItems(String key, long userId) throws org.apache.thrift.TException;
 
@@ -96,7 +96,7 @@ public class RecommenderService {
 
     public void retrieveUserId(String key, String username, String password, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void createNewRecommender(String username, String password, String database, String table, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void createNewRecommender(String username, String password, String database, String table, String firstColumnName, String secondColumnName, String thirdColumnName, String firstColumnType, String secondColumnType, String thirdColumnType, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void getUserRatedItems(String key, long userId, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
@@ -410,19 +410,25 @@ public class RecommenderService {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "retrieveUserId failed: unknown result");
     }
 
-    public boolean createNewRecommender(String username, String password, String database, String table) throws org.apache.thrift.TException
+    public boolean createNewRecommender(String username, String password, String database, String table, String firstColumnName, String secondColumnName, String thirdColumnName, String firstColumnType, String secondColumnType, String thirdColumnType) throws org.apache.thrift.TException
     {
-      send_createNewRecommender(username, password, database, table);
+      send_createNewRecommender(username, password, database, table, firstColumnName, secondColumnName, thirdColumnName, firstColumnType, secondColumnType, thirdColumnType);
       return recv_createNewRecommender();
     }
 
-    public void send_createNewRecommender(String username, String password, String database, String table) throws org.apache.thrift.TException
+    public void send_createNewRecommender(String username, String password, String database, String table, String firstColumnName, String secondColumnName, String thirdColumnName, String firstColumnType, String secondColumnType, String thirdColumnType) throws org.apache.thrift.TException
     {
       createNewRecommender_args args = new createNewRecommender_args();
       args.setUsername(username);
       args.setPassword(password);
       args.setDatabase(database);
       args.setTable(table);
+      args.setFirstColumnName(firstColumnName);
+      args.setSecondColumnName(secondColumnName);
+      args.setThirdColumnName(thirdColumnName);
+      args.setFirstColumnType(firstColumnType);
+      args.setSecondColumnType(secondColumnType);
+      args.setThirdColumnType(thirdColumnType);
       sendBase("createNewRecommender", args);
     }
 
@@ -970,9 +976,9 @@ public class RecommenderService {
       }
     }
 
-    public void createNewRecommender(String username, String password, String database, String table, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void createNewRecommender(String username, String password, String database, String table, String firstColumnName, String secondColumnName, String thirdColumnName, String firstColumnType, String secondColumnType, String thirdColumnType, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      createNewRecommender_call method_call = new createNewRecommender_call(username, password, database, table, resultHandler, this, ___protocolFactory, ___transport);
+      createNewRecommender_call method_call = new createNewRecommender_call(username, password, database, table, firstColumnName, secondColumnName, thirdColumnName, firstColumnType, secondColumnType, thirdColumnType, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
@@ -982,12 +988,24 @@ public class RecommenderService {
       private String password;
       private String database;
       private String table;
-      public createNewRecommender_call(String username, String password, String database, String table, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private String firstColumnName;
+      private String secondColumnName;
+      private String thirdColumnName;
+      private String firstColumnType;
+      private String secondColumnType;
+      private String thirdColumnType;
+      public createNewRecommender_call(String username, String password, String database, String table, String firstColumnName, String secondColumnName, String thirdColumnName, String firstColumnType, String secondColumnType, String thirdColumnType, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.username = username;
         this.password = password;
         this.database = database;
         this.table = table;
+        this.firstColumnName = firstColumnName;
+        this.secondColumnName = secondColumnName;
+        this.thirdColumnName = thirdColumnName;
+        this.firstColumnType = firstColumnType;
+        this.secondColumnType = secondColumnType;
+        this.thirdColumnType = thirdColumnType;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
@@ -997,6 +1015,12 @@ public class RecommenderService {
         args.setPassword(password);
         args.setDatabase(database);
         args.setTable(table);
+        args.setFirstColumnName(firstColumnName);
+        args.setSecondColumnName(secondColumnName);
+        args.setThirdColumnName(thirdColumnName);
+        args.setFirstColumnType(firstColumnType);
+        args.setSecondColumnType(secondColumnType);
+        args.setThirdColumnType(thirdColumnType);
         args.write(prot);
         prot.writeMessageEnd();
       }
@@ -1416,7 +1440,7 @@ public class RecommenderService {
 
       public createNewRecommender_result getResult(I iface, createNewRecommender_args args) throws org.apache.thrift.TException {
         createNewRecommender_result result = new createNewRecommender_result();
-        result.success = iface.createNewRecommender(args.username, args.password, args.database, args.table);
+        result.success = iface.createNewRecommender(args.username, args.password, args.database, args.table, args.firstColumnName, args.secondColumnName, args.thirdColumnName, args.firstColumnType, args.secondColumnType, args.thirdColumnType);
         result.setSuccessIsSet(true);
         return result;
       }
@@ -2174,7 +2198,7 @@ public class RecommenderService {
       }
 
       public void start(I iface, createNewRecommender_args args, org.apache.thrift.async.AsyncMethodCallback<Boolean> resultHandler) throws TException {
-        iface.createNewRecommender(args.username, args.password, args.database, args.table,resultHandler);
+        iface.createNewRecommender(args.username, args.password, args.database, args.table, args.firstColumnName, args.secondColumnName, args.thirdColumnName, args.firstColumnType, args.secondColumnType, args.thirdColumnType,resultHandler);
       }
     }
 
@@ -12521,6 +12545,12 @@ public class RecommenderService {
     private static final org.apache.thrift.protocol.TField PASSWORD_FIELD_DESC = new org.apache.thrift.protocol.TField("password", org.apache.thrift.protocol.TType.STRING, (short)2);
     private static final org.apache.thrift.protocol.TField DATABASE_FIELD_DESC = new org.apache.thrift.protocol.TField("database", org.apache.thrift.protocol.TType.STRING, (short)3);
     private static final org.apache.thrift.protocol.TField TABLE_FIELD_DESC = new org.apache.thrift.protocol.TField("table", org.apache.thrift.protocol.TType.STRING, (short)4);
+    private static final org.apache.thrift.protocol.TField FIRST_COLUMN_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("firstColumnName", org.apache.thrift.protocol.TType.STRING, (short)5);
+    private static final org.apache.thrift.protocol.TField SECOND_COLUMN_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("secondColumnName", org.apache.thrift.protocol.TType.STRING, (short)6);
+    private static final org.apache.thrift.protocol.TField THIRD_COLUMN_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("thirdColumnName", org.apache.thrift.protocol.TType.STRING, (short)7);
+    private static final org.apache.thrift.protocol.TField FIRST_COLUMN_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("firstColumnType", org.apache.thrift.protocol.TType.STRING, (short)8);
+    private static final org.apache.thrift.protocol.TField SECOND_COLUMN_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("secondColumnType", org.apache.thrift.protocol.TType.STRING, (short)9);
+    private static final org.apache.thrift.protocol.TField THIRD_COLUMN_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("thirdColumnType", org.apache.thrift.protocol.TType.STRING, (short)10);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -12532,13 +12562,25 @@ public class RecommenderService {
     public String password; // required
     public String database; // required
     public String table; // required
+    public String firstColumnName; // required
+    public String secondColumnName; // required
+    public String thirdColumnName; // required
+    public String firstColumnType; // required
+    public String secondColumnType; // required
+    public String thirdColumnType; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       USERNAME((short)1, "username"),
       PASSWORD((short)2, "password"),
       DATABASE((short)3, "database"),
-      TABLE((short)4, "table");
+      TABLE((short)4, "table"),
+      FIRST_COLUMN_NAME((short)5, "firstColumnName"),
+      SECOND_COLUMN_NAME((short)6, "secondColumnName"),
+      THIRD_COLUMN_NAME((short)7, "thirdColumnName"),
+      FIRST_COLUMN_TYPE((short)8, "firstColumnType"),
+      SECOND_COLUMN_TYPE((short)9, "secondColumnType"),
+      THIRD_COLUMN_TYPE((short)10, "thirdColumnType");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -12561,6 +12603,18 @@ public class RecommenderService {
             return DATABASE;
           case 4: // TABLE
             return TABLE;
+          case 5: // FIRST_COLUMN_NAME
+            return FIRST_COLUMN_NAME;
+          case 6: // SECOND_COLUMN_NAME
+            return SECOND_COLUMN_NAME;
+          case 7: // THIRD_COLUMN_NAME
+            return THIRD_COLUMN_NAME;
+          case 8: // FIRST_COLUMN_TYPE
+            return FIRST_COLUMN_TYPE;
+          case 9: // SECOND_COLUMN_TYPE
+            return SECOND_COLUMN_TYPE;
+          case 10: // THIRD_COLUMN_TYPE
+            return THIRD_COLUMN_TYPE;
           default:
             return null;
         }
@@ -12612,6 +12666,18 @@ public class RecommenderService {
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.TABLE, new org.apache.thrift.meta_data.FieldMetaData("table", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.FIRST_COLUMN_NAME, new org.apache.thrift.meta_data.FieldMetaData("firstColumnName", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.SECOND_COLUMN_NAME, new org.apache.thrift.meta_data.FieldMetaData("secondColumnName", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.THIRD_COLUMN_NAME, new org.apache.thrift.meta_data.FieldMetaData("thirdColumnName", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.FIRST_COLUMN_TYPE, new org.apache.thrift.meta_data.FieldMetaData("firstColumnType", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.SECOND_COLUMN_TYPE, new org.apache.thrift.meta_data.FieldMetaData("secondColumnType", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.THIRD_COLUMN_TYPE, new org.apache.thrift.meta_data.FieldMetaData("thirdColumnType", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(createNewRecommender_args.class, metaDataMap);
     }
@@ -12623,13 +12689,25 @@ public class RecommenderService {
       String username,
       String password,
       String database,
-      String table)
+      String table,
+      String firstColumnName,
+      String secondColumnName,
+      String thirdColumnName,
+      String firstColumnType,
+      String secondColumnType,
+      String thirdColumnType)
     {
       this();
       this.username = username;
       this.password = password;
       this.database = database;
       this.table = table;
+      this.firstColumnName = firstColumnName;
+      this.secondColumnName = secondColumnName;
+      this.thirdColumnName = thirdColumnName;
+      this.firstColumnType = firstColumnType;
+      this.secondColumnType = secondColumnType;
+      this.thirdColumnType = thirdColumnType;
     }
 
     /**
@@ -12648,6 +12726,24 @@ public class RecommenderService {
       if (other.isSetTable()) {
         this.table = other.table;
       }
+      if (other.isSetFirstColumnName()) {
+        this.firstColumnName = other.firstColumnName;
+      }
+      if (other.isSetSecondColumnName()) {
+        this.secondColumnName = other.secondColumnName;
+      }
+      if (other.isSetThirdColumnName()) {
+        this.thirdColumnName = other.thirdColumnName;
+      }
+      if (other.isSetFirstColumnType()) {
+        this.firstColumnType = other.firstColumnType;
+      }
+      if (other.isSetSecondColumnType()) {
+        this.secondColumnType = other.secondColumnType;
+      }
+      if (other.isSetThirdColumnType()) {
+        this.thirdColumnType = other.thirdColumnType;
+      }
     }
 
     public createNewRecommender_args deepCopy() {
@@ -12660,6 +12756,12 @@ public class RecommenderService {
       this.password = null;
       this.database = null;
       this.table = null;
+      this.firstColumnName = null;
+      this.secondColumnName = null;
+      this.thirdColumnName = null;
+      this.firstColumnType = null;
+      this.secondColumnType = null;
+      this.thirdColumnType = null;
     }
 
     public String getUsername() {
@@ -12758,6 +12860,150 @@ public class RecommenderService {
       }
     }
 
+    public String getFirstColumnName() {
+      return this.firstColumnName;
+    }
+
+    public createNewRecommender_args setFirstColumnName(String firstColumnName) {
+      this.firstColumnName = firstColumnName;
+      return this;
+    }
+
+    public void unsetFirstColumnName() {
+      this.firstColumnName = null;
+    }
+
+    /** Returns true if field firstColumnName is set (has been assigned a value) and false otherwise */
+    public boolean isSetFirstColumnName() {
+      return this.firstColumnName != null;
+    }
+
+    public void setFirstColumnNameIsSet(boolean value) {
+      if (!value) {
+        this.firstColumnName = null;
+      }
+    }
+
+    public String getSecondColumnName() {
+      return this.secondColumnName;
+    }
+
+    public createNewRecommender_args setSecondColumnName(String secondColumnName) {
+      this.secondColumnName = secondColumnName;
+      return this;
+    }
+
+    public void unsetSecondColumnName() {
+      this.secondColumnName = null;
+    }
+
+    /** Returns true if field secondColumnName is set (has been assigned a value) and false otherwise */
+    public boolean isSetSecondColumnName() {
+      return this.secondColumnName != null;
+    }
+
+    public void setSecondColumnNameIsSet(boolean value) {
+      if (!value) {
+        this.secondColumnName = null;
+      }
+    }
+
+    public String getThirdColumnName() {
+      return this.thirdColumnName;
+    }
+
+    public createNewRecommender_args setThirdColumnName(String thirdColumnName) {
+      this.thirdColumnName = thirdColumnName;
+      return this;
+    }
+
+    public void unsetThirdColumnName() {
+      this.thirdColumnName = null;
+    }
+
+    /** Returns true if field thirdColumnName is set (has been assigned a value) and false otherwise */
+    public boolean isSetThirdColumnName() {
+      return this.thirdColumnName != null;
+    }
+
+    public void setThirdColumnNameIsSet(boolean value) {
+      if (!value) {
+        this.thirdColumnName = null;
+      }
+    }
+
+    public String getFirstColumnType() {
+      return this.firstColumnType;
+    }
+
+    public createNewRecommender_args setFirstColumnType(String firstColumnType) {
+      this.firstColumnType = firstColumnType;
+      return this;
+    }
+
+    public void unsetFirstColumnType() {
+      this.firstColumnType = null;
+    }
+
+    /** Returns true if field firstColumnType is set (has been assigned a value) and false otherwise */
+    public boolean isSetFirstColumnType() {
+      return this.firstColumnType != null;
+    }
+
+    public void setFirstColumnTypeIsSet(boolean value) {
+      if (!value) {
+        this.firstColumnType = null;
+      }
+    }
+
+    public String getSecondColumnType() {
+      return this.secondColumnType;
+    }
+
+    public createNewRecommender_args setSecondColumnType(String secondColumnType) {
+      this.secondColumnType = secondColumnType;
+      return this;
+    }
+
+    public void unsetSecondColumnType() {
+      this.secondColumnType = null;
+    }
+
+    /** Returns true if field secondColumnType is set (has been assigned a value) and false otherwise */
+    public boolean isSetSecondColumnType() {
+      return this.secondColumnType != null;
+    }
+
+    public void setSecondColumnTypeIsSet(boolean value) {
+      if (!value) {
+        this.secondColumnType = null;
+      }
+    }
+
+    public String getThirdColumnType() {
+      return this.thirdColumnType;
+    }
+
+    public createNewRecommender_args setThirdColumnType(String thirdColumnType) {
+      this.thirdColumnType = thirdColumnType;
+      return this;
+    }
+
+    public void unsetThirdColumnType() {
+      this.thirdColumnType = null;
+    }
+
+    /** Returns true if field thirdColumnType is set (has been assigned a value) and false otherwise */
+    public boolean isSetThirdColumnType() {
+      return this.thirdColumnType != null;
+    }
+
+    public void setThirdColumnTypeIsSet(boolean value) {
+      if (!value) {
+        this.thirdColumnType = null;
+      }
+    }
+
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case USERNAME:
@@ -12792,6 +13038,54 @@ public class RecommenderService {
         }
         break;
 
+      case FIRST_COLUMN_NAME:
+        if (value == null) {
+          unsetFirstColumnName();
+        } else {
+          setFirstColumnName((String)value);
+        }
+        break;
+
+      case SECOND_COLUMN_NAME:
+        if (value == null) {
+          unsetSecondColumnName();
+        } else {
+          setSecondColumnName((String)value);
+        }
+        break;
+
+      case THIRD_COLUMN_NAME:
+        if (value == null) {
+          unsetThirdColumnName();
+        } else {
+          setThirdColumnName((String)value);
+        }
+        break;
+
+      case FIRST_COLUMN_TYPE:
+        if (value == null) {
+          unsetFirstColumnType();
+        } else {
+          setFirstColumnType((String)value);
+        }
+        break;
+
+      case SECOND_COLUMN_TYPE:
+        if (value == null) {
+          unsetSecondColumnType();
+        } else {
+          setSecondColumnType((String)value);
+        }
+        break;
+
+      case THIRD_COLUMN_TYPE:
+        if (value == null) {
+          unsetThirdColumnType();
+        } else {
+          setThirdColumnType((String)value);
+        }
+        break;
+
       }
     }
 
@@ -12808,6 +13102,24 @@ public class RecommenderService {
 
       case TABLE:
         return getTable();
+
+      case FIRST_COLUMN_NAME:
+        return getFirstColumnName();
+
+      case SECOND_COLUMN_NAME:
+        return getSecondColumnName();
+
+      case THIRD_COLUMN_NAME:
+        return getThirdColumnName();
+
+      case FIRST_COLUMN_TYPE:
+        return getFirstColumnType();
+
+      case SECOND_COLUMN_TYPE:
+        return getSecondColumnType();
+
+      case THIRD_COLUMN_TYPE:
+        return getThirdColumnType();
 
       }
       throw new IllegalStateException();
@@ -12828,6 +13140,18 @@ public class RecommenderService {
         return isSetDatabase();
       case TABLE:
         return isSetTable();
+      case FIRST_COLUMN_NAME:
+        return isSetFirstColumnName();
+      case SECOND_COLUMN_NAME:
+        return isSetSecondColumnName();
+      case THIRD_COLUMN_NAME:
+        return isSetThirdColumnName();
+      case FIRST_COLUMN_TYPE:
+        return isSetFirstColumnType();
+      case SECOND_COLUMN_TYPE:
+        return isSetSecondColumnType();
+      case THIRD_COLUMN_TYPE:
+        return isSetThirdColumnType();
       }
       throw new IllegalStateException();
     }
@@ -12878,6 +13202,60 @@ public class RecommenderService {
         if (!(this_present_table && that_present_table))
           return false;
         if (!this.table.equals(that.table))
+          return false;
+      }
+
+      boolean this_present_firstColumnName = true && this.isSetFirstColumnName();
+      boolean that_present_firstColumnName = true && that.isSetFirstColumnName();
+      if (this_present_firstColumnName || that_present_firstColumnName) {
+        if (!(this_present_firstColumnName && that_present_firstColumnName))
+          return false;
+        if (!this.firstColumnName.equals(that.firstColumnName))
+          return false;
+      }
+
+      boolean this_present_secondColumnName = true && this.isSetSecondColumnName();
+      boolean that_present_secondColumnName = true && that.isSetSecondColumnName();
+      if (this_present_secondColumnName || that_present_secondColumnName) {
+        if (!(this_present_secondColumnName && that_present_secondColumnName))
+          return false;
+        if (!this.secondColumnName.equals(that.secondColumnName))
+          return false;
+      }
+
+      boolean this_present_thirdColumnName = true && this.isSetThirdColumnName();
+      boolean that_present_thirdColumnName = true && that.isSetThirdColumnName();
+      if (this_present_thirdColumnName || that_present_thirdColumnName) {
+        if (!(this_present_thirdColumnName && that_present_thirdColumnName))
+          return false;
+        if (!this.thirdColumnName.equals(that.thirdColumnName))
+          return false;
+      }
+
+      boolean this_present_firstColumnType = true && this.isSetFirstColumnType();
+      boolean that_present_firstColumnType = true && that.isSetFirstColumnType();
+      if (this_present_firstColumnType || that_present_firstColumnType) {
+        if (!(this_present_firstColumnType && that_present_firstColumnType))
+          return false;
+        if (!this.firstColumnType.equals(that.firstColumnType))
+          return false;
+      }
+
+      boolean this_present_secondColumnType = true && this.isSetSecondColumnType();
+      boolean that_present_secondColumnType = true && that.isSetSecondColumnType();
+      if (this_present_secondColumnType || that_present_secondColumnType) {
+        if (!(this_present_secondColumnType && that_present_secondColumnType))
+          return false;
+        if (!this.secondColumnType.equals(that.secondColumnType))
+          return false;
+      }
+
+      boolean this_present_thirdColumnType = true && this.isSetThirdColumnType();
+      boolean that_present_thirdColumnType = true && that.isSetThirdColumnType();
+      if (this_present_thirdColumnType || that_present_thirdColumnType) {
+        if (!(this_present_thirdColumnType && that_present_thirdColumnType))
+          return false;
+        if (!this.thirdColumnType.equals(that.thirdColumnType))
           return false;
       }
 
@@ -12937,6 +13315,66 @@ public class RecommenderService {
           return lastComparison;
         }
       }
+      lastComparison = Boolean.valueOf(isSetFirstColumnName()).compareTo(other.isSetFirstColumnName());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetFirstColumnName()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.firstColumnName, other.firstColumnName);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetSecondColumnName()).compareTo(other.isSetSecondColumnName());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetSecondColumnName()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.secondColumnName, other.secondColumnName);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetThirdColumnName()).compareTo(other.isSetThirdColumnName());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetThirdColumnName()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.thirdColumnName, other.thirdColumnName);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetFirstColumnType()).compareTo(other.isSetFirstColumnType());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetFirstColumnType()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.firstColumnType, other.firstColumnType);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetSecondColumnType()).compareTo(other.isSetSecondColumnType());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetSecondColumnType()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.secondColumnType, other.secondColumnType);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetThirdColumnType()).compareTo(other.isSetThirdColumnType());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetThirdColumnType()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.thirdColumnType, other.thirdColumnType);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
       return 0;
     }
 
@@ -12986,6 +13424,54 @@ public class RecommenderService {
         sb.append("null");
       } else {
         sb.append(this.table);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("firstColumnName:");
+      if (this.firstColumnName == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.firstColumnName);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("secondColumnName:");
+      if (this.secondColumnName == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.secondColumnName);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("thirdColumnName:");
+      if (this.thirdColumnName == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.thirdColumnName);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("firstColumnType:");
+      if (this.firstColumnType == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.firstColumnType);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("secondColumnType:");
+      if (this.secondColumnType == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.secondColumnType);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("thirdColumnType:");
+      if (this.thirdColumnType == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.thirdColumnType);
       }
       first = false;
       sb.append(")");
@@ -13063,6 +13549,54 @@ public class RecommenderService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
+            case 5: // FIRST_COLUMN_NAME
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.firstColumnName = iprot.readString();
+                struct.setFirstColumnNameIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 6: // SECOND_COLUMN_NAME
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.secondColumnName = iprot.readString();
+                struct.setSecondColumnNameIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 7: // THIRD_COLUMN_NAME
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.thirdColumnName = iprot.readString();
+                struct.setThirdColumnNameIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 8: // FIRST_COLUMN_TYPE
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.firstColumnType = iprot.readString();
+                struct.setFirstColumnTypeIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 9: // SECOND_COLUMN_TYPE
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.secondColumnType = iprot.readString();
+                struct.setSecondColumnTypeIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 10: // THIRD_COLUMN_TYPE
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.thirdColumnType = iprot.readString();
+                struct.setThirdColumnTypeIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
             default:
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
           }
@@ -13098,6 +13632,36 @@ public class RecommenderService {
           oprot.writeString(struct.table);
           oprot.writeFieldEnd();
         }
+        if (struct.firstColumnName != null) {
+          oprot.writeFieldBegin(FIRST_COLUMN_NAME_FIELD_DESC);
+          oprot.writeString(struct.firstColumnName);
+          oprot.writeFieldEnd();
+        }
+        if (struct.secondColumnName != null) {
+          oprot.writeFieldBegin(SECOND_COLUMN_NAME_FIELD_DESC);
+          oprot.writeString(struct.secondColumnName);
+          oprot.writeFieldEnd();
+        }
+        if (struct.thirdColumnName != null) {
+          oprot.writeFieldBegin(THIRD_COLUMN_NAME_FIELD_DESC);
+          oprot.writeString(struct.thirdColumnName);
+          oprot.writeFieldEnd();
+        }
+        if (struct.firstColumnType != null) {
+          oprot.writeFieldBegin(FIRST_COLUMN_TYPE_FIELD_DESC);
+          oprot.writeString(struct.firstColumnType);
+          oprot.writeFieldEnd();
+        }
+        if (struct.secondColumnType != null) {
+          oprot.writeFieldBegin(SECOND_COLUMN_TYPE_FIELD_DESC);
+          oprot.writeString(struct.secondColumnType);
+          oprot.writeFieldEnd();
+        }
+        if (struct.thirdColumnType != null) {
+          oprot.writeFieldBegin(THIRD_COLUMN_TYPE_FIELD_DESC);
+          oprot.writeString(struct.thirdColumnType);
+          oprot.writeFieldEnd();
+        }
         oprot.writeFieldStop();
         oprot.writeStructEnd();
       }
@@ -13128,7 +13692,25 @@ public class RecommenderService {
         if (struct.isSetTable()) {
           optionals.set(3);
         }
-        oprot.writeBitSet(optionals, 4);
+        if (struct.isSetFirstColumnName()) {
+          optionals.set(4);
+        }
+        if (struct.isSetSecondColumnName()) {
+          optionals.set(5);
+        }
+        if (struct.isSetThirdColumnName()) {
+          optionals.set(6);
+        }
+        if (struct.isSetFirstColumnType()) {
+          optionals.set(7);
+        }
+        if (struct.isSetSecondColumnType()) {
+          optionals.set(8);
+        }
+        if (struct.isSetThirdColumnType()) {
+          optionals.set(9);
+        }
+        oprot.writeBitSet(optionals, 10);
         if (struct.isSetUsername()) {
           oprot.writeString(struct.username);
         }
@@ -13141,12 +13723,30 @@ public class RecommenderService {
         if (struct.isSetTable()) {
           oprot.writeString(struct.table);
         }
+        if (struct.isSetFirstColumnName()) {
+          oprot.writeString(struct.firstColumnName);
+        }
+        if (struct.isSetSecondColumnName()) {
+          oprot.writeString(struct.secondColumnName);
+        }
+        if (struct.isSetThirdColumnName()) {
+          oprot.writeString(struct.thirdColumnName);
+        }
+        if (struct.isSetFirstColumnType()) {
+          oprot.writeString(struct.firstColumnType);
+        }
+        if (struct.isSetSecondColumnType()) {
+          oprot.writeString(struct.secondColumnType);
+        }
+        if (struct.isSetThirdColumnType()) {
+          oprot.writeString(struct.thirdColumnType);
+        }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, createNewRecommender_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(4);
+        BitSet incoming = iprot.readBitSet(10);
         if (incoming.get(0)) {
           struct.username = iprot.readString();
           struct.setUsernameIsSet(true);
@@ -13162,6 +13762,30 @@ public class RecommenderService {
         if (incoming.get(3)) {
           struct.table = iprot.readString();
           struct.setTableIsSet(true);
+        }
+        if (incoming.get(4)) {
+          struct.firstColumnName = iprot.readString();
+          struct.setFirstColumnNameIsSet(true);
+        }
+        if (incoming.get(5)) {
+          struct.secondColumnName = iprot.readString();
+          struct.setSecondColumnNameIsSet(true);
+        }
+        if (incoming.get(6)) {
+          struct.thirdColumnName = iprot.readString();
+          struct.setThirdColumnNameIsSet(true);
+        }
+        if (incoming.get(7)) {
+          struct.firstColumnType = iprot.readString();
+          struct.setFirstColumnTypeIsSet(true);
+        }
+        if (incoming.get(8)) {
+          struct.secondColumnType = iprot.readString();
+          struct.setSecondColumnTypeIsSet(true);
+        }
+        if (incoming.get(9)) {
+          struct.thirdColumnType = iprot.readString();
+          struct.setThirdColumnTypeIsSet(true);
         }
       }
     }
