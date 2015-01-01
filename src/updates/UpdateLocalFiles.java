@@ -2,6 +2,7 @@ package updates;
 
 import static java.util.concurrent.TimeUnit.*;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -64,7 +65,7 @@ public class UpdateLocalFiles {
 							file.mkdir();
 							file = new File(getKibitzLocalStorageAddr() + database + "/" + ratings_table + ".csv");
 							file.createNewFile();
-							FileWriter writer = new FileWriter(getKibitzLocalStorageAddr() + database + "/" + ratings_table + ".csv"); 
+							BufferedWriter writer = new BufferedWriter(new FileWriter(getKibitzLocalStorageAddr() + database + "/" + ratings_table + ".csv")); 
 							
 							ResultSet count = client.execute_sql(client_con, "select count(*) from " + ratings_table, null);;
 							int numItems = Integer.parseInt(new String(count.getTuples().get(0).getCells().get(0).array()));
@@ -77,6 +78,7 @@ public class UpdateLocalFiles {
 									writer.write(new String(c.get(0).array()) + "," + new String(c.get(1).array()) + "," + new String(c.get(2).array()) + "\n");
 								}
 							}
+							writer.close();
 						}
 					}
 				} catch (DBException e) {

@@ -1,6 +1,7 @@
 package kibitz;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -75,7 +76,7 @@ public class DatahubDataModel implements DataModel{
 	private ConnectionParams con_params;
 	private Connection conn;
 
-	private FileWriter writer = null;
+	private BufferedWriter writer = null;
 	private File file = null;
 
 	/**
@@ -367,7 +368,7 @@ public class DatahubDataModel implements DataModel{
 	public boolean createNewRecommender(String table, String firstColumnName, String secondColumnName, String thirdColumnName,
     		String firstColumnType, String secondColumnType, String thirdColumnType) {
 		try {
-			synchronized(this.client) {
+			/*synchronized(this.client) {
 				this.client.execute_sql(this.conn, "alter table " + this.datahubDatabase + "." + table + " add id serial", null);
 				this.client.execute_sql(this.conn, "create table " + this.datahubDatabase + "." + table + "_ratings (" + 
 					"user_id int, item_id int, rating varchar(255))" , null);
@@ -381,14 +382,14 @@ public class DatahubDataModel implements DataModel{
 												+ "AFTER INSERT OR UPDATE ON " + this.datahubDatabase + "." + table + " FOR EACH STATEMENT EXECUTE procedure timestamp_update_log();", null);
 				this.client.execute_sql(this.conn, "CREATE TRIGGER " + table + "_ratings_timestamp_update_log"
 												+ "AFTER INSERT OR UPDATE ON " + this.datahubDatabase + "." + table + "_ratings FOR EACH STATEMENT EXECUTE procedure timestamp_update_log();", null);
-			}
+			}*/
 			
 			float firstColumnScore = 0;
 			float secondColumnScore = 0;
 			float thirdColumnScore = 0;
 			int numItems = this.getItemCount(table);
 			
-			String query = "SELECT DISTINCT p1.id AS firstId, p2.id AS secondId, ";
+			String query = "SELECT DISTINCT p1.id AS firstid, p2.id AS secondid, ";
 			
 			if (firstColumnName != null) {
 				query += "p1." + firstColumnName + " AS first1, p2." + firstColumnName + " AS second1";
@@ -412,6 +413,9 @@ public class DatahubDataModel implements DataModel{
 				HashMap<String, Integer> colToIndex = this.getFieldNames(res);
 			
 				for (Tuple t : res.getTuples()) {
+					firstColumnScore = 0;
+					secondColumnScore = 0;
+					thirdColumnScore = 0;
 					List<ByteBuffer> cells = t.getCells();
 					if (firstColumnName != null) {
 						String first1 = new String(cells.get(colToIndex.get("first1")).array());
@@ -461,10 +465,11 @@ public class DatahubDataModel implements DataModel{
 						}
 					}
 					
-					this.writeSimilarityScore(table, new String(cells.get(colToIndex.get("firstId")).array()), 
-							new String(cells.get(colToIndex.get("secondId")).array()), firstColumnScore + secondColumnScore + thirdColumnScore);
+					this.writeSimilarityScore(table, new String(cells.get(colToIndex.get("firstid")).array()), 
+							new String(cells.get(colToIndex.get("secondid")).array()), (float) (0.5*firstColumnScore + 0.3*secondColumnScore + 0.2*thirdColumnScore));
 				}
 			}
+			this.writer.close();
 			return true;
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
@@ -525,9 +530,9 @@ public class DatahubDataModel implements DataModel{
 				this.file.mkdir();
 				this.file = new File(storageDir + this.datahubDatabase + "/" + table + "_item_similarity.csv");
 				this.file.createNewFile();
-				this.writer  = new FileWriter(storageDir + this.datahubDatabase + "/" + table + "_item_similarity.csv");
+				this.writer  = new BufferedWriter(new FileWriter(storageDir + this.datahubDatabase + "/" + table + "_item_similarity.csv"));
 			}
-			this.writer .write(firstId + "," + secondId + (double) Math.round(score * 100) / 100 + "\n");
+			this.writer.write(firstId + "," + secondId + "," + (double) Math.round(score * 1000) / 1000 + "\n");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -536,7 +541,8 @@ public class DatahubDataModel implements DataModel{
 	
 	private float querySimilarityEngine(String url) throws ClientProtocolException, IOException {
 		HttpClient client = new DefaultHttpClient();
-		HttpGet request = new HttpGet(url);
+		String escapedUrl = url.replace(" ", "%20");
+		HttpGet request = new HttpGet(escapedUrl);
 		request.addHeader("User-Agent", USER_AGENT);
 		
 		HttpResponse response = client.execute(request);
