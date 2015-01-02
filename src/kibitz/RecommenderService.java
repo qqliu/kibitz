@@ -70,6 +70,8 @@ public class RecommenderService {
 
     public List<Item> getSearchItems(String table, String query) throws org.apache.thrift.TException;
 
+    public List<Item> makeOverallRatingBasedOrRandomRecommendation(String key, String ratingColumnName, long numRecs) throws org.apache.thrift.TException;
+
   }
 
   public interface AsyncIface {
@@ -107,6 +109,8 @@ public class RecommenderService {
     public void initiateModel(String key, String table, String username, String password, String database, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void getSearchItems(String table, String query, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+
+    public void makeOverallRatingBasedOrRandomRecommendation(String key, String ratingColumnName, long numRecs, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
   }
 
@@ -541,6 +545,31 @@ public class RecommenderService {
         return result.success;
       }
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getSearchItems failed: unknown result");
+    }
+
+    public List<Item> makeOverallRatingBasedOrRandomRecommendation(String key, String ratingColumnName, long numRecs) throws org.apache.thrift.TException
+    {
+      send_makeOverallRatingBasedOrRandomRecommendation(key, ratingColumnName, numRecs);
+      return recv_makeOverallRatingBasedOrRandomRecommendation();
+    }
+
+    public void send_makeOverallRatingBasedOrRandomRecommendation(String key, String ratingColumnName, long numRecs) throws org.apache.thrift.TException
+    {
+      makeOverallRatingBasedOrRandomRecommendation_args args = new makeOverallRatingBasedOrRandomRecommendation_args();
+      args.setKey(key);
+      args.setRatingColumnName(ratingColumnName);
+      args.setNumRecs(numRecs);
+      sendBase("makeOverallRatingBasedOrRandomRecommendation", args);
+    }
+
+    public List<Item> recv_makeOverallRatingBasedOrRandomRecommendation() throws org.apache.thrift.TException
+    {
+      makeOverallRatingBasedOrRandomRecommendation_result result = new makeOverallRatingBasedOrRandomRecommendation_result();
+      receiveBase(result, "makeOverallRatingBasedOrRandomRecommendation");
+      if (result.isSetSuccess()) {
+        return result.success;
+      }
+      throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "makeOverallRatingBasedOrRandomRecommendation failed: unknown result");
     }
 
   }
@@ -1216,6 +1245,44 @@ public class RecommenderService {
       }
     }
 
+    public void makeOverallRatingBasedOrRandomRecommendation(String key, String ratingColumnName, long numRecs, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      makeOverallRatingBasedOrRandomRecommendation_call method_call = new makeOverallRatingBasedOrRandomRecommendation_call(key, ratingColumnName, numRecs, resultHandler, this, ___protocolFactory, ___transport);
+      this.___currentMethod = method_call;
+      ___manager.call(method_call);
+    }
+
+    public static class makeOverallRatingBasedOrRandomRecommendation_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private String key;
+      private String ratingColumnName;
+      private long numRecs;
+      public makeOverallRatingBasedOrRandomRecommendation_call(String key, String ratingColumnName, long numRecs, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+        this.key = key;
+        this.ratingColumnName = ratingColumnName;
+        this.numRecs = numRecs;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("makeOverallRatingBasedOrRandomRecommendation", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        makeOverallRatingBasedOrRandomRecommendation_args args = new makeOverallRatingBasedOrRandomRecommendation_args();
+        args.setKey(key);
+        args.setRatingColumnName(ratingColumnName);
+        args.setNumRecs(numRecs);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public List<Item> getResult() throws org.apache.thrift.TException {
+        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        return (new Client(prot)).recv_makeOverallRatingBasedOrRandomRecommendation();
+      }
+    }
+
   }
 
   public static class Processor<I extends Iface> extends org.apache.thrift.TBaseProcessor<I> implements org.apache.thrift.TProcessor {
@@ -1246,6 +1313,7 @@ public class RecommenderService {
       processMap.put("getUserRatedItems", new getUserRatedItems());
       processMap.put("initiateModel", new initiateModel());
       processMap.put("getSearchItems", new getSearchItems());
+      processMap.put("makeOverallRatingBasedOrRandomRecommendation", new makeOverallRatingBasedOrRandomRecommendation());
       return processMap;
     }
 
@@ -1594,6 +1662,26 @@ public class RecommenderService {
       }
     }
 
+    public static class makeOverallRatingBasedOrRandomRecommendation<I extends Iface> extends org.apache.thrift.ProcessFunction<I, makeOverallRatingBasedOrRandomRecommendation_args> {
+      public makeOverallRatingBasedOrRandomRecommendation() {
+        super("makeOverallRatingBasedOrRandomRecommendation");
+      }
+
+      public makeOverallRatingBasedOrRandomRecommendation_args getEmptyArgsInstance() {
+        return new makeOverallRatingBasedOrRandomRecommendation_args();
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public makeOverallRatingBasedOrRandomRecommendation_result getResult(I iface, makeOverallRatingBasedOrRandomRecommendation_args args) throws org.apache.thrift.TException {
+        makeOverallRatingBasedOrRandomRecommendation_result result = new makeOverallRatingBasedOrRandomRecommendation_result();
+        result.success = iface.makeOverallRatingBasedOrRandomRecommendation(args.key, args.ratingColumnName, args.numRecs);
+        return result;
+      }
+    }
+
   }
 
   public static class AsyncProcessor<I extends AsyncIface> extends org.apache.thrift.TBaseAsyncProcessor<I> {
@@ -1624,6 +1712,7 @@ public class RecommenderService {
       processMap.put("getUserRatedItems", new getUserRatedItems());
       processMap.put("initiateModel", new initiateModel());
       processMap.put("getSearchItems", new getSearchItems());
+      processMap.put("makeOverallRatingBasedOrRandomRecommendation", new makeOverallRatingBasedOrRandomRecommendation());
       return processMap;
     }
 
@@ -2491,6 +2580,57 @@ public class RecommenderService {
 
       public void start(I iface, getSearchItems_args args, org.apache.thrift.async.AsyncMethodCallback<List<Item>> resultHandler) throws TException {
         iface.getSearchItems(args.table, args.query,resultHandler);
+      }
+    }
+
+    public static class makeOverallRatingBasedOrRandomRecommendation<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, makeOverallRatingBasedOrRandomRecommendation_args, List<Item>> {
+      public makeOverallRatingBasedOrRandomRecommendation() {
+        super("makeOverallRatingBasedOrRandomRecommendation");
+      }
+
+      public makeOverallRatingBasedOrRandomRecommendation_args getEmptyArgsInstance() {
+        return new makeOverallRatingBasedOrRandomRecommendation_args();
+      }
+
+      public AsyncMethodCallback<List<Item>> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+        final org.apache.thrift.AsyncProcessFunction fcall = this;
+        return new AsyncMethodCallback<List<Item>>() { 
+          public void onComplete(List<Item> o) {
+            makeOverallRatingBasedOrRandomRecommendation_result result = new makeOverallRatingBasedOrRandomRecommendation_result();
+            result.success = o;
+            try {
+              fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
+              return;
+            } catch (Exception e) {
+              LOGGER.error("Exception writing to internal frame buffer", e);
+            }
+            fb.close();
+          }
+          public void onError(Exception e) {
+            byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
+            org.apache.thrift.TBase msg;
+            makeOverallRatingBasedOrRandomRecommendation_result result = new makeOverallRatingBasedOrRandomRecommendation_result();
+            {
+              msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
+              msg = (org.apache.thrift.TBase)new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, e.getMessage());
+            }
+            try {
+              fcall.sendResponse(fb,msg,msgType,seqid);
+              return;
+            } catch (Exception ex) {
+              LOGGER.error("Exception writing to internal frame buffer", ex);
+            }
+            fb.close();
+          }
+        };
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public void start(I iface, makeOverallRatingBasedOrRandomRecommendation_args args, org.apache.thrift.async.AsyncMethodCallback<List<Item>> resultHandler) throws TException {
+        iface.makeOverallRatingBasedOrRandomRecommendation(args.key, args.ratingColumnName, args.numRecs,resultHandler);
       }
     }
 
@@ -17953,6 +18093,966 @@ public class RecommenderService {
               _elem47 = new Item();
               _elem47.read(iprot);
               struct.success.add(_elem47);
+            }
+          }
+          struct.setSuccessIsSet(true);
+        }
+      }
+    }
+
+  }
+
+  public static class makeOverallRatingBasedOrRandomRecommendation_args implements org.apache.thrift.TBase<makeOverallRatingBasedOrRandomRecommendation_args, makeOverallRatingBasedOrRandomRecommendation_args._Fields>, java.io.Serializable, Cloneable, Comparable<makeOverallRatingBasedOrRandomRecommendation_args>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("makeOverallRatingBasedOrRandomRecommendation_args");
+
+    private static final org.apache.thrift.protocol.TField KEY_FIELD_DESC = new org.apache.thrift.protocol.TField("key", org.apache.thrift.protocol.TType.STRING, (short)1);
+    private static final org.apache.thrift.protocol.TField RATING_COLUMN_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("ratingColumnName", org.apache.thrift.protocol.TType.STRING, (short)2);
+    private static final org.apache.thrift.protocol.TField NUM_RECS_FIELD_DESC = new org.apache.thrift.protocol.TField("numRecs", org.apache.thrift.protocol.TType.I64, (short)3);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new makeOverallRatingBasedOrRandomRecommendation_argsStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new makeOverallRatingBasedOrRandomRecommendation_argsTupleSchemeFactory());
+    }
+
+    public String key; // required
+    public String ratingColumnName; // required
+    public long numRecs; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      KEY((short)1, "key"),
+      RATING_COLUMN_NAME((short)2, "ratingColumnName"),
+      NUM_RECS((short)3, "numRecs");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // KEY
+            return KEY;
+          case 2: // RATING_COLUMN_NAME
+            return RATING_COLUMN_NAME;
+          case 3: // NUM_RECS
+            return NUM_RECS;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    private static final int __NUMRECS_ISSET_ID = 0;
+    private byte __isset_bitfield = 0;
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.KEY, new org.apache.thrift.meta_data.FieldMetaData("key", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.RATING_COLUMN_NAME, new org.apache.thrift.meta_data.FieldMetaData("ratingColumnName", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.NUM_RECS, new org.apache.thrift.meta_data.FieldMetaData("numRecs", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(makeOverallRatingBasedOrRandomRecommendation_args.class, metaDataMap);
+    }
+
+    public makeOverallRatingBasedOrRandomRecommendation_args() {
+    }
+
+    public makeOverallRatingBasedOrRandomRecommendation_args(
+      String key,
+      String ratingColumnName,
+      long numRecs)
+    {
+      this();
+      this.key = key;
+      this.ratingColumnName = ratingColumnName;
+      this.numRecs = numRecs;
+      setNumRecsIsSet(true);
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public makeOverallRatingBasedOrRandomRecommendation_args(makeOverallRatingBasedOrRandomRecommendation_args other) {
+      __isset_bitfield = other.__isset_bitfield;
+      if (other.isSetKey()) {
+        this.key = other.key;
+      }
+      if (other.isSetRatingColumnName()) {
+        this.ratingColumnName = other.ratingColumnName;
+      }
+      this.numRecs = other.numRecs;
+    }
+
+    public makeOverallRatingBasedOrRandomRecommendation_args deepCopy() {
+      return new makeOverallRatingBasedOrRandomRecommendation_args(this);
+    }
+
+    @Override
+    public void clear() {
+      this.key = null;
+      this.ratingColumnName = null;
+      setNumRecsIsSet(false);
+      this.numRecs = 0;
+    }
+
+    public String getKey() {
+      return this.key;
+    }
+
+    public makeOverallRatingBasedOrRandomRecommendation_args setKey(String key) {
+      this.key = key;
+      return this;
+    }
+
+    public void unsetKey() {
+      this.key = null;
+    }
+
+    /** Returns true if field key is set (has been assigned a value) and false otherwise */
+    public boolean isSetKey() {
+      return this.key != null;
+    }
+
+    public void setKeyIsSet(boolean value) {
+      if (!value) {
+        this.key = null;
+      }
+    }
+
+    public String getRatingColumnName() {
+      return this.ratingColumnName;
+    }
+
+    public makeOverallRatingBasedOrRandomRecommendation_args setRatingColumnName(String ratingColumnName) {
+      this.ratingColumnName = ratingColumnName;
+      return this;
+    }
+
+    public void unsetRatingColumnName() {
+      this.ratingColumnName = null;
+    }
+
+    /** Returns true if field ratingColumnName is set (has been assigned a value) and false otherwise */
+    public boolean isSetRatingColumnName() {
+      return this.ratingColumnName != null;
+    }
+
+    public void setRatingColumnNameIsSet(boolean value) {
+      if (!value) {
+        this.ratingColumnName = null;
+      }
+    }
+
+    public long getNumRecs() {
+      return this.numRecs;
+    }
+
+    public makeOverallRatingBasedOrRandomRecommendation_args setNumRecs(long numRecs) {
+      this.numRecs = numRecs;
+      setNumRecsIsSet(true);
+      return this;
+    }
+
+    public void unsetNumRecs() {
+      __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __NUMRECS_ISSET_ID);
+    }
+
+    /** Returns true if field numRecs is set (has been assigned a value) and false otherwise */
+    public boolean isSetNumRecs() {
+      return EncodingUtils.testBit(__isset_bitfield, __NUMRECS_ISSET_ID);
+    }
+
+    public void setNumRecsIsSet(boolean value) {
+      __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __NUMRECS_ISSET_ID, value);
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case KEY:
+        if (value == null) {
+          unsetKey();
+        } else {
+          setKey((String)value);
+        }
+        break;
+
+      case RATING_COLUMN_NAME:
+        if (value == null) {
+          unsetRatingColumnName();
+        } else {
+          setRatingColumnName((String)value);
+        }
+        break;
+
+      case NUM_RECS:
+        if (value == null) {
+          unsetNumRecs();
+        } else {
+          setNumRecs((Long)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case KEY:
+        return getKey();
+
+      case RATING_COLUMN_NAME:
+        return getRatingColumnName();
+
+      case NUM_RECS:
+        return Long.valueOf(getNumRecs());
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case KEY:
+        return isSetKey();
+      case RATING_COLUMN_NAME:
+        return isSetRatingColumnName();
+      case NUM_RECS:
+        return isSetNumRecs();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof makeOverallRatingBasedOrRandomRecommendation_args)
+        return this.equals((makeOverallRatingBasedOrRandomRecommendation_args)that);
+      return false;
+    }
+
+    public boolean equals(makeOverallRatingBasedOrRandomRecommendation_args that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_key = true && this.isSetKey();
+      boolean that_present_key = true && that.isSetKey();
+      if (this_present_key || that_present_key) {
+        if (!(this_present_key && that_present_key))
+          return false;
+        if (!this.key.equals(that.key))
+          return false;
+      }
+
+      boolean this_present_ratingColumnName = true && this.isSetRatingColumnName();
+      boolean that_present_ratingColumnName = true && that.isSetRatingColumnName();
+      if (this_present_ratingColumnName || that_present_ratingColumnName) {
+        if (!(this_present_ratingColumnName && that_present_ratingColumnName))
+          return false;
+        if (!this.ratingColumnName.equals(that.ratingColumnName))
+          return false;
+      }
+
+      boolean this_present_numRecs = true;
+      boolean that_present_numRecs = true;
+      if (this_present_numRecs || that_present_numRecs) {
+        if (!(this_present_numRecs && that_present_numRecs))
+          return false;
+        if (this.numRecs != that.numRecs)
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    @Override
+    public int compareTo(makeOverallRatingBasedOrRandomRecommendation_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+
+      lastComparison = Boolean.valueOf(isSetKey()).compareTo(other.isSetKey());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetKey()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.key, other.key);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetRatingColumnName()).compareTo(other.isSetRatingColumnName());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetRatingColumnName()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.ratingColumnName, other.ratingColumnName);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetNumRecs()).compareTo(other.isSetNumRecs());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetNumRecs()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.numRecs, other.numRecs);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("makeOverallRatingBasedOrRandomRecommendation_args(");
+      boolean first = true;
+
+      sb.append("key:");
+      if (this.key == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.key);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("ratingColumnName:");
+      if (this.ratingColumnName == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.ratingColumnName);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("numRecs:");
+      sb.append(this.numRecs);
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
+        __isset_bitfield = 0;
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class makeOverallRatingBasedOrRandomRecommendation_argsStandardSchemeFactory implements SchemeFactory {
+      public makeOverallRatingBasedOrRandomRecommendation_argsStandardScheme getScheme() {
+        return new makeOverallRatingBasedOrRandomRecommendation_argsStandardScheme();
+      }
+    }
+
+    private static class makeOverallRatingBasedOrRandomRecommendation_argsStandardScheme extends StandardScheme<makeOverallRatingBasedOrRandomRecommendation_args> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, makeOverallRatingBasedOrRandomRecommendation_args struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            case 1: // KEY
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.key = iprot.readString();
+                struct.setKeyIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 2: // RATING_COLUMN_NAME
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.ratingColumnName = iprot.readString();
+                struct.setRatingColumnNameIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 3: // NUM_RECS
+              if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+                struct.numRecs = iprot.readI64();
+                struct.setNumRecsIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, makeOverallRatingBasedOrRandomRecommendation_args struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.key != null) {
+          oprot.writeFieldBegin(KEY_FIELD_DESC);
+          oprot.writeString(struct.key);
+          oprot.writeFieldEnd();
+        }
+        if (struct.ratingColumnName != null) {
+          oprot.writeFieldBegin(RATING_COLUMN_NAME_FIELD_DESC);
+          oprot.writeString(struct.ratingColumnName);
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldBegin(NUM_RECS_FIELD_DESC);
+        oprot.writeI64(struct.numRecs);
+        oprot.writeFieldEnd();
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class makeOverallRatingBasedOrRandomRecommendation_argsTupleSchemeFactory implements SchemeFactory {
+      public makeOverallRatingBasedOrRandomRecommendation_argsTupleScheme getScheme() {
+        return new makeOverallRatingBasedOrRandomRecommendation_argsTupleScheme();
+      }
+    }
+
+    private static class makeOverallRatingBasedOrRandomRecommendation_argsTupleScheme extends TupleScheme<makeOverallRatingBasedOrRandomRecommendation_args> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, makeOverallRatingBasedOrRandomRecommendation_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetKey()) {
+          optionals.set(0);
+        }
+        if (struct.isSetRatingColumnName()) {
+          optionals.set(1);
+        }
+        if (struct.isSetNumRecs()) {
+          optionals.set(2);
+        }
+        oprot.writeBitSet(optionals, 3);
+        if (struct.isSetKey()) {
+          oprot.writeString(struct.key);
+        }
+        if (struct.isSetRatingColumnName()) {
+          oprot.writeString(struct.ratingColumnName);
+        }
+        if (struct.isSetNumRecs()) {
+          oprot.writeI64(struct.numRecs);
+        }
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, makeOverallRatingBasedOrRandomRecommendation_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(3);
+        if (incoming.get(0)) {
+          struct.key = iprot.readString();
+          struct.setKeyIsSet(true);
+        }
+        if (incoming.get(1)) {
+          struct.ratingColumnName = iprot.readString();
+          struct.setRatingColumnNameIsSet(true);
+        }
+        if (incoming.get(2)) {
+          struct.numRecs = iprot.readI64();
+          struct.setNumRecsIsSet(true);
+        }
+      }
+    }
+
+  }
+
+  public static class makeOverallRatingBasedOrRandomRecommendation_result implements org.apache.thrift.TBase<makeOverallRatingBasedOrRandomRecommendation_result, makeOverallRatingBasedOrRandomRecommendation_result._Fields>, java.io.Serializable, Cloneable, Comparable<makeOverallRatingBasedOrRandomRecommendation_result>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("makeOverallRatingBasedOrRandomRecommendation_result");
+
+    private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.LIST, (short)0);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new makeOverallRatingBasedOrRandomRecommendation_resultStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new makeOverallRatingBasedOrRandomRecommendation_resultTupleSchemeFactory());
+    }
+
+    public List<Item> success; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      SUCCESS((short)0, "success");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 0: // SUCCESS
+            return SUCCESS;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+              new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Item.class))));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(makeOverallRatingBasedOrRandomRecommendation_result.class, metaDataMap);
+    }
+
+    public makeOverallRatingBasedOrRandomRecommendation_result() {
+    }
+
+    public makeOverallRatingBasedOrRandomRecommendation_result(
+      List<Item> success)
+    {
+      this();
+      this.success = success;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public makeOverallRatingBasedOrRandomRecommendation_result(makeOverallRatingBasedOrRandomRecommendation_result other) {
+      if (other.isSetSuccess()) {
+        List<Item> __this__success = new ArrayList<Item>(other.success.size());
+        for (Item other_element : other.success) {
+          __this__success.add(new Item(other_element));
+        }
+        this.success = __this__success;
+      }
+    }
+
+    public makeOverallRatingBasedOrRandomRecommendation_result deepCopy() {
+      return new makeOverallRatingBasedOrRandomRecommendation_result(this);
+    }
+
+    @Override
+    public void clear() {
+      this.success = null;
+    }
+
+    public int getSuccessSize() {
+      return (this.success == null) ? 0 : this.success.size();
+    }
+
+    public java.util.Iterator<Item> getSuccessIterator() {
+      return (this.success == null) ? null : this.success.iterator();
+    }
+
+    public void addToSuccess(Item elem) {
+      if (this.success == null) {
+        this.success = new ArrayList<Item>();
+      }
+      this.success.add(elem);
+    }
+
+    public List<Item> getSuccess() {
+      return this.success;
+    }
+
+    public makeOverallRatingBasedOrRandomRecommendation_result setSuccess(List<Item> success) {
+      this.success = success;
+      return this;
+    }
+
+    public void unsetSuccess() {
+      this.success = null;
+    }
+
+    /** Returns true if field success is set (has been assigned a value) and false otherwise */
+    public boolean isSetSuccess() {
+      return this.success != null;
+    }
+
+    public void setSuccessIsSet(boolean value) {
+      if (!value) {
+        this.success = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case SUCCESS:
+        if (value == null) {
+          unsetSuccess();
+        } else {
+          setSuccess((List<Item>)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case SUCCESS:
+        return getSuccess();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case SUCCESS:
+        return isSetSuccess();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof makeOverallRatingBasedOrRandomRecommendation_result)
+        return this.equals((makeOverallRatingBasedOrRandomRecommendation_result)that);
+      return false;
+    }
+
+    public boolean equals(makeOverallRatingBasedOrRandomRecommendation_result that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_success = true && this.isSetSuccess();
+      boolean that_present_success = true && that.isSetSuccess();
+      if (this_present_success || that_present_success) {
+        if (!(this_present_success && that_present_success))
+          return false;
+        if (!this.success.equals(that.success))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    @Override
+    public int compareTo(makeOverallRatingBasedOrRandomRecommendation_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+
+      lastComparison = Boolean.valueOf(isSetSuccess()).compareTo(other.isSetSuccess());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetSuccess()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.success, other.success);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+      }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("makeOverallRatingBasedOrRandomRecommendation_result(");
+      boolean first = true;
+
+      sb.append("success:");
+      if (this.success == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.success);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class makeOverallRatingBasedOrRandomRecommendation_resultStandardSchemeFactory implements SchemeFactory {
+      public makeOverallRatingBasedOrRandomRecommendation_resultStandardScheme getScheme() {
+        return new makeOverallRatingBasedOrRandomRecommendation_resultStandardScheme();
+      }
+    }
+
+    private static class makeOverallRatingBasedOrRandomRecommendation_resultStandardScheme extends StandardScheme<makeOverallRatingBasedOrRandomRecommendation_result> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, makeOverallRatingBasedOrRandomRecommendation_result struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            case 0: // SUCCESS
+              if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+                {
+                  org.apache.thrift.protocol.TList _list48 = iprot.readListBegin();
+                  struct.success = new ArrayList<Item>(_list48.size);
+                  for (int _i49 = 0; _i49 < _list48.size; ++_i49)
+                  {
+                    Item _elem50;
+                    _elem50 = new Item();
+                    _elem50.read(iprot);
+                    struct.success.add(_elem50);
+                  }
+                  iprot.readListEnd();
+                }
+                struct.setSuccessIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, makeOverallRatingBasedOrRandomRecommendation_result struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.success != null) {
+          oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
+          {
+            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.success.size()));
+            for (Item _iter51 : struct.success)
+            {
+              _iter51.write(oprot);
+            }
+            oprot.writeListEnd();
+          }
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class makeOverallRatingBasedOrRandomRecommendation_resultTupleSchemeFactory implements SchemeFactory {
+      public makeOverallRatingBasedOrRandomRecommendation_resultTupleScheme getScheme() {
+        return new makeOverallRatingBasedOrRandomRecommendation_resultTupleScheme();
+      }
+    }
+
+    private static class makeOverallRatingBasedOrRandomRecommendation_resultTupleScheme extends TupleScheme<makeOverallRatingBasedOrRandomRecommendation_result> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, makeOverallRatingBasedOrRandomRecommendation_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetSuccess()) {
+          optionals.set(0);
+        }
+        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetSuccess()) {
+          {
+            oprot.writeI32(struct.success.size());
+            for (Item _iter52 : struct.success)
+            {
+              _iter52.write(oprot);
+            }
+          }
+        }
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, makeOverallRatingBasedOrRandomRecommendation_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(1);
+        if (incoming.get(0)) {
+          {
+            org.apache.thrift.protocol.TList _list53 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.success = new ArrayList<Item>(_list53.size);
+            for (int _i54 = 0; _i54 < _list53.size; ++_i54)
+            {
+              Item _elem55;
+              _elem55 = new Item();
+              _elem55.read(iprot);
+              struct.success.add(_elem55);
             }
           }
           struct.setSuccessIsSet(true);

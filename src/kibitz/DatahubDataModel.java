@@ -488,6 +488,68 @@ public class DatahubDataModel implements DataModel{
 		return false;
 	}
 	
+	public List<Item> makeOverallRatingsBasedRecommendation(String ratingColumnName, String table, long numRecs) {
+		List<Item> items = new ArrayList<Item>();
+		try {
+			ResultSet res;
+			synchronized(this.client) {
+				res = this.client.execute_sql(this.conn, "select id, title, description, image from " + table
+						+ " ORDER BY " + ratingColumnName + " DESC LIMIT " + numRecs, null);
+			}			
+			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
+
+			for (Tuple t : res.getTuples()) {
+				List<ByteBuffer> cells = t.getCells();
+				Item item = new Item();
+				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("id")).array())));
+				item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
+				item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
+				if (!new String(cells.get(colToIndex.get("image")).array()).equals("None"))
+					item.setImage(new String(cells.get(colToIndex.get("image")).array()));
+				items.add(item);
+			}
+			return items;
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public List<Item> makeRandomRecommmendation(long numRecs, String table) {
+		List<Item> items = new ArrayList<Item>();
+		try {
+			ResultSet res;
+			synchronized(this.client) {
+				res = this.client.execute_sql(this.conn, "select id, title, description, image from " + table
+						+ " ORDER BY RANDOM() LIMIT " + numRecs, null);
+			}			
+			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
+
+			for (Tuple t : res.getTuples()) {
+				List<ByteBuffer> cells = t.getCells();
+				Item item = new Item();
+				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("id")).array())));
+				item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
+				item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
+				if (!new String(cells.get(colToIndex.get("image")).array()).equals("None"))
+					item.setImage(new String(cells.get(colToIndex.get("image")).array()));
+				items.add(item);
+			}
+			return items;
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	private float evaluateShortNounsSimilarity(String first, String second) throws IllegalStateException, IOException {
 		String url = "http://swoogle.umbc.edu/SimService/GetSimilarity?operation=api&phrase1="
 				+ first + "_NN&phrase2=" + second + "_NN";

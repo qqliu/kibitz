@@ -27,8 +27,6 @@ import updates.UpdateLocalFiles;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
-import datahub.ResultSet;
-
 public class IndividualRecommender {
 	private DatahubDataModel dataModel;
 	private MysqlDataSource dataSource;
@@ -127,6 +125,14 @@ public class IndividualRecommender {
 		return new ArrayList<Item>();
 	}
 	
+	public List<Item> makeOverallRatingBasedRecommendation(String ratingColumnName, long numRecs) {
+		return this.dataModel.makeOverallRatingsBasedRecommendation(ratingColumnName, this.databaseName + "." + this.items_table, numRecs);
+	}
+	
+	public List<Item> makeRandomRecommendation(long numRecs) {
+		return this.dataModel.makeRandomRecommmendation(numRecs, this.databaseName + "." + this.items_table);
+	}
+ 	
 	public String createNewUser(String username, String email, String password, boolean isKibitzUser) {
 		if (this.checkUsername(username, isKibitzUser)) {
 			return "User already exists, please pick another username.";

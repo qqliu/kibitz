@@ -103,6 +103,20 @@ public class KibitzServer implements Iface {
 	}
 	
 	@Override
+	public List<Item> makeOverallRatingBasedOrRandomRecommendation(String key, String ratingColumnName, long numRecs) {
+		if (key != null) {
+			if (SESSIONS.get(key) != null) {
+				if (ratingColumnName != null) {
+					return SESSIONS.get(key).makeOverallRatingBasedRecommendation(ratingColumnName, numRecs);
+				} else {
+					return SESSIONS.get(key).makeRandomRecommendation(numRecs);
+				}
+			}
+		}
+		return null;
+	}
+	
+	@Override
 	public void initiateModel(String key, String table, String username, String password, String database) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
