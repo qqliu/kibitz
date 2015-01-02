@@ -307,24 +307,9 @@ public class DatahubDataModel implements DataModel{
 	 * Display a page of items
 	 */
 	public List<Item> getPageItems(String table, long page, long numPerPage) {
-		List<Item> items = new ArrayList<Item>();
 		try {
-			ResultSet res;
-			synchronized(this.client) {
-				res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + table + " limit " + numPerPage + " offset " + numPerPage * page, null);
-			}
-			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
-			
-			for (Tuple t : res.getTuples()) {
-				List<ByteBuffer> cells = t.getCells();
-				Item item = new Item();
-				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("id")).array())));
-				item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
-				item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
-				item.setImage(new String(cells.get(colToIndex.get("image")).array()));
-				items.add(item);
-			}
-			return items;
+			return this.getListOfItems( "select id, title, description, image from " + this.datahubDatabase 
+					+ "." + table + " limit " + numPerPage + " offset " + numPerPage * page);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -489,26 +474,9 @@ public class DatahubDataModel implements DataModel{
 	}
 	
 	public List<Item> makeOverallRatingsBasedRecommendation(String ratingColumnName, String table, long numRecs) {
-		List<Item> items = new ArrayList<Item>();
 		try {
-			ResultSet res;
-			synchronized(this.client) {
-				res = this.client.execute_sql(this.conn, "select id, title, description, image from " + table
-						+ " ORDER BY " + ratingColumnName + " DESC LIMIT " + numRecs, null);
-			}			
-			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
-
-			for (Tuple t : res.getTuples()) {
-				List<ByteBuffer> cells = t.getCells();
-				Item item = new Item();
-				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("id")).array())));
-				item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
-				item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
-				if (!new String(cells.get(colToIndex.get("image")).array()).equals("None"))
-					item.setImage(new String(cells.get(colToIndex.get("image")).array()));
-				items.add(item);
-			}
-			return items;
+			return this.getListOfItems("select id, title, description, image from " + table
+					+ " ORDER BY " + ratingColumnName + " DESC LIMIT " + numRecs);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -520,26 +488,9 @@ public class DatahubDataModel implements DataModel{
 	}
 	
 	public List<Item> makeRandomRecommmendation(long numRecs, String table) {
-		List<Item> items = new ArrayList<Item>();
 		try {
-			ResultSet res;
-			synchronized(this.client) {
-				res = this.client.execute_sql(this.conn, "select id, title, description, image from " + table
-						+ " ORDER BY RANDOM() LIMIT " + numRecs, null);
-			}			
-			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
-
-			for (Tuple t : res.getTuples()) {
-				List<ByteBuffer> cells = t.getCells();
-				Item item = new Item();
-				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("id")).array())));
-				item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
-				item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
-				if (!new String(cells.get(colToIndex.get("image")).array()).equals("None"))
-					item.setImage(new String(cells.get(colToIndex.get("image")).array()));
-				items.add(item);
-			}
-			return items;
+			return this.getListOfItems("select id, title, description, image from " + table
+					+ " ORDER BY RANDOM() LIMIT " + numRecs);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -624,30 +575,11 @@ public class DatahubDataModel implements DataModel{
 	 * Gets list of items user has rated.
 	 */
 	 public List<Item> getUserRatedItems(long userId, String ratings_table, String items_table) {
-		List<Item> items = new ArrayList<Item>();
 		try {
-			ResultSet res;
-			synchronized(this.client) {
-				long startTime = System.nanoTime();
-				res = this.client.execute_sql(this.conn, "SELECT " + ratings_table + ".item_id, " + ratings_table + 
-						".rating, " + items_table + ".title, " + items_table + ".description, " + items_table + 
-						".image, " + ratings_table + ".user_id FROM " + ratings_table + " INNER JOIN " + items_table + 
-						" ON " + ratings_table + ".item_id = " + items_table + ".id" + " WHERE user_id=" + userId, null);
-				long endTime = System.nanoTime();
-				System.out.println("Time getUserRatedItems took: " + (endTime - startTime));
-			}
-			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
-
-			for (Tuple t : res.getTuples()) {
-				List<ByteBuffer> cells = t.getCells();
-				Item item = new Item();
-				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("item_id")).array())));
-				item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
-				item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
-				item.setImage(new String(cells.get(colToIndex.get("image")).array()));
-				item.setRating(Long.parseLong(new String(cells.get(colToIndex.get("rating")).array())));
-				items.add(item);
-			}
+			return this.getListOfItems("SELECT " + ratings_table + ".item_id as id, " + ratings_table + 
+					".rating, " + items_table + ".title, " + items_table + ".description, " + items_table + 
+					".image, " + ratings_table + ".user_id FROM " + ratings_table + " INNER JOIN " + items_table + 
+					" ON " + ratings_table + ".item_id = " + items_table + ".id" + " WHERE user_id=" + userId);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -655,7 +587,7 @@ public class DatahubDataModel implements DataModel{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return items;
+		return new ArrayList<Item>();
 	}
 	 
 	 /**
@@ -939,9 +871,7 @@ public class DatahubDataModel implements DataModel{
 	 */
 	public List<Item> getItemsFromIds(ArrayList<Long> ids, String table, String ratings_table, long userId) {
 		List<Item> items = new ArrayList<Item>();
-		try {
-			ResultSet res;
-			
+		try {			
 			synchronized(this.client) {
 				if(ids.size() > 0) {
 					String query = "SELECT " + table + ".id, " + table + ".title, " + 
@@ -952,23 +882,10 @@ public class DatahubDataModel implements DataModel{
 						query += ids.get(i) + "' OR id='";
 					}
 					query += ids.get(ids.size() - 1) + "')";
-					res = this.client.execute_sql(this.conn, query, null);
+					return this.getListOfItems(query);
 				} else {
 					return new ArrayList<Item>();
 				}
-			}
-			
-			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
-			for (Tuple t : res.getTuples()) {
-				List<ByteBuffer> cells = t.getCells();
-				Item item = new Item();
-				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("id")).array())));
-				item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
-				item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
-				item.setImage(new String(cells.get(colToIndex.get("image")).array()));
-				if (!new String(cells.get(colToIndex.get("rating")).array()).equals("None"))
-					item.setRating(Long.parseLong(new String(cells.get(colToIndex.get("rating")).array())));
-				items.add(item);
 			}
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
@@ -1017,30 +934,14 @@ public class DatahubDataModel implements DataModel{
 	 */
 	public List<Item> getSearchItems(String table, String query) {
 		List<Item> items = new ArrayList<Item>();
-		
-		String q = "select * from " + table + " where title like ";
-		String[] words = query.split(" ");
-		for (int i = 0; i < words.length - 1; i++) {
-			q += "'%" + words[i] + "%' AND title like ";
-		}
-		q += "'%" + words[words.length -1] + "%'";
 		try {
-			ResultSet res;
-			synchronized(this.client) {
-				res = this.client.execute_sql(this.conn, q, null);
+			String q = "select * from " + table + " where title like ";
+			String[] words = query.split(" ");
+			for (int i = 0; i < words.length - 1; i++) {
+				q += "'%" + words[i] + "%' AND title like ";
 			}
-			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
-			
-			for (Tuple t : res.getTuples()) {
-				List<ByteBuffer> cells = t.getCells();
-				Item item = new Item();
-				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("id")).array())));
-				item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
-				item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
-				item.setImage(new String(cells.get(colToIndex.get("image")).array()));
-				items.add(item);
-			}
-			return items;
+			q += "'%" + words[words.length -1] + "%'";
+			return this.getListOfItems(q);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1135,6 +1036,34 @@ public class DatahubDataModel implements DataModel{
 		} catch(IOException e) {
 		    System.err.println("IOException: " + e.getMessage());
 		}
+	}
+	
+	/**
+	 * Returns list of Item objects from query
+	 * @throws TException 
+	 * @throws DBException 
+	 */
+	public List<Item> getListOfItems(String query) throws DBException, TException {
+		List<Item> items = new ArrayList<Item>();
+		ResultSet res;
+		synchronized(this.client) {
+			res = this.client.execute_sql(this.conn, query, null);
+		}
+		HashMap<String, Integer> colToIndex = this.getFieldNames(res);
+		
+		for (Tuple t : res.getTuples()) {
+			List<ByteBuffer> cells = t.getCells();
+			Item item = new Item();
+			item.setId(Long.parseLong(new String(cells.get(colToIndex.get("id")).array())));
+			item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
+			item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
+			if (!new String(cells.get(colToIndex.get("image")).array()).equals("None"))
+				item.setImage(new String(cells.get(colToIndex.get("image")).array()));
+			if (colToIndex.containsKey("rating") && !new String(cells.get(colToIndex.get("rating")).array()).equals("None"))
+				item.setRating(Long.parseLong(new String(cells.get(colToIndex.get("image")).array())));
+			items.add(item);
+		}
+		return items;
 	}
  
 	/**
