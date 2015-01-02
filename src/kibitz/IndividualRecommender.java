@@ -1,5 +1,6 @@
 package kibitz;
 
+import java.io.File;
 import java.math.BigInteger;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
@@ -12,15 +13,21 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
 import org.apache.mahout.cf.taste.common.TasteException;
+import org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommender;
 //import org.apache.mahout.cf.taste.impl.recommender.CachingRecommender;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
 import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
+import org.apache.mahout.cf.taste.impl.similarity.file.FileItemSimilarity;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 import org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;
 
+import updates.UpdateLocalFiles;
+
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+
+import datahub.ResultSet;
 
 public class IndividualRecommender {
 	private DatahubDataModel dataModel;
@@ -28,6 +35,8 @@ public class IndividualRecommender {
 	private UserSimilarity userSimilarity;
 	private UserNeighborhood neighborhood;
 	private GenericUserBasedRecommender recommender;
+	private GenericItemBasedRecommender itemRecommender;
+	private FileItemSimilarity itemUserSimilarity;
 	//private CachingRecommender cachingRecommender;
 	
 	private String items_table;
@@ -98,6 +107,24 @@ public class IndividualRecommender {
 	
 	public long retrieveUserId(String username, String password) {
 		return this.dataModel.retrieveUserId(username, password, this.databaseName + "." + this.users_table);
+	}
+	
+	public List<Item> makeItemBasedRecommendations(long userId, long numRecs) {
+		long[] itemIds = this.dataModel.getUserRatedItemsIds(userId, this.databaseName + "." + this.ratings_table);
+		try {
+			List<RecommendedItem> recs = this.itemRecommender.mostSimilarItems(itemIds, (int) numRecs);
+			ArrayList<Long> recommendationNames = new ArrayList<Long>();
+			for (int i = 0; i < recs.size(); i++) {
+				recommendationNames.add(recs.get(i).getItemID());
+			}
+			List<Item> recommendations = this.dataModel.getItemsFromIds(recommendationNames, this.databaseName + "." + this.items_table, 
+					this.databaseName + "." + this.ratings_table, userId);
+			return recommendations;
+		} catch (TasteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return new ArrayList<Item>();
 	}
 	
 	public String createNewUser(String username, String email, String password, boolean isKibitzUser) {
@@ -257,6 +284,15 @@ public class IndividualRecommender {
 				this.recommender = new GenericUserBasedRecommender(this.dataModel, neighborhood, userSimilarity);
 				//this.cachingRecommender = new CachingRecommender(recommender);
 				KibitzServer.RECOMMENDERS.put(table + username + password + database, this.recommender);
+			}
+			
+			if (KibitzServer.RECOMMENDERS.get(table + username + password + database + "items") != null) {
+				this.itemRecommender = (GenericItemBasedRecommender) KibitzServer.RECOMMENDERS.get(table + username + password + database + "items");
+			} else {
+				this.itemUserSimilarity = new FileItemSimilarity(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.databaseName + 
+						"/" + this.items_table + "_item_similarity.csv"));
+				this.itemRecommender = new GenericItemBasedRecommender(this.dataModel, this.itemUserSimilarity);
+				KibitzServer.RECOMMENDERS.put(table + username + password + database + "items", this.itemRecommender);
 			}
 		} catch (UnknownHostException e) {
 			System.err.println(e);

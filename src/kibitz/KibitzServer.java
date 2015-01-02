@@ -79,6 +79,30 @@ public class KibitzServer implements Iface {
 	}
 	
 	@Override
+	public List<Item> makeItemBasedRecommendations(String key, long userId, long numRecs) {
+		if (key != null) {
+			if (SESSIONS.get(key) != null) {
+				return SESSIONS.get(key).makeItemBasedRecommendations(userId, numRecs);
+			}
+		}
+		
+		if(!this.loop.isAlive()) {
+			Thread training = new Thread(new RecommenderRunnable());
+			training.setName("Training Thread");
+			this.loop = training;
+			this.loop.start();
+		}
+		
+		if(!this.terminateModelRecs.isAlive()) {
+			Thread terminateModel = new Thread(new TerminateModels());
+			terminateModel.setName("Terminate Model Thread");			
+			this.terminateModelRecs = terminateModel;
+			this.terminateModelRecs.start();
+		}
+		return null;
+	}
+	
+	@Override
 	public void initiateModel(String key, String table, String username, String password, String database) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {

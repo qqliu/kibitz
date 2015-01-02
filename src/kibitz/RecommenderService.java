@@ -42,6 +42,8 @@ public class RecommenderService {
 
     public List<Item> makeRecommendation(String key, long userId, long numRecs) throws org.apache.thrift.TException;
 
+    public List<Item> makeItemBasedRecommendations(String key, long userId, long numRecs) throws org.apache.thrift.TException;
+
     public List<Item> getItems(String key) throws org.apache.thrift.TException;
 
     public List<Item> getPageItems(String key, long page, long numPerPage) throws org.apache.thrift.TException;
@@ -77,6 +79,8 @@ public class RecommenderService {
     public void terminateSession(String key, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void makeRecommendation(String key, long userId, long numRecs, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+
+    public void makeItemBasedRecommendations(String key, long userId, long numRecs, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void getItems(String key, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
@@ -189,6 +193,31 @@ public class RecommenderService {
         return result.success;
       }
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "makeRecommendation failed: unknown result");
+    }
+
+    public List<Item> makeItemBasedRecommendations(String key, long userId, long numRecs) throws org.apache.thrift.TException
+    {
+      send_makeItemBasedRecommendations(key, userId, numRecs);
+      return recv_makeItemBasedRecommendations();
+    }
+
+    public void send_makeItemBasedRecommendations(String key, long userId, long numRecs) throws org.apache.thrift.TException
+    {
+      makeItemBasedRecommendations_args args = new makeItemBasedRecommendations_args();
+      args.setKey(key);
+      args.setUserId(userId);
+      args.setNumRecs(numRecs);
+      sendBase("makeItemBasedRecommendations", args);
+    }
+
+    public List<Item> recv_makeItemBasedRecommendations() throws org.apache.thrift.TException
+    {
+      makeItemBasedRecommendations_result result = new makeItemBasedRecommendations_result();
+      receiveBase(result, "makeItemBasedRecommendations");
+      if (result.isSetSuccess()) {
+        return result.success;
+      }
+      throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "makeItemBasedRecommendations failed: unknown result");
     }
 
     public List<Item> getItems(String key) throws org.apache.thrift.TException
@@ -631,6 +660,44 @@ public class RecommenderService {
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
         return (new Client(prot)).recv_makeRecommendation();
+      }
+    }
+
+    public void makeItemBasedRecommendations(String key, long userId, long numRecs, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+      checkReady();
+      makeItemBasedRecommendations_call method_call = new makeItemBasedRecommendations_call(key, userId, numRecs, resultHandler, this, ___protocolFactory, ___transport);
+      this.___currentMethod = method_call;
+      ___manager.call(method_call);
+    }
+
+    public static class makeItemBasedRecommendations_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private String key;
+      private long userId;
+      private long numRecs;
+      public makeItemBasedRecommendations_call(String key, long userId, long numRecs, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+        this.key = key;
+        this.userId = userId;
+        this.numRecs = numRecs;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("makeItemBasedRecommendations", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        makeItemBasedRecommendations_args args = new makeItemBasedRecommendations_args();
+        args.setKey(key);
+        args.setUserId(userId);
+        args.setNumRecs(numRecs);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public List<Item> getResult() throws org.apache.thrift.TException {
+        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        return (new Client(prot)).recv_makeItemBasedRecommendations();
       }
     }
 
@@ -1165,6 +1232,7 @@ public class RecommenderService {
       processMap.put("createNewIndividualServer", new createNewIndividualServer());
       processMap.put("terminateSession", new terminateSession());
       processMap.put("makeRecommendation", new makeRecommendation());
+      processMap.put("makeItemBasedRecommendations", new makeItemBasedRecommendations());
       processMap.put("getItems", new getItems());
       processMap.put("getPageItems", new getPageItems());
       processMap.put("getItemCount", new getItemCount());
@@ -1237,6 +1305,26 @@ public class RecommenderService {
       public makeRecommendation_result getResult(I iface, makeRecommendation_args args) throws org.apache.thrift.TException {
         makeRecommendation_result result = new makeRecommendation_result();
         result.success = iface.makeRecommendation(args.key, args.userId, args.numRecs);
+        return result;
+      }
+    }
+
+    public static class makeItemBasedRecommendations<I extends Iface> extends org.apache.thrift.ProcessFunction<I, makeItemBasedRecommendations_args> {
+      public makeItemBasedRecommendations() {
+        super("makeItemBasedRecommendations");
+      }
+
+      public makeItemBasedRecommendations_args getEmptyArgsInstance() {
+        return new makeItemBasedRecommendations_args();
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public makeItemBasedRecommendations_result getResult(I iface, makeItemBasedRecommendations_args args) throws org.apache.thrift.TException {
+        makeItemBasedRecommendations_result result = new makeItemBasedRecommendations_result();
+        result.success = iface.makeItemBasedRecommendations(args.key, args.userId, args.numRecs);
         return result;
       }
     }
@@ -1522,6 +1610,7 @@ public class RecommenderService {
       processMap.put("createNewIndividualServer", new createNewIndividualServer());
       processMap.put("terminateSession", new terminateSession());
       processMap.put("makeRecommendation", new makeRecommendation());
+      processMap.put("makeItemBasedRecommendations", new makeItemBasedRecommendations());
       processMap.put("getItems", new getItems());
       processMap.put("getPageItems", new getPageItems());
       processMap.put("getItemCount", new getItemCount());
@@ -1686,6 +1775,57 @@ public class RecommenderService {
 
       public void start(I iface, makeRecommendation_args args, org.apache.thrift.async.AsyncMethodCallback<List<Item>> resultHandler) throws TException {
         iface.makeRecommendation(args.key, args.userId, args.numRecs,resultHandler);
+      }
+    }
+
+    public static class makeItemBasedRecommendations<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, makeItemBasedRecommendations_args, List<Item>> {
+      public makeItemBasedRecommendations() {
+        super("makeItemBasedRecommendations");
+      }
+
+      public makeItemBasedRecommendations_args getEmptyArgsInstance() {
+        return new makeItemBasedRecommendations_args();
+      }
+
+      public AsyncMethodCallback<List<Item>> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+        final org.apache.thrift.AsyncProcessFunction fcall = this;
+        return new AsyncMethodCallback<List<Item>>() { 
+          public void onComplete(List<Item> o) {
+            makeItemBasedRecommendations_result result = new makeItemBasedRecommendations_result();
+            result.success = o;
+            try {
+              fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
+              return;
+            } catch (Exception e) {
+              LOGGER.error("Exception writing to internal frame buffer", e);
+            }
+            fb.close();
+          }
+          public void onError(Exception e) {
+            byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
+            org.apache.thrift.TBase msg;
+            makeItemBasedRecommendations_result result = new makeItemBasedRecommendations_result();
+            {
+              msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
+              msg = (org.apache.thrift.TBase)new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, e.getMessage());
+            }
+            try {
+              fcall.sendResponse(fb,msg,msgType,seqid);
+              return;
+            } catch (Exception ex) {
+              LOGGER.error("Exception writing to internal frame buffer", ex);
+            }
+            fb.close();
+          }
+        };
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public void start(I iface, makeItemBasedRecommendations_args args, org.apache.thrift.async.AsyncMethodCallback<List<Item>> resultHandler) throws TException {
+        iface.makeItemBasedRecommendations(args.key, args.userId, args.numRecs,resultHandler);
       }
     }
 
@@ -4510,6 +4650,960 @@ public class RecommenderService {
 
   }
 
+  public static class makeItemBasedRecommendations_args implements org.apache.thrift.TBase<makeItemBasedRecommendations_args, makeItemBasedRecommendations_args._Fields>, java.io.Serializable, Cloneable, Comparable<makeItemBasedRecommendations_args>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("makeItemBasedRecommendations_args");
+
+    private static final org.apache.thrift.protocol.TField KEY_FIELD_DESC = new org.apache.thrift.protocol.TField("key", org.apache.thrift.protocol.TType.STRING, (short)1);
+    private static final org.apache.thrift.protocol.TField USER_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("userId", org.apache.thrift.protocol.TType.I64, (short)2);
+    private static final org.apache.thrift.protocol.TField NUM_RECS_FIELD_DESC = new org.apache.thrift.protocol.TField("numRecs", org.apache.thrift.protocol.TType.I64, (short)3);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new makeItemBasedRecommendations_argsStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new makeItemBasedRecommendations_argsTupleSchemeFactory());
+    }
+
+    public String key; // required
+    public long userId; // required
+    public long numRecs; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      KEY((short)1, "key"),
+      USER_ID((short)2, "userId"),
+      NUM_RECS((short)3, "numRecs");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // KEY
+            return KEY;
+          case 2: // USER_ID
+            return USER_ID;
+          case 3: // NUM_RECS
+            return NUM_RECS;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    private static final int __USERID_ISSET_ID = 0;
+    private static final int __NUMRECS_ISSET_ID = 1;
+    private byte __isset_bitfield = 0;
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.KEY, new org.apache.thrift.meta_data.FieldMetaData("key", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.USER_ID, new org.apache.thrift.meta_data.FieldMetaData("userId", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+      tmpMap.put(_Fields.NUM_RECS, new org.apache.thrift.meta_data.FieldMetaData("numRecs", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(makeItemBasedRecommendations_args.class, metaDataMap);
+    }
+
+    public makeItemBasedRecommendations_args() {
+    }
+
+    public makeItemBasedRecommendations_args(
+      String key,
+      long userId,
+      long numRecs)
+    {
+      this();
+      this.key = key;
+      this.userId = userId;
+      setUserIdIsSet(true);
+      this.numRecs = numRecs;
+      setNumRecsIsSet(true);
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public makeItemBasedRecommendations_args(makeItemBasedRecommendations_args other) {
+      __isset_bitfield = other.__isset_bitfield;
+      if (other.isSetKey()) {
+        this.key = other.key;
+      }
+      this.userId = other.userId;
+      this.numRecs = other.numRecs;
+    }
+
+    public makeItemBasedRecommendations_args deepCopy() {
+      return new makeItemBasedRecommendations_args(this);
+    }
+
+    @Override
+    public void clear() {
+      this.key = null;
+      setUserIdIsSet(false);
+      this.userId = 0;
+      setNumRecsIsSet(false);
+      this.numRecs = 0;
+    }
+
+    public String getKey() {
+      return this.key;
+    }
+
+    public makeItemBasedRecommendations_args setKey(String key) {
+      this.key = key;
+      return this;
+    }
+
+    public void unsetKey() {
+      this.key = null;
+    }
+
+    /** Returns true if field key is set (has been assigned a value) and false otherwise */
+    public boolean isSetKey() {
+      return this.key != null;
+    }
+
+    public void setKeyIsSet(boolean value) {
+      if (!value) {
+        this.key = null;
+      }
+    }
+
+    public long getUserId() {
+      return this.userId;
+    }
+
+    public makeItemBasedRecommendations_args setUserId(long userId) {
+      this.userId = userId;
+      setUserIdIsSet(true);
+      return this;
+    }
+
+    public void unsetUserId() {
+      __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __USERID_ISSET_ID);
+    }
+
+    /** Returns true if field userId is set (has been assigned a value) and false otherwise */
+    public boolean isSetUserId() {
+      return EncodingUtils.testBit(__isset_bitfield, __USERID_ISSET_ID);
+    }
+
+    public void setUserIdIsSet(boolean value) {
+      __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __USERID_ISSET_ID, value);
+    }
+
+    public long getNumRecs() {
+      return this.numRecs;
+    }
+
+    public makeItemBasedRecommendations_args setNumRecs(long numRecs) {
+      this.numRecs = numRecs;
+      setNumRecsIsSet(true);
+      return this;
+    }
+
+    public void unsetNumRecs() {
+      __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __NUMRECS_ISSET_ID);
+    }
+
+    /** Returns true if field numRecs is set (has been assigned a value) and false otherwise */
+    public boolean isSetNumRecs() {
+      return EncodingUtils.testBit(__isset_bitfield, __NUMRECS_ISSET_ID);
+    }
+
+    public void setNumRecsIsSet(boolean value) {
+      __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __NUMRECS_ISSET_ID, value);
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case KEY:
+        if (value == null) {
+          unsetKey();
+        } else {
+          setKey((String)value);
+        }
+        break;
+
+      case USER_ID:
+        if (value == null) {
+          unsetUserId();
+        } else {
+          setUserId((Long)value);
+        }
+        break;
+
+      case NUM_RECS:
+        if (value == null) {
+          unsetNumRecs();
+        } else {
+          setNumRecs((Long)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case KEY:
+        return getKey();
+
+      case USER_ID:
+        return Long.valueOf(getUserId());
+
+      case NUM_RECS:
+        return Long.valueOf(getNumRecs());
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case KEY:
+        return isSetKey();
+      case USER_ID:
+        return isSetUserId();
+      case NUM_RECS:
+        return isSetNumRecs();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof makeItemBasedRecommendations_args)
+        return this.equals((makeItemBasedRecommendations_args)that);
+      return false;
+    }
+
+    public boolean equals(makeItemBasedRecommendations_args that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_key = true && this.isSetKey();
+      boolean that_present_key = true && that.isSetKey();
+      if (this_present_key || that_present_key) {
+        if (!(this_present_key && that_present_key))
+          return false;
+        if (!this.key.equals(that.key))
+          return false;
+      }
+
+      boolean this_present_userId = true;
+      boolean that_present_userId = true;
+      if (this_present_userId || that_present_userId) {
+        if (!(this_present_userId && that_present_userId))
+          return false;
+        if (this.userId != that.userId)
+          return false;
+      }
+
+      boolean this_present_numRecs = true;
+      boolean that_present_numRecs = true;
+      if (this_present_numRecs || that_present_numRecs) {
+        if (!(this_present_numRecs && that_present_numRecs))
+          return false;
+        if (this.numRecs != that.numRecs)
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    @Override
+    public int compareTo(makeItemBasedRecommendations_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+
+      lastComparison = Boolean.valueOf(isSetKey()).compareTo(other.isSetKey());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetKey()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.key, other.key);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetUserId()).compareTo(other.isSetUserId());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetUserId()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.userId, other.userId);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetNumRecs()).compareTo(other.isSetNumRecs());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetNumRecs()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.numRecs, other.numRecs);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("makeItemBasedRecommendations_args(");
+      boolean first = true;
+
+      sb.append("key:");
+      if (this.key == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.key);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("userId:");
+      sb.append(this.userId);
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("numRecs:");
+      sb.append(this.numRecs);
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
+        __isset_bitfield = 0;
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class makeItemBasedRecommendations_argsStandardSchemeFactory implements SchemeFactory {
+      public makeItemBasedRecommendations_argsStandardScheme getScheme() {
+        return new makeItemBasedRecommendations_argsStandardScheme();
+      }
+    }
+
+    private static class makeItemBasedRecommendations_argsStandardScheme extends StandardScheme<makeItemBasedRecommendations_args> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, makeItemBasedRecommendations_args struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            case 1: // KEY
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.key = iprot.readString();
+                struct.setKeyIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 2: // USER_ID
+              if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+                struct.userId = iprot.readI64();
+                struct.setUserIdIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 3: // NUM_RECS
+              if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
+                struct.numRecs = iprot.readI64();
+                struct.setNumRecsIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, makeItemBasedRecommendations_args struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.key != null) {
+          oprot.writeFieldBegin(KEY_FIELD_DESC);
+          oprot.writeString(struct.key);
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldBegin(USER_ID_FIELD_DESC);
+        oprot.writeI64(struct.userId);
+        oprot.writeFieldEnd();
+        oprot.writeFieldBegin(NUM_RECS_FIELD_DESC);
+        oprot.writeI64(struct.numRecs);
+        oprot.writeFieldEnd();
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class makeItemBasedRecommendations_argsTupleSchemeFactory implements SchemeFactory {
+      public makeItemBasedRecommendations_argsTupleScheme getScheme() {
+        return new makeItemBasedRecommendations_argsTupleScheme();
+      }
+    }
+
+    private static class makeItemBasedRecommendations_argsTupleScheme extends TupleScheme<makeItemBasedRecommendations_args> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, makeItemBasedRecommendations_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetKey()) {
+          optionals.set(0);
+        }
+        if (struct.isSetUserId()) {
+          optionals.set(1);
+        }
+        if (struct.isSetNumRecs()) {
+          optionals.set(2);
+        }
+        oprot.writeBitSet(optionals, 3);
+        if (struct.isSetKey()) {
+          oprot.writeString(struct.key);
+        }
+        if (struct.isSetUserId()) {
+          oprot.writeI64(struct.userId);
+        }
+        if (struct.isSetNumRecs()) {
+          oprot.writeI64(struct.numRecs);
+        }
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, makeItemBasedRecommendations_args struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(3);
+        if (incoming.get(0)) {
+          struct.key = iprot.readString();
+          struct.setKeyIsSet(true);
+        }
+        if (incoming.get(1)) {
+          struct.userId = iprot.readI64();
+          struct.setUserIdIsSet(true);
+        }
+        if (incoming.get(2)) {
+          struct.numRecs = iprot.readI64();
+          struct.setNumRecsIsSet(true);
+        }
+      }
+    }
+
+  }
+
+  public static class makeItemBasedRecommendations_result implements org.apache.thrift.TBase<makeItemBasedRecommendations_result, makeItemBasedRecommendations_result._Fields>, java.io.Serializable, Cloneable, Comparable<makeItemBasedRecommendations_result>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("makeItemBasedRecommendations_result");
+
+    private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.LIST, (short)0);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new makeItemBasedRecommendations_resultStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new makeItemBasedRecommendations_resultTupleSchemeFactory());
+    }
+
+    public List<Item> success; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      SUCCESS((short)0, "success");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 0: // SUCCESS
+            return SUCCESS;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+              new org.apache.thrift.meta_data.StructMetaData(org.apache.thrift.protocol.TType.STRUCT, Item.class))));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(makeItemBasedRecommendations_result.class, metaDataMap);
+    }
+
+    public makeItemBasedRecommendations_result() {
+    }
+
+    public makeItemBasedRecommendations_result(
+      List<Item> success)
+    {
+      this();
+      this.success = success;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public makeItemBasedRecommendations_result(makeItemBasedRecommendations_result other) {
+      if (other.isSetSuccess()) {
+        List<Item> __this__success = new ArrayList<Item>(other.success.size());
+        for (Item other_element : other.success) {
+          __this__success.add(new Item(other_element));
+        }
+        this.success = __this__success;
+      }
+    }
+
+    public makeItemBasedRecommendations_result deepCopy() {
+      return new makeItemBasedRecommendations_result(this);
+    }
+
+    @Override
+    public void clear() {
+      this.success = null;
+    }
+
+    public int getSuccessSize() {
+      return (this.success == null) ? 0 : this.success.size();
+    }
+
+    public java.util.Iterator<Item> getSuccessIterator() {
+      return (this.success == null) ? null : this.success.iterator();
+    }
+
+    public void addToSuccess(Item elem) {
+      if (this.success == null) {
+        this.success = new ArrayList<Item>();
+      }
+      this.success.add(elem);
+    }
+
+    public List<Item> getSuccess() {
+      return this.success;
+    }
+
+    public makeItemBasedRecommendations_result setSuccess(List<Item> success) {
+      this.success = success;
+      return this;
+    }
+
+    public void unsetSuccess() {
+      this.success = null;
+    }
+
+    /** Returns true if field success is set (has been assigned a value) and false otherwise */
+    public boolean isSetSuccess() {
+      return this.success != null;
+    }
+
+    public void setSuccessIsSet(boolean value) {
+      if (!value) {
+        this.success = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case SUCCESS:
+        if (value == null) {
+          unsetSuccess();
+        } else {
+          setSuccess((List<Item>)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case SUCCESS:
+        return getSuccess();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case SUCCESS:
+        return isSetSuccess();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof makeItemBasedRecommendations_result)
+        return this.equals((makeItemBasedRecommendations_result)that);
+      return false;
+    }
+
+    public boolean equals(makeItemBasedRecommendations_result that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_success = true && this.isSetSuccess();
+      boolean that_present_success = true && that.isSetSuccess();
+      if (this_present_success || that_present_success) {
+        if (!(this_present_success && that_present_success))
+          return false;
+        if (!this.success.equals(that.success))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      return 0;
+    }
+
+    @Override
+    public int compareTo(makeItemBasedRecommendations_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+
+      lastComparison = Boolean.valueOf(isSetSuccess()).compareTo(other.isSetSuccess());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetSuccess()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.success, other.success);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+      }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("makeItemBasedRecommendations_result(");
+      boolean first = true;
+
+      sb.append("success:");
+      if (this.success == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.success);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws org.apache.thrift.TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (org.apache.thrift.TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class makeItemBasedRecommendations_resultStandardSchemeFactory implements SchemeFactory {
+      public makeItemBasedRecommendations_resultStandardScheme getScheme() {
+        return new makeItemBasedRecommendations_resultStandardScheme();
+      }
+    }
+
+    private static class makeItemBasedRecommendations_resultStandardScheme extends StandardScheme<makeItemBasedRecommendations_result> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, makeItemBasedRecommendations_result struct) throws org.apache.thrift.TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            case 0: // SUCCESS
+              if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+                {
+                  org.apache.thrift.protocol.TList _list8 = iprot.readListBegin();
+                  struct.success = new ArrayList<Item>(_list8.size);
+                  for (int _i9 = 0; _i9 < _list8.size; ++_i9)
+                  {
+                    Item _elem10;
+                    _elem10 = new Item();
+                    _elem10.read(iprot);
+                    struct.success.add(_elem10);
+                  }
+                  iprot.readListEnd();
+                }
+                struct.setSuccessIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, makeItemBasedRecommendations_result struct) throws org.apache.thrift.TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.success != null) {
+          oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
+          {
+            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.success.size()));
+            for (Item _iter11 : struct.success)
+            {
+              _iter11.write(oprot);
+            }
+            oprot.writeListEnd();
+          }
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class makeItemBasedRecommendations_resultTupleSchemeFactory implements SchemeFactory {
+      public makeItemBasedRecommendations_resultTupleScheme getScheme() {
+        return new makeItemBasedRecommendations_resultTupleScheme();
+      }
+    }
+
+    private static class makeItemBasedRecommendations_resultTupleScheme extends TupleScheme<makeItemBasedRecommendations_result> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, makeItemBasedRecommendations_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetSuccess()) {
+          optionals.set(0);
+        }
+        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetSuccess()) {
+          {
+            oprot.writeI32(struct.success.size());
+            for (Item _iter12 : struct.success)
+            {
+              _iter12.write(oprot);
+            }
+          }
+        }
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, makeItemBasedRecommendations_result struct) throws org.apache.thrift.TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(1);
+        if (incoming.get(0)) {
+          {
+            org.apache.thrift.protocol.TList _list13 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.success = new ArrayList<Item>(_list13.size);
+            for (int _i14 = 0; _i14 < _list13.size; ++_i14)
+            {
+              Item _elem15;
+              _elem15 = new Item();
+              _elem15.read(iprot);
+              struct.success.add(_elem15);
+            }
+          }
+          struct.setSuccessIsSet(true);
+        }
+      }
+    }
+
+  }
+
   public static class getItems_args implements org.apache.thrift.TBase<getItems_args, getItems_args._Fields>, java.io.Serializable, Cloneable, Comparable<getItems_args>   {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getItems_args");
 
@@ -5173,14 +6267,14 @@ public class RecommenderService {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list8 = iprot.readListBegin();
-                  struct.success = new ArrayList<Item>(_list8.size);
-                  for (int _i9 = 0; _i9 < _list8.size; ++_i9)
+                  org.apache.thrift.protocol.TList _list16 = iprot.readListBegin();
+                  struct.success = new ArrayList<Item>(_list16.size);
+                  for (int _i17 = 0; _i17 < _list16.size; ++_i17)
                   {
-                    Item _elem10;
-                    _elem10 = new Item();
-                    _elem10.read(iprot);
-                    struct.success.add(_elem10);
+                    Item _elem18;
+                    _elem18 = new Item();
+                    _elem18.read(iprot);
+                    struct.success.add(_elem18);
                   }
                   iprot.readListEnd();
                 }
@@ -5208,9 +6302,9 @@ public class RecommenderService {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.success.size()));
-            for (Item _iter11 : struct.success)
+            for (Item _iter19 : struct.success)
             {
-              _iter11.write(oprot);
+              _iter19.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -5241,9 +6335,9 @@ public class RecommenderService {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (Item _iter12 : struct.success)
+            for (Item _iter20 : struct.success)
             {
-              _iter12.write(oprot);
+              _iter20.write(oprot);
             }
           }
         }
@@ -5255,14 +6349,14 @@ public class RecommenderService {
         BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list13 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-            struct.success = new ArrayList<Item>(_list13.size);
-            for (int _i14 = 0; _i14 < _list13.size; ++_i14)
+            org.apache.thrift.protocol.TList _list21 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.success = new ArrayList<Item>(_list21.size);
+            for (int _i22 = 0; _i22 < _list21.size; ++_i22)
             {
-              Item _elem15;
-              _elem15 = new Item();
-              _elem15.read(iprot);
-              struct.success.add(_elem15);
+              Item _elem23;
+              _elem23 = new Item();
+              _elem23.read(iprot);
+              struct.success.add(_elem23);
             }
           }
           struct.setSuccessIsSet(true);
@@ -6127,14 +7221,14 @@ public class RecommenderService {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list16 = iprot.readListBegin();
-                  struct.success = new ArrayList<Item>(_list16.size);
-                  for (int _i17 = 0; _i17 < _list16.size; ++_i17)
+                  org.apache.thrift.protocol.TList _list24 = iprot.readListBegin();
+                  struct.success = new ArrayList<Item>(_list24.size);
+                  for (int _i25 = 0; _i25 < _list24.size; ++_i25)
                   {
-                    Item _elem18;
-                    _elem18 = new Item();
-                    _elem18.read(iprot);
-                    struct.success.add(_elem18);
+                    Item _elem26;
+                    _elem26 = new Item();
+                    _elem26.read(iprot);
+                    struct.success.add(_elem26);
                   }
                   iprot.readListEnd();
                 }
@@ -6162,9 +7256,9 @@ public class RecommenderService {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.success.size()));
-            for (Item _iter19 : struct.success)
+            for (Item _iter27 : struct.success)
             {
-              _iter19.write(oprot);
+              _iter27.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -6195,9 +7289,9 @@ public class RecommenderService {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (Item _iter20 : struct.success)
+            for (Item _iter28 : struct.success)
             {
-              _iter20.write(oprot);
+              _iter28.write(oprot);
             }
           }
         }
@@ -6209,14 +7303,14 @@ public class RecommenderService {
         BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list21 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-            struct.success = new ArrayList<Item>(_list21.size);
-            for (int _i22 = 0; _i22 < _list21.size; ++_i22)
+            org.apache.thrift.protocol.TList _list29 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.success = new ArrayList<Item>(_list29.size);
+            for (int _i30 = 0; _i30 < _list29.size; ++_i30)
             {
-              Item _elem23;
-              _elem23 = new Item();
-              _elem23.read(iprot);
-              struct.success.add(_elem23);
+              Item _elem31;
+              _elem31 = new Item();
+              _elem31.read(iprot);
+              struct.success.add(_elem31);
             }
           }
           struct.setSuccessIsSet(true);
@@ -14907,14 +16001,14 @@ public class RecommenderService {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list24 = iprot.readListBegin();
-                  struct.success = new ArrayList<Item>(_list24.size);
-                  for (int _i25 = 0; _i25 < _list24.size; ++_i25)
+                  org.apache.thrift.protocol.TList _list32 = iprot.readListBegin();
+                  struct.success = new ArrayList<Item>(_list32.size);
+                  for (int _i33 = 0; _i33 < _list32.size; ++_i33)
                   {
-                    Item _elem26;
-                    _elem26 = new Item();
-                    _elem26.read(iprot);
-                    struct.success.add(_elem26);
+                    Item _elem34;
+                    _elem34 = new Item();
+                    _elem34.read(iprot);
+                    struct.success.add(_elem34);
                   }
                   iprot.readListEnd();
                 }
@@ -14942,9 +16036,9 @@ public class RecommenderService {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.success.size()));
-            for (Item _iter27 : struct.success)
+            for (Item _iter35 : struct.success)
             {
-              _iter27.write(oprot);
+              _iter35.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -14975,9 +16069,9 @@ public class RecommenderService {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (Item _iter28 : struct.success)
+            for (Item _iter36 : struct.success)
             {
-              _iter28.write(oprot);
+              _iter36.write(oprot);
             }
           }
         }
@@ -14989,14 +16083,14 @@ public class RecommenderService {
         BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list29 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-            struct.success = new ArrayList<Item>(_list29.size);
-            for (int _i30 = 0; _i30 < _list29.size; ++_i30)
+            org.apache.thrift.protocol.TList _list37 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.success = new ArrayList<Item>(_list37.size);
+            for (int _i38 = 0; _i38 < _list37.size; ++_i38)
             {
-              Item _elem31;
-              _elem31 = new Item();
-              _elem31.read(iprot);
-              struct.success.add(_elem31);
+              Item _elem39;
+              _elem39 = new Item();
+              _elem39.read(iprot);
+              struct.success.add(_elem39);
             }
           }
           struct.setSuccessIsSet(true);
@@ -16769,14 +17863,14 @@ public class RecommenderService {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list32 = iprot.readListBegin();
-                  struct.success = new ArrayList<Item>(_list32.size);
-                  for (int _i33 = 0; _i33 < _list32.size; ++_i33)
+                  org.apache.thrift.protocol.TList _list40 = iprot.readListBegin();
+                  struct.success = new ArrayList<Item>(_list40.size);
+                  for (int _i41 = 0; _i41 < _list40.size; ++_i41)
                   {
-                    Item _elem34;
-                    _elem34 = new Item();
-                    _elem34.read(iprot);
-                    struct.success.add(_elem34);
+                    Item _elem42;
+                    _elem42 = new Item();
+                    _elem42.read(iprot);
+                    struct.success.add(_elem42);
                   }
                   iprot.readListEnd();
                 }
@@ -16804,9 +17898,9 @@ public class RecommenderService {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.success.size()));
-            for (Item _iter35 : struct.success)
+            for (Item _iter43 : struct.success)
             {
-              _iter35.write(oprot);
+              _iter43.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -16837,9 +17931,9 @@ public class RecommenderService {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (Item _iter36 : struct.success)
+            for (Item _iter44 : struct.success)
             {
-              _iter36.write(oprot);
+              _iter44.write(oprot);
             }
           }
         }
@@ -16851,14 +17945,14 @@ public class RecommenderService {
         BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list37 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-            struct.success = new ArrayList<Item>(_list37.size);
-            for (int _i38 = 0; _i38 < _list37.size; ++_i38)
+            org.apache.thrift.protocol.TList _list45 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.success = new ArrayList<Item>(_list45.size);
+            for (int _i46 = 0; _i46 < _list45.size; ++_i46)
             {
-              Item _elem39;
-              _elem39 = new Item();
-              _elem39.read(iprot);
-              struct.success.add(_elem39);
+              Item _elem47;
+              _elem47 = new Item();
+              _elem47.read(iprot);
+              struct.success.add(_elem47);
             }
           }
           struct.setSuccessIsSet(true);

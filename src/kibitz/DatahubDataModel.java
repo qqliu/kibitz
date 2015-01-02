@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -368,7 +369,7 @@ public class DatahubDataModel implements DataModel{
 	public boolean createNewRecommender(String table, String firstColumnName, String secondColumnName, String thirdColumnName,
     		String firstColumnType, String secondColumnType, String thirdColumnType) {
 		try {
-			/*synchronized(this.client) {
+			synchronized(this.client) {
 				this.client.execute_sql(this.conn, "alter table " + this.datahubDatabase + "." + table + " add id serial", null);
 				this.client.execute_sql(this.conn, "create table " + this.datahubDatabase + "." + table + "_ratings (" + 
 					"user_id int, item_id int, rating varchar(255))" , null);
@@ -382,7 +383,7 @@ public class DatahubDataModel implements DataModel{
 												+ "AFTER INSERT OR UPDATE ON " + this.datahubDatabase + "." + table + " FOR EACH STATEMENT EXECUTE procedure timestamp_update_log();", null);
 				this.client.execute_sql(this.conn, "CREATE TRIGGER " + table + "_ratings_timestamp_update_log"
 												+ "AFTER INSERT OR UPDATE ON " + this.datahubDatabase + "." + table + "_ratings FOR EACH STATEMENT EXECUTE procedure timestamp_update_log();", null);
-			}*/
+			}
 			
 			float firstColumnScore = 0;
 			float secondColumnScore = 0;
@@ -594,6 +595,34 @@ public class DatahubDataModel implements DataModel{
 		}
 		return items;
 	}
+	 
+	 /**
+	  * Gets list of ids of items rated
+	  */
+	 public long[] getUserRatedItemsIds(long userId, String ratings_table) {
+		 List<Long> userRatedItemsIds = new ArrayList<Long>();
+		 try {
+			ResultSet res;
+			synchronized(this.client) {
+				res = this.client.execute_sql(this.conn, "SELECT item_id FROM " + ratings_table +
+						" WHERE user_id=" + userId, null);
+			}
+			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
+
+			for (Tuple t : res.getTuples()) {
+				List<ByteBuffer> cells = t.getCells();
+				userRatedItemsIds.add(Long.parseLong(new String(cells.get(colToIndex.get("item_id")).array())));
+			}
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Long[] ids = new Long[userRatedItemsIds.size()];
+		return ArrayUtils.toPrimitive(userRatedItemsIds.toArray(ids));
+	 }
 	 
 	/**
 	 * Records user ratings
@@ -993,7 +1022,7 @@ public class DatahubDataModel implements DataModel{
 			Connection connection = clnt.open_connection(params);
 			
 			clnt.execute_sql(connection, "INSERT INTO kibitz_users.users (database, username, password, ratings_table) "
-					+ " VALUES (" + databaseName + ", " + username + ", " + password + ", " + ratings_table + ")", null);
+					+ " VALUES ('" + databaseName + "', '" + username + "', '" + password + "', '" + ratings_table + "')", null);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
