@@ -63,13 +63,24 @@
         <div class="text-vertical-center">
             <h1>Kibitz</h1>
             <div id="intro">
-                <h3>Upload a file to <a href="http://datahub.csail.mit.edu">DataHub</a> and start recommending.</h3>
+                <h3>Import a table from <a href="http://datahub.csail.mit.edu">DataHub</a> and start recommending.</h3>
+                <h4>To create your own recommender, provide us the following information:
+                    <ol>
+                        <li>Datahub credentials.</li>
+                        <li>Name of the table containing a list of items. The table must have column names "title", "description", and "image". The "title" column contains
+                        the names of your items, the "description" column contains a description of your item, and the "image" column contains urls for images of your items. If
+                        you do not have images, you may create an empty column filled with "None". Your table may contain other columns but the three required columns
+                        will be used to provide information about your items.</li><!--Note: this will probably change so the columns are not fixed.-->
+                        <li>Check the boxes for the type of recommendations you would like to use. Note that it may take a while to create your recommender if you choose to use
+                        item-based recommendations.</li>
+                    </ol>
+                </h4>
                 <br>
                 <form>
-                  <h3>DataHub Username: </h3> <input id="username" name="username" type="text" />
-                  <h3>DataHub Password: </h3><input id="password" name="password" type="password" />
-                  <h3>DataHub Repository: </h3><input id="repo" name="repo" type="text" />
-                  <h3>DataHub Table Name: </h3><input id="tablename" name="tablename" type="text" /><br />
+                  <h3>DataHub Username: </h3> <input id="username" name="username" type="text" /><br /><br />
+                  <h3>DataHub Password: </h3><input id="password" name="password" type="password" /><br /><br />
+                  <h3>DataHub Repository: </h3><input id="repo" name="repo" type="text" /><br /><br />
+                  <h3>DataHub Table Name: </h3><input id="tablename" name="tablename" type="text" /><br /><br /><br />
                   <input class="btn btn-dark btn-lg" value="Create" onclick="create();" />
                 </form>
             </div>
