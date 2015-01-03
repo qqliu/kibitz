@@ -141,16 +141,17 @@ public class KibitzServer implements Iface {
 	}
 	
 	@Override
-    public boolean createNewRecommender(String username, String password, String database, String table,
+    public boolean createNewRecommender(String username, String primaryKey, String password, String database, String table,
     		String firstColumnName, String secondColumnName, String thirdColumnName,
-    		String firstColumnType, String secondColumnType, String thirdColumnType) {
+    		String firstColumnType, String secondColumnType, String thirdColumnType,
+    		List<String> displayColumns) {
 		try {
 			this.dataModel = new DatahubDataModel(this.dataSource.getServerName(), database, 
 				username,
 				password,
 				null);
-			return this.dataModel.createNewRecommender(table, firstColumnName, secondColumnName, thirdColumnName,
-					firstColumnType, secondColumnType, thirdColumnType);
+			return this.dataModel.createNewRecommender(table, primaryKey, firstColumnName, secondColumnName, thirdColumnName,
+					firstColumnType, secondColumnType, thirdColumnType, displayColumns);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

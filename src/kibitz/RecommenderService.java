@@ -62,7 +62,7 @@ public class RecommenderService {
 
     public long retrieveUserId(String key, String username, String password) throws org.apache.thrift.TException;
 
-    public boolean createNewRecommender(String username, String password, String database, String table, String firstColumnName, String secondColumnName, String thirdColumnName, String firstColumnType, String secondColumnType, String thirdColumnType) throws org.apache.thrift.TException;
+    public boolean createNewRecommender(String username, String primaryKey, String password, String database, String table, String firstColumnName, String secondColumnName, String thirdColumnName, String firstColumnType, String secondColumnType, String thirdColumnType, List<String> displayColumns) throws org.apache.thrift.TException;
 
     public List<Item> getUserRatedItems(String key, long userId) throws org.apache.thrift.TException;
 
@@ -102,7 +102,7 @@ public class RecommenderService {
 
     public void retrieveUserId(String key, String username, String password, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void createNewRecommender(String username, String password, String database, String table, String firstColumnName, String secondColumnName, String thirdColumnName, String firstColumnType, String secondColumnType, String thirdColumnType, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void createNewRecommender(String username, String primaryKey, String password, String database, String table, String firstColumnName, String secondColumnName, String thirdColumnName, String firstColumnType, String secondColumnType, String thirdColumnType, List<String> displayColumns, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void getUserRatedItems(String key, long userId, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
@@ -443,16 +443,17 @@ public class RecommenderService {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "retrieveUserId failed: unknown result");
     }
 
-    public boolean createNewRecommender(String username, String password, String database, String table, String firstColumnName, String secondColumnName, String thirdColumnName, String firstColumnType, String secondColumnType, String thirdColumnType) throws org.apache.thrift.TException
+    public boolean createNewRecommender(String username, String primaryKey, String password, String database, String table, String firstColumnName, String secondColumnName, String thirdColumnName, String firstColumnType, String secondColumnType, String thirdColumnType, List<String> displayColumns) throws org.apache.thrift.TException
     {
-      send_createNewRecommender(username, password, database, table, firstColumnName, secondColumnName, thirdColumnName, firstColumnType, secondColumnType, thirdColumnType);
+      send_createNewRecommender(username, primaryKey, password, database, table, firstColumnName, secondColumnName, thirdColumnName, firstColumnType, secondColumnType, thirdColumnType, displayColumns);
       return recv_createNewRecommender();
     }
 
-    public void send_createNewRecommender(String username, String password, String database, String table, String firstColumnName, String secondColumnName, String thirdColumnName, String firstColumnType, String secondColumnType, String thirdColumnType) throws org.apache.thrift.TException
+    public void send_createNewRecommender(String username, String primaryKey, String password, String database, String table, String firstColumnName, String secondColumnName, String thirdColumnName, String firstColumnType, String secondColumnType, String thirdColumnType, List<String> displayColumns) throws org.apache.thrift.TException
     {
       createNewRecommender_args args = new createNewRecommender_args();
       args.setUsername(username);
+      args.setPrimaryKey(primaryKey);
       args.setPassword(password);
       args.setDatabase(database);
       args.setTable(table);
@@ -462,6 +463,7 @@ public class RecommenderService {
       args.setFirstColumnType(firstColumnType);
       args.setSecondColumnType(secondColumnType);
       args.setThirdColumnType(thirdColumnType);
+      args.setDisplayColumns(displayColumns);
       sendBase("createNewRecommender", args);
     }
 
@@ -1072,15 +1074,16 @@ public class RecommenderService {
       }
     }
 
-    public void createNewRecommender(String username, String password, String database, String table, String firstColumnName, String secondColumnName, String thirdColumnName, String firstColumnType, String secondColumnType, String thirdColumnType, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void createNewRecommender(String username, String primaryKey, String password, String database, String table, String firstColumnName, String secondColumnName, String thirdColumnName, String firstColumnType, String secondColumnType, String thirdColumnType, List<String> displayColumns, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      createNewRecommender_call method_call = new createNewRecommender_call(username, password, database, table, firstColumnName, secondColumnName, thirdColumnName, firstColumnType, secondColumnType, thirdColumnType, resultHandler, this, ___protocolFactory, ___transport);
+      createNewRecommender_call method_call = new createNewRecommender_call(username, primaryKey, password, database, table, firstColumnName, secondColumnName, thirdColumnName, firstColumnType, secondColumnType, thirdColumnType, displayColumns, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
 
     public static class createNewRecommender_call extends org.apache.thrift.async.TAsyncMethodCall {
       private String username;
+      private String primaryKey;
       private String password;
       private String database;
       private String table;
@@ -1090,9 +1093,11 @@ public class RecommenderService {
       private String firstColumnType;
       private String secondColumnType;
       private String thirdColumnType;
-      public createNewRecommender_call(String username, String password, String database, String table, String firstColumnName, String secondColumnName, String thirdColumnName, String firstColumnType, String secondColumnType, String thirdColumnType, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private List<String> displayColumns;
+      public createNewRecommender_call(String username, String primaryKey, String password, String database, String table, String firstColumnName, String secondColumnName, String thirdColumnName, String firstColumnType, String secondColumnType, String thirdColumnType, List<String> displayColumns, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.username = username;
+        this.primaryKey = primaryKey;
         this.password = password;
         this.database = database;
         this.table = table;
@@ -1102,12 +1107,14 @@ public class RecommenderService {
         this.firstColumnType = firstColumnType;
         this.secondColumnType = secondColumnType;
         this.thirdColumnType = thirdColumnType;
+        this.displayColumns = displayColumns;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("createNewRecommender", org.apache.thrift.protocol.TMessageType.CALL, 0));
         createNewRecommender_args args = new createNewRecommender_args();
         args.setUsername(username);
+        args.setPrimaryKey(primaryKey);
         args.setPassword(password);
         args.setDatabase(database);
         args.setTable(table);
@@ -1117,6 +1124,7 @@ public class RecommenderService {
         args.setFirstColumnType(firstColumnType);
         args.setSecondColumnType(secondColumnType);
         args.setThirdColumnType(thirdColumnType);
+        args.setDisplayColumns(displayColumns);
         args.write(prot);
         prot.writeMessageEnd();
       }
@@ -1596,7 +1604,7 @@ public class RecommenderService {
 
       public createNewRecommender_result getResult(I iface, createNewRecommender_args args) throws org.apache.thrift.TException {
         createNewRecommender_result result = new createNewRecommender_result();
-        result.success = iface.createNewRecommender(args.username, args.password, args.database, args.table, args.firstColumnName, args.secondColumnName, args.thirdColumnName, args.firstColumnType, args.secondColumnType, args.thirdColumnType);
+        result.success = iface.createNewRecommender(args.username, args.primaryKey, args.password, args.database, args.table, args.firstColumnName, args.secondColumnName, args.thirdColumnName, args.firstColumnType, args.secondColumnType, args.thirdColumnType, args.displayColumns);
         result.setSuccessIsSet(true);
         return result;
       }
@@ -2427,7 +2435,7 @@ public class RecommenderService {
       }
 
       public void start(I iface, createNewRecommender_args args, org.apache.thrift.async.AsyncMethodCallback<Boolean> resultHandler) throws TException {
-        iface.createNewRecommender(args.username, args.password, args.database, args.table, args.firstColumnName, args.secondColumnName, args.thirdColumnName, args.firstColumnType, args.secondColumnType, args.thirdColumnType,resultHandler);
+        iface.createNewRecommender(args.username, args.primaryKey, args.password, args.database, args.table, args.firstColumnName, args.secondColumnName, args.thirdColumnName, args.firstColumnType, args.secondColumnType, args.thirdColumnType, args.displayColumns,resultHandler);
       }
     }
 
@@ -13776,15 +13784,17 @@ public class RecommenderService {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("createNewRecommender_args");
 
     private static final org.apache.thrift.protocol.TField USERNAME_FIELD_DESC = new org.apache.thrift.protocol.TField("username", org.apache.thrift.protocol.TType.STRING, (short)1);
-    private static final org.apache.thrift.protocol.TField PASSWORD_FIELD_DESC = new org.apache.thrift.protocol.TField("password", org.apache.thrift.protocol.TType.STRING, (short)2);
-    private static final org.apache.thrift.protocol.TField DATABASE_FIELD_DESC = new org.apache.thrift.protocol.TField("database", org.apache.thrift.protocol.TType.STRING, (short)3);
-    private static final org.apache.thrift.protocol.TField TABLE_FIELD_DESC = new org.apache.thrift.protocol.TField("table", org.apache.thrift.protocol.TType.STRING, (short)4);
-    private static final org.apache.thrift.protocol.TField FIRST_COLUMN_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("firstColumnName", org.apache.thrift.protocol.TType.STRING, (short)5);
-    private static final org.apache.thrift.protocol.TField SECOND_COLUMN_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("secondColumnName", org.apache.thrift.protocol.TType.STRING, (short)6);
-    private static final org.apache.thrift.protocol.TField THIRD_COLUMN_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("thirdColumnName", org.apache.thrift.protocol.TType.STRING, (short)7);
-    private static final org.apache.thrift.protocol.TField FIRST_COLUMN_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("firstColumnType", org.apache.thrift.protocol.TType.STRING, (short)8);
-    private static final org.apache.thrift.protocol.TField SECOND_COLUMN_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("secondColumnType", org.apache.thrift.protocol.TType.STRING, (short)9);
-    private static final org.apache.thrift.protocol.TField THIRD_COLUMN_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("thirdColumnType", org.apache.thrift.protocol.TType.STRING, (short)10);
+    private static final org.apache.thrift.protocol.TField PRIMARY_KEY_FIELD_DESC = new org.apache.thrift.protocol.TField("primaryKey", org.apache.thrift.protocol.TType.STRING, (short)2);
+    private static final org.apache.thrift.protocol.TField PASSWORD_FIELD_DESC = new org.apache.thrift.protocol.TField("password", org.apache.thrift.protocol.TType.STRING, (short)3);
+    private static final org.apache.thrift.protocol.TField DATABASE_FIELD_DESC = new org.apache.thrift.protocol.TField("database", org.apache.thrift.protocol.TType.STRING, (short)4);
+    private static final org.apache.thrift.protocol.TField TABLE_FIELD_DESC = new org.apache.thrift.protocol.TField("table", org.apache.thrift.protocol.TType.STRING, (short)5);
+    private static final org.apache.thrift.protocol.TField FIRST_COLUMN_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("firstColumnName", org.apache.thrift.protocol.TType.STRING, (short)6);
+    private static final org.apache.thrift.protocol.TField SECOND_COLUMN_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("secondColumnName", org.apache.thrift.protocol.TType.STRING, (short)7);
+    private static final org.apache.thrift.protocol.TField THIRD_COLUMN_NAME_FIELD_DESC = new org.apache.thrift.protocol.TField("thirdColumnName", org.apache.thrift.protocol.TType.STRING, (short)8);
+    private static final org.apache.thrift.protocol.TField FIRST_COLUMN_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("firstColumnType", org.apache.thrift.protocol.TType.STRING, (short)9);
+    private static final org.apache.thrift.protocol.TField SECOND_COLUMN_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("secondColumnType", org.apache.thrift.protocol.TType.STRING, (short)10);
+    private static final org.apache.thrift.protocol.TField THIRD_COLUMN_TYPE_FIELD_DESC = new org.apache.thrift.protocol.TField("thirdColumnType", org.apache.thrift.protocol.TType.STRING, (short)11);
+    private static final org.apache.thrift.protocol.TField DISPLAY_COLUMNS_FIELD_DESC = new org.apache.thrift.protocol.TField("displayColumns", org.apache.thrift.protocol.TType.LIST, (short)12);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -13793,6 +13803,7 @@ public class RecommenderService {
     }
 
     public String username; // required
+    public String primaryKey; // required
     public String password; // required
     public String database; // required
     public String table; // required
@@ -13802,19 +13813,22 @@ public class RecommenderService {
     public String firstColumnType; // required
     public String secondColumnType; // required
     public String thirdColumnType; // required
+    public List<String> displayColumns; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       USERNAME((short)1, "username"),
-      PASSWORD((short)2, "password"),
-      DATABASE((short)3, "database"),
-      TABLE((short)4, "table"),
-      FIRST_COLUMN_NAME((short)5, "firstColumnName"),
-      SECOND_COLUMN_NAME((short)6, "secondColumnName"),
-      THIRD_COLUMN_NAME((short)7, "thirdColumnName"),
-      FIRST_COLUMN_TYPE((short)8, "firstColumnType"),
-      SECOND_COLUMN_TYPE((short)9, "secondColumnType"),
-      THIRD_COLUMN_TYPE((short)10, "thirdColumnType");
+      PRIMARY_KEY((short)2, "primaryKey"),
+      PASSWORD((short)3, "password"),
+      DATABASE((short)4, "database"),
+      TABLE((short)5, "table"),
+      FIRST_COLUMN_NAME((short)6, "firstColumnName"),
+      SECOND_COLUMN_NAME((short)7, "secondColumnName"),
+      THIRD_COLUMN_NAME((short)8, "thirdColumnName"),
+      FIRST_COLUMN_TYPE((short)9, "firstColumnType"),
+      SECOND_COLUMN_TYPE((short)10, "secondColumnType"),
+      THIRD_COLUMN_TYPE((short)11, "thirdColumnType"),
+      DISPLAY_COLUMNS((short)12, "displayColumns");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -13831,24 +13845,28 @@ public class RecommenderService {
         switch(fieldId) {
           case 1: // USERNAME
             return USERNAME;
-          case 2: // PASSWORD
+          case 2: // PRIMARY_KEY
+            return PRIMARY_KEY;
+          case 3: // PASSWORD
             return PASSWORD;
-          case 3: // DATABASE
+          case 4: // DATABASE
             return DATABASE;
-          case 4: // TABLE
+          case 5: // TABLE
             return TABLE;
-          case 5: // FIRST_COLUMN_NAME
+          case 6: // FIRST_COLUMN_NAME
             return FIRST_COLUMN_NAME;
-          case 6: // SECOND_COLUMN_NAME
+          case 7: // SECOND_COLUMN_NAME
             return SECOND_COLUMN_NAME;
-          case 7: // THIRD_COLUMN_NAME
+          case 8: // THIRD_COLUMN_NAME
             return THIRD_COLUMN_NAME;
-          case 8: // FIRST_COLUMN_TYPE
+          case 9: // FIRST_COLUMN_TYPE
             return FIRST_COLUMN_TYPE;
-          case 9: // SECOND_COLUMN_TYPE
+          case 10: // SECOND_COLUMN_TYPE
             return SECOND_COLUMN_TYPE;
-          case 10: // THIRD_COLUMN_TYPE
+          case 11: // THIRD_COLUMN_TYPE
             return THIRD_COLUMN_TYPE;
+          case 12: // DISPLAY_COLUMNS
+            return DISPLAY_COLUMNS;
           default:
             return null;
         }
@@ -13894,6 +13912,8 @@ public class RecommenderService {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.USERNAME, new org.apache.thrift.meta_data.FieldMetaData("username", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.PRIMARY_KEY, new org.apache.thrift.meta_data.FieldMetaData("primaryKey", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.PASSWORD, new org.apache.thrift.meta_data.FieldMetaData("password", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.DATABASE, new org.apache.thrift.meta_data.FieldMetaData("database", org.apache.thrift.TFieldRequirementType.DEFAULT, 
@@ -13912,6 +13932,9 @@ public class RecommenderService {
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.THIRD_COLUMN_TYPE, new org.apache.thrift.meta_data.FieldMetaData("thirdColumnType", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.DISPLAY_COLUMNS, new org.apache.thrift.meta_data.FieldMetaData("displayColumns", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+              new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(createNewRecommender_args.class, metaDataMap);
     }
@@ -13921,6 +13944,7 @@ public class RecommenderService {
 
     public createNewRecommender_args(
       String username,
+      String primaryKey,
       String password,
       String database,
       String table,
@@ -13929,10 +13953,12 @@ public class RecommenderService {
       String thirdColumnName,
       String firstColumnType,
       String secondColumnType,
-      String thirdColumnType)
+      String thirdColumnType,
+      List<String> displayColumns)
     {
       this();
       this.username = username;
+      this.primaryKey = primaryKey;
       this.password = password;
       this.database = database;
       this.table = table;
@@ -13942,6 +13968,7 @@ public class RecommenderService {
       this.firstColumnType = firstColumnType;
       this.secondColumnType = secondColumnType;
       this.thirdColumnType = thirdColumnType;
+      this.displayColumns = displayColumns;
     }
 
     /**
@@ -13950,6 +13977,9 @@ public class RecommenderService {
     public createNewRecommender_args(createNewRecommender_args other) {
       if (other.isSetUsername()) {
         this.username = other.username;
+      }
+      if (other.isSetPrimaryKey()) {
+        this.primaryKey = other.primaryKey;
       }
       if (other.isSetPassword()) {
         this.password = other.password;
@@ -13978,6 +14008,10 @@ public class RecommenderService {
       if (other.isSetThirdColumnType()) {
         this.thirdColumnType = other.thirdColumnType;
       }
+      if (other.isSetDisplayColumns()) {
+        List<String> __this__displayColumns = new ArrayList<String>(other.displayColumns);
+        this.displayColumns = __this__displayColumns;
+      }
     }
 
     public createNewRecommender_args deepCopy() {
@@ -13987,6 +14021,7 @@ public class RecommenderService {
     @Override
     public void clear() {
       this.username = null;
+      this.primaryKey = null;
       this.password = null;
       this.database = null;
       this.table = null;
@@ -13996,6 +14031,7 @@ public class RecommenderService {
       this.firstColumnType = null;
       this.secondColumnType = null;
       this.thirdColumnType = null;
+      this.displayColumns = null;
     }
 
     public String getUsername() {
@@ -14019,6 +14055,30 @@ public class RecommenderService {
     public void setUsernameIsSet(boolean value) {
       if (!value) {
         this.username = null;
+      }
+    }
+
+    public String getPrimaryKey() {
+      return this.primaryKey;
+    }
+
+    public createNewRecommender_args setPrimaryKey(String primaryKey) {
+      this.primaryKey = primaryKey;
+      return this;
+    }
+
+    public void unsetPrimaryKey() {
+      this.primaryKey = null;
+    }
+
+    /** Returns true if field primaryKey is set (has been assigned a value) and false otherwise */
+    public boolean isSetPrimaryKey() {
+      return this.primaryKey != null;
+    }
+
+    public void setPrimaryKeyIsSet(boolean value) {
+      if (!value) {
+        this.primaryKey = null;
       }
     }
 
@@ -14238,6 +14298,45 @@ public class RecommenderService {
       }
     }
 
+    public int getDisplayColumnsSize() {
+      return (this.displayColumns == null) ? 0 : this.displayColumns.size();
+    }
+
+    public java.util.Iterator<String> getDisplayColumnsIterator() {
+      return (this.displayColumns == null) ? null : this.displayColumns.iterator();
+    }
+
+    public void addToDisplayColumns(String elem) {
+      if (this.displayColumns == null) {
+        this.displayColumns = new ArrayList<String>();
+      }
+      this.displayColumns.add(elem);
+    }
+
+    public List<String> getDisplayColumns() {
+      return this.displayColumns;
+    }
+
+    public createNewRecommender_args setDisplayColumns(List<String> displayColumns) {
+      this.displayColumns = displayColumns;
+      return this;
+    }
+
+    public void unsetDisplayColumns() {
+      this.displayColumns = null;
+    }
+
+    /** Returns true if field displayColumns is set (has been assigned a value) and false otherwise */
+    public boolean isSetDisplayColumns() {
+      return this.displayColumns != null;
+    }
+
+    public void setDisplayColumnsIsSet(boolean value) {
+      if (!value) {
+        this.displayColumns = null;
+      }
+    }
+
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
       case USERNAME:
@@ -14245,6 +14344,14 @@ public class RecommenderService {
           unsetUsername();
         } else {
           setUsername((String)value);
+        }
+        break;
+
+      case PRIMARY_KEY:
+        if (value == null) {
+          unsetPrimaryKey();
+        } else {
+          setPrimaryKey((String)value);
         }
         break;
 
@@ -14320,6 +14427,14 @@ public class RecommenderService {
         }
         break;
 
+      case DISPLAY_COLUMNS:
+        if (value == null) {
+          unsetDisplayColumns();
+        } else {
+          setDisplayColumns((List<String>)value);
+        }
+        break;
+
       }
     }
 
@@ -14327,6 +14442,9 @@ public class RecommenderService {
       switch (field) {
       case USERNAME:
         return getUsername();
+
+      case PRIMARY_KEY:
+        return getPrimaryKey();
 
       case PASSWORD:
         return getPassword();
@@ -14355,6 +14473,9 @@ public class RecommenderService {
       case THIRD_COLUMN_TYPE:
         return getThirdColumnType();
 
+      case DISPLAY_COLUMNS:
+        return getDisplayColumns();
+
       }
       throw new IllegalStateException();
     }
@@ -14368,6 +14489,8 @@ public class RecommenderService {
       switch (field) {
       case USERNAME:
         return isSetUsername();
+      case PRIMARY_KEY:
+        return isSetPrimaryKey();
       case PASSWORD:
         return isSetPassword();
       case DATABASE:
@@ -14386,6 +14509,8 @@ public class RecommenderService {
         return isSetSecondColumnType();
       case THIRD_COLUMN_TYPE:
         return isSetThirdColumnType();
+      case DISPLAY_COLUMNS:
+        return isSetDisplayColumns();
       }
       throw new IllegalStateException();
     }
@@ -14409,6 +14534,15 @@ public class RecommenderService {
         if (!(this_present_username && that_present_username))
           return false;
         if (!this.username.equals(that.username))
+          return false;
+      }
+
+      boolean this_present_primaryKey = true && this.isSetPrimaryKey();
+      boolean that_present_primaryKey = true && that.isSetPrimaryKey();
+      if (this_present_primaryKey || that_present_primaryKey) {
+        if (!(this_present_primaryKey && that_present_primaryKey))
+          return false;
+        if (!this.primaryKey.equals(that.primaryKey))
           return false;
       }
 
@@ -14493,6 +14627,15 @@ public class RecommenderService {
           return false;
       }
 
+      boolean this_present_displayColumns = true && this.isSetDisplayColumns();
+      boolean that_present_displayColumns = true && that.isSetDisplayColumns();
+      if (this_present_displayColumns || that_present_displayColumns) {
+        if (!(this_present_displayColumns && that_present_displayColumns))
+          return false;
+        if (!this.displayColumns.equals(that.displayColumns))
+          return false;
+      }
+
       return true;
     }
 
@@ -14515,6 +14658,16 @@ public class RecommenderService {
       }
       if (isSetUsername()) {
         lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.username, other.username);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetPrimaryKey()).compareTo(other.isSetPrimaryKey());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetPrimaryKey()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.primaryKey, other.primaryKey);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -14609,6 +14762,16 @@ public class RecommenderService {
           return lastComparison;
         }
       }
+      lastComparison = Boolean.valueOf(isSetDisplayColumns()).compareTo(other.isSetDisplayColumns());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetDisplayColumns()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.displayColumns, other.displayColumns);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
       return 0;
     }
 
@@ -14634,6 +14797,14 @@ public class RecommenderService {
         sb.append("null");
       } else {
         sb.append(this.username);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("primaryKey:");
+      if (this.primaryKey == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.primaryKey);
       }
       first = false;
       if (!first) sb.append(", ");
@@ -14708,6 +14879,14 @@ public class RecommenderService {
         sb.append(this.thirdColumnType);
       }
       first = false;
+      if (!first) sb.append(", ");
+      sb.append("displayColumns:");
+      if (this.displayColumns == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.displayColumns);
+      }
+      first = false;
       sb.append(")");
       return sb.toString();
     }
@@ -14759,7 +14938,15 @@ public class RecommenderService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 2: // PASSWORD
+            case 2: // PRIMARY_KEY
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.primaryKey = iprot.readString();
+                struct.setPrimaryKeyIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 3: // PASSWORD
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.password = iprot.readString();
                 struct.setPasswordIsSet(true);
@@ -14767,7 +14954,7 @@ public class RecommenderService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 3: // DATABASE
+            case 4: // DATABASE
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.database = iprot.readString();
                 struct.setDatabaseIsSet(true);
@@ -14775,7 +14962,7 @@ public class RecommenderService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 4: // TABLE
+            case 5: // TABLE
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.table = iprot.readString();
                 struct.setTableIsSet(true);
@@ -14783,7 +14970,7 @@ public class RecommenderService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 5: // FIRST_COLUMN_NAME
+            case 6: // FIRST_COLUMN_NAME
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.firstColumnName = iprot.readString();
                 struct.setFirstColumnNameIsSet(true);
@@ -14791,7 +14978,7 @@ public class RecommenderService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 6: // SECOND_COLUMN_NAME
+            case 7: // SECOND_COLUMN_NAME
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.secondColumnName = iprot.readString();
                 struct.setSecondColumnNameIsSet(true);
@@ -14799,7 +14986,7 @@ public class RecommenderService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 7: // THIRD_COLUMN_NAME
+            case 8: // THIRD_COLUMN_NAME
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.thirdColumnName = iprot.readString();
                 struct.setThirdColumnNameIsSet(true);
@@ -14807,7 +14994,7 @@ public class RecommenderService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 8: // FIRST_COLUMN_TYPE
+            case 9: // FIRST_COLUMN_TYPE
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.firstColumnType = iprot.readString();
                 struct.setFirstColumnTypeIsSet(true);
@@ -14815,7 +15002,7 @@ public class RecommenderService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 9: // SECOND_COLUMN_TYPE
+            case 10: // SECOND_COLUMN_TYPE
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.secondColumnType = iprot.readString();
                 struct.setSecondColumnTypeIsSet(true);
@@ -14823,10 +15010,28 @@ public class RecommenderService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 10: // THIRD_COLUMN_TYPE
+            case 11: // THIRD_COLUMN_TYPE
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.thirdColumnType = iprot.readString();
                 struct.setThirdColumnTypeIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 12: // DISPLAY_COLUMNS
+              if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+                {
+                  org.apache.thrift.protocol.TList _list32 = iprot.readListBegin();
+                  struct.displayColumns = new ArrayList<String>(_list32.size);
+                  for (int _i33 = 0; _i33 < _list32.size; ++_i33)
+                  {
+                    String _elem34;
+                    _elem34 = iprot.readString();
+                    struct.displayColumns.add(_elem34);
+                  }
+                  iprot.readListEnd();
+                }
+                struct.setDisplayColumnsIsSet(true);
               } else { 
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
@@ -14849,6 +15054,11 @@ public class RecommenderService {
         if (struct.username != null) {
           oprot.writeFieldBegin(USERNAME_FIELD_DESC);
           oprot.writeString(struct.username);
+          oprot.writeFieldEnd();
+        }
+        if (struct.primaryKey != null) {
+          oprot.writeFieldBegin(PRIMARY_KEY_FIELD_DESC);
+          oprot.writeString(struct.primaryKey);
           oprot.writeFieldEnd();
         }
         if (struct.password != null) {
@@ -14896,6 +15106,18 @@ public class RecommenderService {
           oprot.writeString(struct.thirdColumnType);
           oprot.writeFieldEnd();
         }
+        if (struct.displayColumns != null) {
+          oprot.writeFieldBegin(DISPLAY_COLUMNS_FIELD_DESC);
+          {
+            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, struct.displayColumns.size()));
+            for (String _iter35 : struct.displayColumns)
+            {
+              oprot.writeString(_iter35);
+            }
+            oprot.writeListEnd();
+          }
+          oprot.writeFieldEnd();
+        }
         oprot.writeFieldStop();
         oprot.writeStructEnd();
       }
@@ -14917,36 +15139,45 @@ public class RecommenderService {
         if (struct.isSetUsername()) {
           optionals.set(0);
         }
-        if (struct.isSetPassword()) {
+        if (struct.isSetPrimaryKey()) {
           optionals.set(1);
         }
-        if (struct.isSetDatabase()) {
+        if (struct.isSetPassword()) {
           optionals.set(2);
         }
-        if (struct.isSetTable()) {
+        if (struct.isSetDatabase()) {
           optionals.set(3);
         }
-        if (struct.isSetFirstColumnName()) {
+        if (struct.isSetTable()) {
           optionals.set(4);
         }
-        if (struct.isSetSecondColumnName()) {
+        if (struct.isSetFirstColumnName()) {
           optionals.set(5);
         }
-        if (struct.isSetThirdColumnName()) {
+        if (struct.isSetSecondColumnName()) {
           optionals.set(6);
         }
-        if (struct.isSetFirstColumnType()) {
+        if (struct.isSetThirdColumnName()) {
           optionals.set(7);
         }
-        if (struct.isSetSecondColumnType()) {
+        if (struct.isSetFirstColumnType()) {
           optionals.set(8);
         }
-        if (struct.isSetThirdColumnType()) {
+        if (struct.isSetSecondColumnType()) {
           optionals.set(9);
         }
-        oprot.writeBitSet(optionals, 10);
+        if (struct.isSetThirdColumnType()) {
+          optionals.set(10);
+        }
+        if (struct.isSetDisplayColumns()) {
+          optionals.set(11);
+        }
+        oprot.writeBitSet(optionals, 12);
         if (struct.isSetUsername()) {
           oprot.writeString(struct.username);
+        }
+        if (struct.isSetPrimaryKey()) {
+          oprot.writeString(struct.primaryKey);
         }
         if (struct.isSetPassword()) {
           oprot.writeString(struct.password);
@@ -14975,51 +15206,77 @@ public class RecommenderService {
         if (struct.isSetThirdColumnType()) {
           oprot.writeString(struct.thirdColumnType);
         }
+        if (struct.isSetDisplayColumns()) {
+          {
+            oprot.writeI32(struct.displayColumns.size());
+            for (String _iter36 : struct.displayColumns)
+            {
+              oprot.writeString(_iter36);
+            }
+          }
+        }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, createNewRecommender_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(10);
+        BitSet incoming = iprot.readBitSet(12);
         if (incoming.get(0)) {
           struct.username = iprot.readString();
           struct.setUsernameIsSet(true);
         }
         if (incoming.get(1)) {
+          struct.primaryKey = iprot.readString();
+          struct.setPrimaryKeyIsSet(true);
+        }
+        if (incoming.get(2)) {
           struct.password = iprot.readString();
           struct.setPasswordIsSet(true);
         }
-        if (incoming.get(2)) {
+        if (incoming.get(3)) {
           struct.database = iprot.readString();
           struct.setDatabaseIsSet(true);
         }
-        if (incoming.get(3)) {
+        if (incoming.get(4)) {
           struct.table = iprot.readString();
           struct.setTableIsSet(true);
         }
-        if (incoming.get(4)) {
+        if (incoming.get(5)) {
           struct.firstColumnName = iprot.readString();
           struct.setFirstColumnNameIsSet(true);
         }
-        if (incoming.get(5)) {
+        if (incoming.get(6)) {
           struct.secondColumnName = iprot.readString();
           struct.setSecondColumnNameIsSet(true);
         }
-        if (incoming.get(6)) {
+        if (incoming.get(7)) {
           struct.thirdColumnName = iprot.readString();
           struct.setThirdColumnNameIsSet(true);
         }
-        if (incoming.get(7)) {
+        if (incoming.get(8)) {
           struct.firstColumnType = iprot.readString();
           struct.setFirstColumnTypeIsSet(true);
         }
-        if (incoming.get(8)) {
+        if (incoming.get(9)) {
           struct.secondColumnType = iprot.readString();
           struct.setSecondColumnTypeIsSet(true);
         }
-        if (incoming.get(9)) {
+        if (incoming.get(10)) {
           struct.thirdColumnType = iprot.readString();
           struct.setThirdColumnTypeIsSet(true);
+        }
+        if (incoming.get(11)) {
+          {
+            org.apache.thrift.protocol.TList _list37 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+            struct.displayColumns = new ArrayList<String>(_list37.size);
+            for (int _i38 = 0; _i38 < _list37.size; ++_i38)
+            {
+              String _elem39;
+              _elem39 = iprot.readString();
+              struct.displayColumns.add(_elem39);
+            }
+          }
+          struct.setDisplayColumnsIsSet(true);
         }
       }
     }
@@ -16141,14 +16398,14 @@ public class RecommenderService {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list32 = iprot.readListBegin();
-                  struct.success = new ArrayList<Item>(_list32.size);
-                  for (int _i33 = 0; _i33 < _list32.size; ++_i33)
+                  org.apache.thrift.protocol.TList _list40 = iprot.readListBegin();
+                  struct.success = new ArrayList<Item>(_list40.size);
+                  for (int _i41 = 0; _i41 < _list40.size; ++_i41)
                   {
-                    Item _elem34;
-                    _elem34 = new Item();
-                    _elem34.read(iprot);
-                    struct.success.add(_elem34);
+                    Item _elem42;
+                    _elem42 = new Item();
+                    _elem42.read(iprot);
+                    struct.success.add(_elem42);
                   }
                   iprot.readListEnd();
                 }
@@ -16176,9 +16433,9 @@ public class RecommenderService {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.success.size()));
-            for (Item _iter35 : struct.success)
+            for (Item _iter43 : struct.success)
             {
-              _iter35.write(oprot);
+              _iter43.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -16209,9 +16466,9 @@ public class RecommenderService {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (Item _iter36 : struct.success)
+            for (Item _iter44 : struct.success)
             {
-              _iter36.write(oprot);
+              _iter44.write(oprot);
             }
           }
         }
@@ -16223,14 +16480,14 @@ public class RecommenderService {
         BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list37 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-            struct.success = new ArrayList<Item>(_list37.size);
-            for (int _i38 = 0; _i38 < _list37.size; ++_i38)
+            org.apache.thrift.protocol.TList _list45 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.success = new ArrayList<Item>(_list45.size);
+            for (int _i46 = 0; _i46 < _list45.size; ++_i46)
             {
-              Item _elem39;
-              _elem39 = new Item();
-              _elem39.read(iprot);
-              struct.success.add(_elem39);
+              Item _elem47;
+              _elem47 = new Item();
+              _elem47.read(iprot);
+              struct.success.add(_elem47);
             }
           }
           struct.setSuccessIsSet(true);
@@ -18003,14 +18260,14 @@ public class RecommenderService {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list40 = iprot.readListBegin();
-                  struct.success = new ArrayList<Item>(_list40.size);
-                  for (int _i41 = 0; _i41 < _list40.size; ++_i41)
+                  org.apache.thrift.protocol.TList _list48 = iprot.readListBegin();
+                  struct.success = new ArrayList<Item>(_list48.size);
+                  for (int _i49 = 0; _i49 < _list48.size; ++_i49)
                   {
-                    Item _elem42;
-                    _elem42 = new Item();
-                    _elem42.read(iprot);
-                    struct.success.add(_elem42);
+                    Item _elem50;
+                    _elem50 = new Item();
+                    _elem50.read(iprot);
+                    struct.success.add(_elem50);
                   }
                   iprot.readListEnd();
                 }
@@ -18038,9 +18295,9 @@ public class RecommenderService {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.success.size()));
-            for (Item _iter43 : struct.success)
+            for (Item _iter51 : struct.success)
             {
-              _iter43.write(oprot);
+              _iter51.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -18071,9 +18328,9 @@ public class RecommenderService {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (Item _iter44 : struct.success)
+            for (Item _iter52 : struct.success)
             {
-              _iter44.write(oprot);
+              _iter52.write(oprot);
             }
           }
         }
@@ -18085,14 +18342,14 @@ public class RecommenderService {
         BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list45 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-            struct.success = new ArrayList<Item>(_list45.size);
-            for (int _i46 = 0; _i46 < _list45.size; ++_i46)
+            org.apache.thrift.protocol.TList _list53 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.success = new ArrayList<Item>(_list53.size);
+            for (int _i54 = 0; _i54 < _list53.size; ++_i54)
             {
-              Item _elem47;
-              _elem47 = new Item();
-              _elem47.read(iprot);
-              struct.success.add(_elem47);
+              Item _elem55;
+              _elem55 = new Item();
+              _elem55.read(iprot);
+              struct.success.add(_elem55);
             }
           }
           struct.setSuccessIsSet(true);
@@ -18963,14 +19220,14 @@ public class RecommenderService {
             case 0: // SUCCESS
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
-                  org.apache.thrift.protocol.TList _list48 = iprot.readListBegin();
-                  struct.success = new ArrayList<Item>(_list48.size);
-                  for (int _i49 = 0; _i49 < _list48.size; ++_i49)
+                  org.apache.thrift.protocol.TList _list56 = iprot.readListBegin();
+                  struct.success = new ArrayList<Item>(_list56.size);
+                  for (int _i57 = 0; _i57 < _list56.size; ++_i57)
                   {
-                    Item _elem50;
-                    _elem50 = new Item();
-                    _elem50.read(iprot);
-                    struct.success.add(_elem50);
+                    Item _elem58;
+                    _elem58 = new Item();
+                    _elem58.read(iprot);
+                    struct.success.add(_elem58);
                   }
                   iprot.readListEnd();
                 }
@@ -18998,9 +19255,9 @@ public class RecommenderService {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, struct.success.size()));
-            for (Item _iter51 : struct.success)
+            for (Item _iter59 : struct.success)
             {
-              _iter51.write(oprot);
+              _iter59.write(oprot);
             }
             oprot.writeListEnd();
           }
@@ -19031,9 +19288,9 @@ public class RecommenderService {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (Item _iter52 : struct.success)
+            for (Item _iter60 : struct.success)
             {
-              _iter52.write(oprot);
+              _iter60.write(oprot);
             }
           }
         }
@@ -19045,14 +19302,14 @@ public class RecommenderService {
         BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list53 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-            struct.success = new ArrayList<Item>(_list53.size);
-            for (int _i54 = 0; _i54 < _list53.size; ++_i54)
+            org.apache.thrift.protocol.TList _list61 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
+            struct.success = new ArrayList<Item>(_list61.size);
+            for (int _i62 = 0; _i62 < _list61.size; ++_i62)
             {
-              Item _elem55;
-              _elem55 = new Item();
-              _elem55.read(iprot);
-              struct.success.add(_elem55);
+              Item _elem63;
+              _elem63 = new Item();
+              _elem63.read(iprot);
+              struct.success.add(_elem63);
             }
           }
           struct.setSuccessIsSet(true);

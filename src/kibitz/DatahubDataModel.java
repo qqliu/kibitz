@@ -286,7 +286,7 @@ public class DatahubDataModel implements DataModel{
 			for (Tuple t : res.getTuples()) {
 				List<ByteBuffer> cells = t.getCells();
 				Item item = new Item();
-				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("id")).array())));
+				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("kibitz_generated_id")).array())));
 				item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
 				item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
 				item.setImage(new String(cells.get(colToIndex.get("image")).array()));
@@ -308,7 +308,7 @@ public class DatahubDataModel implements DataModel{
 	 */
 	public List<Item> getPageItems(String table, long page, long numPerPage) {
 		try {
-			return this.getListOfItems( "select id, title, description, image from " + this.datahubDatabase 
+			return this.getListOfItems( "select kibitz_generated_id, title, description, image from " + this.datahubDatabase 
 					+ "." + table + " limit " + numPerPage + " offset " + numPerPage * page);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
@@ -351,15 +351,18 @@ public class DatahubDataModel implements DataModel{
 	/**
 	 * Creates all associated tables associated with a new recommender.
 	 */
-	public boolean createNewRecommender(String table, String firstColumnName, String secondColumnName, String thirdColumnName,
-    		String firstColumnType, String secondColumnType, String thirdColumnType) {
+	public boolean createNewRecommender(String table, String primaryKey, String firstColumnName, String secondColumnName, String thirdColumnName,
+    		String firstColumnType, String secondColumnType, String thirdColumnType, List<String> displayColumns) {
 		try {
 			synchronized(this.client) {
-				this.client.execute_sql(this.conn, "alter table " + this.datahubDatabase + "." + table + " add id serial", null);
+				//this.client.execute_sql(this.conn, "alter table " + this.datahubDatabase + "." + table + " add id serial", null);
+				this.client.execute_sql(this.conn, "select " + StringUtils.join(displayColumns, ',') + " into " + 
+					this.datahubDatabase + "." + table + "_items from " + this.datahubDatabase + "." + table, null);
+				this.client.execute_sql(this.conn, "alter table " + this.datahubDatabase + "." + table + "_items add column kibitz_generated_id serial primary key", null);
 				this.client.execute_sql(this.conn, "create table " + this.datahubDatabase + "." + table + "_ratings (" + 
 					"user_id int, item_id int, rating varchar(255))" , null);
 				this.client.execute_sql(this.conn, "create table " + this.datahubDatabase + "." + table + "_users (" + 
-					"id SERIAL PRIMARY KEY, username varchar(255), email varchar(255), password varchar(255))" , null);
+					"kibitz_generated_id SERIAL PRIMARY KEY, username varchar(255), email varchar(255), password varchar(255))" , null);
 				this.client.execute_sql(this.conn, "CREATE TABLE " + this.datahubDatabase + ".update_log(table_name text, updated timestamp NOT NULL DEFAULT now());" 
 										+ "CREATE FUNCTION timestamp_update_log() RETURNS TRIGGER LANGUAGE 'plpgsql' AS $$" 
 									    + "BEGIN INSERT INTO " + this.datahubDatabase + ".update_log(table_name) VALUES(TG_TABLE_NAME); RETURN NEW;"
@@ -375,7 +378,7 @@ public class DatahubDataModel implements DataModel{
 			float thirdColumnScore = 0;
 			int numItems = this.getItemCount(table);
 			
-			String query = "SELECT DISTINCT p1.id AS firstid, p2.id AS secondid, ";
+			String query = "SELECT DISTINCT p1.kibitz_generated_id AS firstid, p2.kibitz_generated_id AS secondid, ";
 			
 			if (firstColumnName != null) {
 				query += "p1." + firstColumnName + " AS first1, p2." + firstColumnName + " AS second1";
@@ -390,7 +393,7 @@ public class DatahubDataModel implements DataModel{
 			}
 			
 			for (int i = 0; i < numItems; i+= 10000) {
-				query += " FROM " + this.datahubDatabase + "." + table + " AS p1, " + this.datahubDatabase + "." + table + " AS p2 ORDER BY p1.id, p2.id LIMIT " + 10000 + " OFFSET " + i;
+				query += " FROM " + this.datahubDatabase + "." + table + " AS p1, " + this.datahubDatabase + "." + table + " AS p2 ORDER BY p1.kibitz_generated_id, p2.kibitz_generated_id LIMIT " + 10000 + " OFFSET " + i;
 			
 				ResultSet res;
 				synchronized(this.client) {
@@ -475,7 +478,7 @@ public class DatahubDataModel implements DataModel{
 	
 	public List<Item> makeOverallRatingsBasedRecommendation(String ratingColumnName, String table, long numRecs) {
 		try {
-			return this.getListOfItems("select id, title, description, image from " + table
+			return this.getListOfItems("select kibitz_generated_id, title, description, image from " + table
 					+ " ORDER BY " + ratingColumnName + " DESC LIMIT " + numRecs);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
@@ -489,7 +492,7 @@ public class DatahubDataModel implements DataModel{
 	
 	public List<Item> makeRandomRecommmendation(long numRecs, String table) {
 		try {
-			return this.getListOfItems("select id, title, description, image from " + table
+			return this.getListOfItems("select kibitz_generated_id, title, description, image from " + table
 					+ " ORDER BY RANDOM() LIMIT " + numRecs);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
@@ -579,7 +582,7 @@ public class DatahubDataModel implements DataModel{
 			return this.getListOfItems("SELECT " + ratings_table + ".item_id as id, " + ratings_table + 
 					".rating, " + items_table + ".title, " + items_table + ".description, " + items_table + 
 					".image, " + ratings_table + ".user_id FROM " + ratings_table + " INNER JOIN " + items_table + 
-					" ON " + ratings_table + ".item_id = " + items_table + ".id" + " WHERE user_id=" + userId);
+					" ON " + ratings_table + ".item_id = " + items_table + ".kibitz_generated_id" + " WHERE user_id=" + userId);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -656,13 +659,13 @@ public class DatahubDataModel implements DataModel{
 		 try {
 			 ResultSet res;
 			 synchronized(this.client) {
-				 res = this.client.execute_sql(this.conn, "SELECT id,password FROM " + table + " WHERE username = '" + username + "'", null);
+				 res = this.client.execute_sql(this.conn, "SELECT kibitz_generated_id,password FROM " + table + " WHERE username = '" + username + "'", null);
 			 }
 			 HashMap<String, Integer> colToIndex = this.getFieldNames(res);
 
 			 for (Tuple t : res.getTuples()) {
 				List<ByteBuffer> cells = t.getCells();
-				long id = Long.parseLong(new String(cells.get(colToIndex.get("id")).array()));
+				long id = Long.parseLong(new String(cells.get(colToIndex.get("kibitz_generated_id")).array()));
 				String storedPassword = new String(cells.get(colToIndex.get("password")).array());
 				try {
 					if (IndividualRecommender.validatePassword(password, storedPassword)) {
@@ -874,12 +877,12 @@ public class DatahubDataModel implements DataModel{
 		try {			
 			synchronized(this.client) {
 				if(ids.size() > 0) {
-					String query = "SELECT " + table + ".id, " + table + ".title, " + 
+					String query = "SELECT " + table + ".kibitz_generated_id, " + table + ".title, " + 
 						table + ".description, " + table + ".image, " + ratings_table + ".rating FROM " 
 						+ table + " LEFT JOIN " + ratings_table + " ON " + ratings_table + ".item_id=" +
-						table + ".id" + " AND user_id=" + userId + " WHERE (id='";
+						table + ".kibitz_generated_id" + " AND user_id=" + userId + " WHERE (kibitz_generated_id='";
 					for (int i = 0; i < ids.size() - 1; i++) {
-						query += ids.get(i) + "' OR id='";
+						query += ids.get(i) + "' OR kibitz_generated_id='";
 					}
 					query += ids.get(ids.size() - 1) + "')";
 					return this.getListOfItems(query);
@@ -905,15 +908,15 @@ public class DatahubDataModel implements DataModel{
 			ResultSet res;
 			
 			synchronized(this.client) {
-				res = this.client.execute_sql(this.conn, "SELECT id, title, description, image FROM " + table 
-						+ " WHERE id='" + id + "'", null);
+				res = this.client.execute_sql(this.conn, "SELECT kibitz_generated_id, title, description, image FROM " + table 
+						+ " WHERE kibitz_generated_id='" + id + "'", null);
 			}
 			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
 			
 			for (Tuple t : res.getTuples()) {
 				List<ByteBuffer> cells = t.getCells();
 				Item item = new Item();
-				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("id")).array())));
+				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("kibitz_generated_id")).array())));
 				item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
 				item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
 				item.setImage(new String(cells.get(colToIndex.get("image")).array()));
@@ -1054,7 +1057,7 @@ public class DatahubDataModel implements DataModel{
 		for (Tuple t : res.getTuples()) {
 			List<ByteBuffer> cells = t.getCells();
 			Item item = new Item();
-			item.setId(Long.parseLong(new String(cells.get(colToIndex.get("id")).array())));
+			item.setId(Long.parseLong(new String(cells.get(colToIndex.get("kibitz_generated_id")).array())));
 			item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
 			item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
 			if (!new String(cells.get(colToIndex.get("image")).array()).equals("None"))

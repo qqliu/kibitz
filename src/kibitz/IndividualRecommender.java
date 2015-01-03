@@ -258,7 +258,7 @@ public class IndividualRecommender {
 	public void initiateModel(String table, String username, String password, String database) {
 		try {
 			if (table != null) {
-				this.items_table = table;
+				this.items_table = table + "_items";
 			}
 			
 			if (username != null && password != null) {
@@ -296,7 +296,7 @@ public class IndividualRecommender {
 				this.itemRecommender = (GenericItemBasedRecommender) KibitzServer.RECOMMENDERS.get(table + username + password + database + "items");
 			} else {
 				this.itemUserSimilarity = new FileItemSimilarity(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.databaseName + 
-						"/" + this.items_table + "_item_similarity.csv"));
+						"/" + this.items_table + "_similarity.csv"));
 				this.itemRecommender = new GenericItemBasedRecommender(this.dataModel, this.itemUserSimilarity);
 				KibitzServer.RECOMMENDERS.put(table + username + password + database + "items", this.itemRecommender);
 			}
