@@ -310,6 +310,10 @@ public class IndividualRecommender {
 		}
 	}
 	
+	public List<Item> getItemsFromPrimaryKeys(String primaryKey, List<String> itemKeys, List<String> displayColumns) {
+		return this.dataModel.getItemsFromPrimaryKeys(primaryKey, itemKeys, displayColumns, this.databaseName + "." + this.items_table);
+	}
+	
 	public static IndividualRecommender createNewIndividualServer(MysqlDataSource dataSource) {
 		return new IndividualRecommender(dataSource);
 	}

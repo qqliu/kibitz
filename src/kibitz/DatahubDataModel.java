@@ -718,6 +718,25 @@ public class DatahubDataModel implements DataModel{
 		 //this.delegate.refresh(null);
 	 }
 	 
+	 public List<Item> getItemsFromPrimaryKeys(String primaryKey, List<String> itemKeys, List<String> displayColumns, String table) {
+		 String query = "select " + StringUtils.join(displayColumns, ", ") + " from " + table + " where " 
+				 + primaryKey + "=";
+		 for (int i = 0; i < itemKeys.size() - 1; i++) {
+			 query += itemKeys.get(i) + " or " + primaryKey + "=";
+		 }
+		 query += itemKeys.get(itemKeys.size() - 1);
+		 try {
+			return this.getListOfItems(query, displayColumns);
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	 }
+	 
 	 public void createNewUser(List<?> columns, String suffix, List<String>columnNames, String table, boolean isCentralRepo) {
 		 if(isCentralRepo) {
 			 saveIntoDb(columns, suffix, columnNames, DatahubDataModel.getDefaultDatahubTablename());

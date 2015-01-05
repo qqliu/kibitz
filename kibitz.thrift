@@ -29,4 +29,5 @@ service RecommenderService {
     void initiateModel(1:string key 2:string table, 3:string username, 4:string password, 5:string database)
     list<Item> getSearchItems(1:string table, 2:string query, 4:list<string> displayColumns)
     list<Item> makeOverallRatingBasedOrRandomRecommendation(1:string key, 2:string ratingColumnName, 3:i64 numRecs, 4:list<string> displayColumns)
+    list<Item> getItemsFromPrimaryKeys(1:string key, 2:string primaryKeys, 3:list<string> itemKey, 4:list<string> displayColumns)
 }

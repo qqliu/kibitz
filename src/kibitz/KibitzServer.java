@@ -389,6 +389,30 @@ public class KibitzServer implements Iface {
 		return null;
 	}
 	
+	@Override
+	public List<Item> getItemsFromPrimaryKeys(String key, String primaryKey, List<String> itemKeys, List<String> displayColumns) {
+		if (key != null) {
+			if (SESSIONS.get(key) != null) {
+				return SESSIONS.get(key).getItemsFromPrimaryKeys(primaryKey, itemKeys, displayColumns);
+			}
+		}
+		if(!this.loop.isAlive()) {
+			Thread training = new Thread(new RecommenderRunnable());
+			training.setName("Training Thread");
+			this.loop = training;
+			this.loop.start();
+		}
+		
+		if(!this.terminateModelRecs.isAlive()) {
+			Thread terminateModel = new Thread(new TerminateModels());
+			terminateModel.setName("Terminate Model Thread");			
+			this.terminateModelRecs = terminateModel;
+			this.terminateModelRecs.start();
+		}
+		
+		return null;
+	}
+	
 	public class RecommenderRunnable implements Runnable {	
 		public void run() {
 			while (RUNNING) {
