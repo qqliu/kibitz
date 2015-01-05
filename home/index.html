@@ -64,24 +64,89 @@
             <h1>Kibitz</h1>
             <div id="intro">
                 <h3>Import a table from <a href="http://datahub.csail.mit.edu">DataHub</a> and start recommending.</h3>
-                <h4>To create your own recommender, provide us the following information:
-                    <ol>
-                        <li>Datahub credentials.</li>
-                        <li>Name of the table containing a list of items. The table must have column names "title", "description", and "image". The "title" column contains
-                        the names of your items, the "description" column contains a description of your item, and the "image" column contains urls for images of your items. If
-                        you do not have images, you may create an empty column filled with "None". Your table may contain other columns but the three required columns
-                        will be used to provide information about your items.</li><!--Note: this will probably change so the columns are not fixed.-->
-                        <li>Check the boxes for the type of recommendations you would like to use. Note that it may take a while to create your recommender if you choose to use
-                        item-based recommendations.</li>
-                    </ol>
-                </h4>
+                <h2>Option 1</h2>
                 <br>
                 <form>
                   <h3>DataHub Username: </h3> <input id="username" name="username" type="text" /><br /><br />
                   <h3>DataHub Password: </h3><input id="password" name="password" type="password" /><br /><br />
                   <h3>DataHub Repository: </h3><input id="repo" name="repo" type="text" /><br /><br />
                   <h3>DataHub Table Name: </h3><input id="tablename" name="tablename" type="text" /><br /><br /><br />
-                  <input class="btn btn-dark btn-lg" value="Create" onclick="create();" />
+                  <h3>Item Similarity Column 1 (Optional): </h3><input id="item-similarity-1" name="tablename" type="text" /><br /><br /><br />
+                  <select id = "item-similarity-1-type-1">
+                    <option value="lp">Long Phrase</option>
+                    <option value="ssn">Short Phrase (Nouns)</option>
+                    <option value="ssv">Short Phrase (Verb)</option>
+                    <option value="ss">Short Phrase (Variety)</option>
+                    <option value="number">Numbers</option>
+                  </select> 
+                  <h3>Item Similarity Column 2 (Optional): </h3><input id="item-similarity-2" name="tablename" type="text" /><br /><br /><br />
+                  <select id = "item-similarity-2-type-1">
+                    <option value="lp">Long Phrase</option>
+                    <option value="ssn">Short Phrase (Nouns)</option>
+                    <option value="ssv">Short Phrase (Verb)</option>
+                    <option value="ss">Short Phrase (Variety)</option>
+                    <option value="number">Numbers</option>
+                  </select> 
+                  <h3>Item Similarity Column 3 (Optional): </h3><input id="tablename" name="item-similarity-3" type="text" /><br /><br /><br />
+                  <select id = "item-similarity-2-type-1">
+                    <option value="lp">Long Phrase</option>
+                    <option value="ssn">Short Phrase (Nouns)</option>
+                    <option value="ssv">Short Phrase (Verb)</option>
+                    <option value="ss">Short Phrase (Variety)</option>
+                    <option value="number">Numbers</option>
+                  </select>
+                  <h3>Recommendation Types: </h3><br />
+                  <input type="checkbox" id="user-1" name="recommender-type" value="user">User-Based<br />
+                  <input type="checkbox" id="item-1" name="recommender-type" value="item">Item-Based<br /> 
+                  <input type="checkbox" id="overall-1" name="recommender-type" value="overal">Overall Ratings<br />
+                  <input type="checkbox" id="random-1" name="recommender-type" value="random">Random <br />
+                  
+                  <h3>Recommender Format: </h3><br />
+                  <input type="radio" id="zip-1" name="format" value="zip">Zip File<br />
+                  <input type="radio" id="subdomain-1" name="format" value="subdomain">Subdomain
+                  
+                  <button class="btn btn-dark btn-lg" value="Create" onclick="create();">Create!</button>
+                </form>
+                
+                <h2>Option 2</h2>
+                <br>
+                <form>
+                  <h3>DataHub Username: </h3> <input id="username" name="username" type="text" /><br /><br />
+                  <h3>DataHub Password: </h3><input id="password" name="password" type="password" /><br /><br />
+                  <h3>DataHub Repository: </h3><input id="repo" name="repo" type="text" /><br /><br />
+                  <h3>DataHub Table Name: </h3><input id="tablename" name="tablename" type="text" /><br /><br /><br />
+                  <h3>Primary Key Column Name: </h3><input id="primary-key" name="primary-key" type="text" /><br /><br /><br />
+                  <h3>Display Information Columns (comma separated list): </h3><input id="display-items" name="display-items" type="text" /><br /><br /><br />
+                  <h3>Item Similarity Column 1 (Optional): </h3><input id="item-similarity-1" name="item-similarity-1" type="text" /><br /><br /><br />
+                  <select id = "item-similarity-1-type-2">
+                    <option value="lp">Long Phrase</option>
+                    <option value="ssn">Short Phrase (Nouns)</option>
+                    <option value="ssv">Short Phrase (Verb)</option>
+                    <option value="ss">Short Phrase (Variety)</option>
+                    <option value="number">Numbers</option>
+                  </select> 
+                  <h3>Item Similarity Column 2 (Optional): </h3><input id="item-similarity-2" name="item-similarity-2" type="text" /><br /><br /><br />
+                  <select id = "item-similarity-1-type-2">
+                    <option value="lp">Long Phrase</option>
+                    <option value="ssn">Short Phrase (Nouns)</option>
+                    <option value="ssv">Short Phrase (Verb)</option>
+                    <option value="ss">Short Phrase (Variety)</option>
+                    <option value="number">Numbers</option>
+                  </select> 
+                  <h3>Item Similarity Column 3 (Optional): </h3><input id="item-similarity-3" name="item-similarity-3" type="text" /><br /><br /><br />
+                  <select id = "item-similarity-1-type-2">
+                    <option value="lp">Long Phrase</option>
+                    <option value="ssn">Short Phrase (Nouns)</option>
+                    <option value="ssv">Short Phrase (Verb)</option>
+                    <option value="ss">Short Phrase (Variety)</option>
+                    <option value="number">Numbers</option>
+                  </select>
+                  <h3>Recommendation Types: </h3><br />
+                  <input type="checkbox" id="user-2" name="recommender-type" value="user">User-Based<br />
+                  <input type="checkbox" id="item-2" name="recommender-type" value="item">Item-Based<br /> 
+                  <input type="checkbox" id="overall-2" name="recommender-type" value="overal">Overall Ratings<br />
+                  <input type="checkbox" id="random-2" name="recommender-type" value="random">Random<br />
+                  <button class="btn btn-dark btn-lg" value="Create" onclick="create();">Create!</button>
                 </form>
             </div>
             <div id="link">
@@ -91,6 +156,35 @@
 
     <!-- Footer -->
     <footer>
+        <h3>To create your own recommender, choose one of two options. Option 1 creates the recommneder front-end for you either as a self-downloading zip file or as
+        a subdomain under kibitz.csail.mit.edu. You have to format your table a certain way in order to choose Option 1. If you choose Option 2, you may have any
+        columns in your table, however, you have to create your own website using our API.</h3>
+        <h4>Option 1:</h4>
+        <h4><ol>
+                <li>Datahub credentials.</li>
+                <li>Name of the table containing a list of items. The table must have column names "title", "description", and "image". The "title" column contains
+                the names of your items, the "description" column contains a description of your item, and the "image" column contains urls for images of your items. If
+                you do not have images, you may create an empty column filled with "None". Your table may contain other columns but the three required columns
+                will be used to provide information about your items. The "title" column <b>must</b> be your Primary Key.</li>
+                <li>Check the boxes for the type of recommendations you would like to use. Note that it may take a while to create your recommender if you choose to use
+                item-based recommendations.</li>
+                <li>For item-based recommendations, provide us with at most three different columns to compute similarities. If you choose item-based recommendations, you
+                must provide at least one column. Select what types of items are contained in the given columns. The item similarities will be weighted with decreasing weight.</li>
+                <li>Check whether you want to create a recommender under the kibitz.csail.mit.edu domain or want to receive it as a standalone downloadable zip file.</li>
+            </ol>
+        </h4><br />
+        <h4>Option 2:</h4>
+        <h4><ol>
+                <li>Datahub credentials.</li>
+                <li>What is the column containing your Primary Key? Your table <b>must have</b> a Primary Key.</li>
+                <li>Give us the names of the columns you want to display for your items. Provide us the columns in a comma separated list.</li>
+                <li>Check the boxes for the type of recommendations you would like to use. Note that it may take a while to create your recommender if you choose to use
+                item-based recommendations. If you choose the overall ratings recommender, you must provide a column that contains the overall ratings.</li>
+                <li>For item-based recommendations, provide us with at most three different columns to compute similarities. If you choose item-based recommendations, you
+                must provide at least one column. Select what types of items are contained in the given columns. The item similarities will be weighted with decreasing weight.</li>
+                <li>Check whether you want to create a recommender under the kibitz.csail.mit.edu domain or want to receive it as a standalone downloadable zip file.</li>
+            </ol>
+        </h4>
         <div class="container">
             <div class="row">
                 <div class="col-lg-10 col-lg-offset-1 text-center">
