@@ -54,7 +54,7 @@ public class IndividualRecommender {
 		this.databaseName = this.dataSource.getDatabaseName();
 	}
 	
-	public List<Item> makeRecommendation(long userId, long numRecs) {
+	public List<Item> makeRecommendation(long userId, long numRecs, List<String> displayColumns) {
 		try {
 			if (this.dataModel != null) {
 				long startTime = System.nanoTime();
@@ -65,7 +65,7 @@ public class IndividualRecommender {
 					recommendationNames.add(recommendations.get(i).getItemID());
 				}
 				List<Item> recs = this.dataModel.getItemsFromIds(recommendationNames, this.databaseName + "." + this.items_table, 
-						this.databaseName + "." + this.ratings_table, userId);
+						this.databaseName + "." + this.ratings_table, userId, displayColumns);
 				long endTime = System.nanoTime();
 				System.out.println("Time it takes to get recommendation: " + (endTime - startTime));
 				return recs;
@@ -76,18 +76,19 @@ public class IndividualRecommender {
 		return null;
 	}
 	
-	public List<Item> getItems() {
+	
+	/*public List<Item> getItems() {
 		List<Item> results = this.dataModel.getItems(this.items_table);
 		return results;
-	}
+	}*/
 	
-	public List<Item> getSearchItems(String query) {
-		List<Item> results = this.dataModel.getSearchItems(this.databaseName + "." + this.items_table, query);
+	public List<Item> getSearchItems(String query, List<String> displayColumns) {
+		List<Item> results = this.dataModel.getSearchItems(this.databaseName + "." + this.items_table, query, displayColumns);
 		return results;
 	}
 	
-	public List<Item> getPageItems(long page, long numPerPage) {
-		List<Item> results = this.dataModel.getPageItems(this.items_table, page, numPerPage);
+	public List<Item> getPageItems(long page, long numPerPage, List<String> displayColumns) {
+		List<Item> results = this.dataModel.getPageItems(this.items_table, page, numPerPage, displayColumns);
 		return results;
 	}
 	
@@ -107,7 +108,7 @@ public class IndividualRecommender {
 		return this.dataModel.retrieveUserId(username, password, this.databaseName + "." + this.users_table);
 	}
 	
-	public List<Item> makeItemBasedRecommendations(long userId, long numRecs) {
+	public List<Item> makeItemBasedRecommendations(long userId, long numRecs, List<String> displayColumns) {
 		long[] itemIds = this.dataModel.getUserRatedItemsIds(userId, this.databaseName + "." + this.ratings_table);
 		try {
 			List<RecommendedItem> recs = this.itemRecommender.mostSimilarItems(itemIds, (int) numRecs);
@@ -116,7 +117,7 @@ public class IndividualRecommender {
 				recommendationNames.add(recs.get(i).getItemID());
 			}
 			List<Item> recommendations = this.dataModel.getItemsFromIds(recommendationNames, this.databaseName + "." + this.items_table, 
-					this.databaseName + "." + this.ratings_table, userId);
+					this.databaseName + "." + this.ratings_table, userId, displayColumns);
 			return recommendations;
 		} catch (TasteException e) {
 			// TODO Auto-generated catch block
@@ -125,12 +126,13 @@ public class IndividualRecommender {
 		return new ArrayList<Item>();
 	}
 	
-	public List<Item> makeOverallRatingBasedRecommendation(String ratingColumnName, long numRecs) {
-		return this.dataModel.makeOverallRatingsBasedRecommendation(ratingColumnName, this.databaseName + "." + this.items_table, numRecs);
+	public List<Item> makeOverallRatingBasedRecommendation(String ratingColumnName, long numRecs, List<String> displayColumns) {
+		return this.dataModel.makeOverallRatingsBasedRecommendation(ratingColumnName, 
+				this.databaseName + "." + this.items_table, numRecs, displayColumns);
 	}
 	
-	public List<Item> makeRandomRecommendation(long numRecs) {
-		return this.dataModel.makeRandomRecommmendation(numRecs, this.databaseName + "." + this.items_table);
+	public List<Item> makeRandomRecommendation(long numRecs, List<String> displayColumns) {
+		return this.dataModel.makeRandomRecommmendation(numRecs, this.databaseName + "." + this.items_table, displayColumns);
 	}
  	
 	public String createNewUser(String username, String email, String password, boolean isKibitzUser) {
@@ -250,8 +252,9 @@ public class IndividualRecommender {
         return bytes;
     }
     
-    public List<Item> getUserRatedItems(long userId) {
-		List<Item> items = this.dataModel.getUserRatedItems(userId, this.databaseName + "." + this.ratings_table, this.databaseName + "." + this.items_table);
+    public List<Item> getUserRatedItems(long userId, List<String> displayColumns) {
+		List<Item> items = this.dataModel.getUserRatedItems(userId, 
+				this.databaseName + "." + this.ratings_table, this.databaseName + "." + this.items_table, displayColumns);
 		return items;
     }
 	

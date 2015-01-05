@@ -54,10 +54,10 @@ public class KibitzServer implements Iface {
 	}
 	
 	@Override
-	public List<Item> makeRecommendation(String key, long userId, long numRecs) {
+	public List<Item> makeRecommendation(String key, long userId, long numRecs, List<String> displayColumns) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
-				return SESSIONS.get(key).makeRecommendation(userId, numRecs);
+				return SESSIONS.get(key).makeRecommendation(userId, numRecs, displayColumns);
 			}
 		}
 		
@@ -79,10 +79,10 @@ public class KibitzServer implements Iface {
 	}
 	
 	@Override
-	public List<Item> makeItemBasedRecommendations(String key, long userId, long numRecs) {
+	public List<Item> makeItemBasedRecommendations(String key, long userId, long numRecs, List<String> displayColumns) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
-				return SESSIONS.get(key).makeItemBasedRecommendations(userId, numRecs);
+				return SESSIONS.get(key).makeItemBasedRecommendations(userId, numRecs, displayColumns);
 			}
 		}
 		
@@ -103,13 +103,14 @@ public class KibitzServer implements Iface {
 	}
 	
 	@Override
-	public List<Item> makeOverallRatingBasedOrRandomRecommendation(String key, String ratingColumnName, long numRecs) {
+	public List<Item> makeOverallRatingBasedOrRandomRecommendation(String key, String ratingColumnName, 
+			long numRecs, List<String> displayColumns) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
 				if (ratingColumnName != null) {
-					return SESSIONS.get(key).makeOverallRatingBasedRecommendation(ratingColumnName, numRecs);
+					return SESSIONS.get(key).makeOverallRatingBasedRecommendation(ratingColumnName, numRecs, displayColumns);
 				} else {
-					return SESSIONS.get(key).makeRandomRecommendation(numRecs);
+					return SESSIONS.get(key).makeRandomRecommendation(numRecs, displayColumns);
 				}
 			}
 		}
@@ -160,11 +161,11 @@ public class KibitzServer implements Iface {
 	}
 	
 	@Override
-	public List<Item> getUserRatedItems(String key, long userId) {
+	public List<Item> getUserRatedItems(String key, long userId, List<String> displayColumns) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
 				Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
-				return SESSIONS.get(key).getUserRatedItems(userId);
+				return SESSIONS.get(key).getUserRatedItems(userId, displayColumns);
 			}
 		}
 		
@@ -254,8 +255,7 @@ public class KibitzServer implements Iface {
 		return 0;
 	}
 	
-	@Override
-	public List<Item> getItems(String key) {
+	/*public List<Item> getItems(String key) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
 				return SESSIONS.get(key).getItems();
@@ -276,7 +276,7 @@ public class KibitzServer implements Iface {
 		}
 		
 		return null;
-	}
+	}*/
 	
 	@Override
 	public void recordRatings(String key, long userId, long itemId, long rating) {
@@ -323,10 +323,10 @@ public class KibitzServer implements Iface {
 	}
 	
 	@Override
-	public List<Item> getPageItems(String key, long page, long numPerPage) {
+	public List<Item> getPageItems(String key, long page, long numPerPage, List<String> displayColumns) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
-				return SESSIONS.get(key).getPageItems(page, numPerPage);
+				return SESSIONS.get(key).getPageItems(page, numPerPage, displayColumns);
 			}
 		}
 		if(!this.loop.isAlive()) {
@@ -366,10 +366,10 @@ public class KibitzServer implements Iface {
 	}
 	
 	@Override
-	public List<Item> getSearchItems(String key, String query) {
+	public List<Item> getSearchItems(String key, String query, List<String> displayColumns) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
-				return SESSIONS.get(key).getSearchItems(query);
+				return SESSIONS.get(key).getSearchItems(query, displayColumns);
 			}
 		}
 		if(!this.loop.isAlive()) {

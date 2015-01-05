@@ -261,9 +261,9 @@ public class DatahubDataModel implements DataModel{
 	}
 	
 	/**
-	 * Gets list of all items from items table
+	 * Gets list of all items from items table; deprecated
 	 */
-	public List<Item> getItems(String table) {
+	/*public List<Item> getItems(String table) {
 		List<Item> items = new ArrayList<Item>();
 		try {
 			long startTime = System.nanoTime();
@@ -275,7 +275,7 @@ public class DatahubDataModel implements DataModel{
 				/*long start = System.nanoTime();
 				ratings = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + this.datahubTableName, null);
 				long end = System.nanoTime();
-				System.out.println("Time takes to get all ratings: " + (end - start));*/
+				System.out.println("Time takes to get all ratings: " + (end - start));
 			}
 			long endTime = System.nanoTime();
 			long duration = (endTime - startTime);  //divide by 1000000 to get milliseconds.
@@ -301,15 +301,15 @@ public class DatahubDataModel implements DataModel{
 			e.printStackTrace();
 		}
 		return null;
-	}
+	}*/
 	
 	/**
 	 * Display a page of items
 	 */
-	public List<Item> getPageItems(String table, long page, long numPerPage) {
+	public List<Item> getPageItems(String table, long page, long numPerPage, List<String> displayColumns) {
 		try {
-			return this.getListOfItems( "select kibitz_generated_id, title, description, image from " + this.datahubDatabase 
-					+ "." + table + " limit " + numPerPage + " offset " + numPerPage * page);
+			return this.getListOfItems( "select kibitz_generated_id, " + StringUtils.join(displayColumns, ',') + " from " + 
+					this.datahubDatabase + "." + table + " limit " + numPerPage + " offset " + numPerPage * page, displayColumns);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -476,10 +476,10 @@ public class DatahubDataModel implements DataModel{
 		return false;
 	}
 	
-	public List<Item> makeOverallRatingsBasedRecommendation(String ratingColumnName, String table, long numRecs) {
+	public List<Item> makeOverallRatingsBasedRecommendation(String ratingColumnName, String table, long numRecs, List<String> displayColumns) {
 		try {
-			return this.getListOfItems("select kibitz_generated_id, title, description, image from " + table
-					+ " ORDER BY " + ratingColumnName + " DESC LIMIT " + numRecs);
+			return this.getListOfItems("select kibitz_generated_id, "+ StringUtils.join(displayColumns, ',') + " from " + table
+					+ " ORDER BY " + ratingColumnName + " DESC LIMIT " + numRecs, displayColumns);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -490,10 +490,10 @@ public class DatahubDataModel implements DataModel{
 		return null;
 	}
 	
-	public List<Item> makeRandomRecommmendation(long numRecs, String table) {
+	public List<Item> makeRandomRecommmendation(long numRecs, String table, List<String> displayColumns) {
 		try {
-			return this.getListOfItems("select kibitz_generated_id, title, description, image from " + table
-					+ " ORDER BY RANDOM() LIMIT " + numRecs);
+			return this.getListOfItems("select kibitz_generated_id, " + StringUtils.join(displayColumns, ',') + " from " + table
+					+ " ORDER BY RANDOM() LIMIT " + numRecs, displayColumns);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -577,12 +577,18 @@ public class DatahubDataModel implements DataModel{
 	/**
 	 * Gets list of items user has rated.
 	 */
-	 public List<Item> getUserRatedItems(long userId, String ratings_table, String items_table) {
+	 public List<Item> getUserRatedItems(long userId, String ratings_table, String items_table, List<String> displayColumns) {
 		try {
-			return this.getListOfItems("SELECT " + ratings_table + ".item_id as id, " + ratings_table + 
-					".rating, " + items_table + ".title, " + items_table + ".description, " + items_table + 
-					".image, " + ratings_table + ".user_id FROM " + ratings_table + " INNER JOIN " + items_table + 
-					" ON " + ratings_table + ".item_id = " + items_table + ".kibitz_generated_id" + " WHERE user_id=" + userId);
+			List<String> itemsTableColumns = new ArrayList<String>();
+			for (String name: displayColumns) {
+				itemsTableColumns.add(items_table + "." + name);
+			}
+			
+			displayColumns.add("rating");
+			
+			return this.getListOfItems("SELECT " + ratings_table + ".item_id as kibitz_generated_id, " + ratings_table + 
+					".rating, " + StringUtils.join(itemsTableColumns, ',') + ", " + ratings_table + ".user_id FROM " + ratings_table + " INNER JOIN " + items_table + 
+					" ON " + ratings_table + ".item_id = " + items_table + ".kibitz_generated_id" + " WHERE user_id=" + userId, displayColumns);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -872,20 +878,27 @@ public class DatahubDataModel implements DataModel{
 	/**
 	 * Gets list of items from list of ids
 	 */
-	public List<Item> getItemsFromIds(ArrayList<Long> ids, String table, String ratings_table, long userId) {
+	public List<Item> getItemsFromIds(ArrayList<Long> ids, String table, String ratings_table, long userId, List<String> displayColumns) {
 		List<Item> items = new ArrayList<Item>();
+		
+		List<String> itemsTableColumns = new ArrayList<String>();
+		for (String name: displayColumns) {
+			itemsTableColumns.add(table + "." + name);
+		}
+		
+		displayColumns.add("rating");
+		
 		try {			
 			synchronized(this.client) {
 				if(ids.size() > 0) {
-					String query = "SELECT " + table + ".kibitz_generated_id, " + table + ".title, " + 
-						table + ".description, " + table + ".image, " + ratings_table + ".rating FROM " 
-						+ table + " LEFT JOIN " + ratings_table + " ON " + ratings_table + ".item_id=" +
-						table + ".kibitz_generated_id" + " AND user_id=" + userId + " WHERE (kibitz_generated_id='";
+					String query = "SELECT " + table + ".kibitz_generated_id, " + StringUtils.join(displayColumns, ",") 
+						+ ratings_table + ".rating FROM " + table + " LEFT JOIN " + ratings_table + " ON " + ratings_table 
+						+ ".item_id=" + table + ".kibitz_generated_id" + " AND user_id=" + userId + " WHERE (kibitz_generated_id='";
 					for (int i = 0; i < ids.size() - 1; i++) {
 						query += ids.get(i) + "' OR kibitz_generated_id='";
 					}
 					query += ids.get(ids.size() - 1) + "')";
-					return this.getListOfItems(query);
+					return this.getListOfItems(query, displayColumns);
 				} else {
 					return new ArrayList<Item>();
 				}
@@ -903,12 +916,13 @@ public class DatahubDataModel implements DataModel{
 	/**
 	 * Gets item from item id
 	 */
-	public Item getItemFromId(long id, String table) {
+	public Item getItemFromId(long id, String table, List<String> displayColumns) {
 		try {
+			HashMap<String, String> attributes = new HashMap<String, String>();
 			ResultSet res;
 			
 			synchronized(this.client) {
-				res = this.client.execute_sql(this.conn, "SELECT kibitz_generated_id, title, description, image FROM " + table 
+				res = this.client.execute_sql(this.conn, "SELECT kibitz_generated_id, " + StringUtils.join(displayColumns, ",") + " FROM " + table 
 						+ " WHERE kibitz_generated_id='" + id + "'", null);
 			}
 			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
@@ -917,9 +931,13 @@ public class DatahubDataModel implements DataModel{
 				List<ByteBuffer> cells = t.getCells();
 				Item item = new Item();
 				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("kibitz_generated_id")).array())));
-				item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
-				item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
-				item.setImage(new String(cells.get(colToIndex.get("image")).array()));
+				
+				for (String column: displayColumns) {
+					if (colToIndex.containsKey(column) && !new String(cells.get(colToIndex.get(column)).array()).equals("None"))
+						attributes.put(column, new String(cells.get(colToIndex.get(column)).array()));
+				}
+				
+				item.setAttributes(attributes);
 				return item;
 			}
 		} catch (DBException e) {
@@ -935,16 +953,23 @@ public class DatahubDataModel implements DataModel{
 	/**
 	 * Return search results
 	 */
-	public List<Item> getSearchItems(String table, String query) {
+	public List<Item> getSearchItems(String table, String query, List<String> displayColumns) {
 		List<Item> items = new ArrayList<Item>();
 		try {
-			String q = "select * from " + table + " where title like ";
+			String q = "select kibitz_generated_id, " + StringUtils.join(displayColumns, ",") + " from " + table + " where ";
 			String[] words = query.split(" ");
-			for (int i = 0; i < words.length - 1; i++) {
-				q += "'%" + words[i] + "%' AND title like ";
+
+			List<String> displayQueries = new ArrayList<String>();
+			for (String column: displayColumns) {
+				String qry = "(" + column + " like ";
+				for (int i = 0; i < words.length - 1; i++) {
+					q += "'%" + words[i] + "%' and " + column + " like ";
+				}
+				q += "'%" + words[words.length - 1] + "%')";
+				displayQueries.add(qry);
 			}
-			q += "'%" + words[words.length -1] + "%'";
-			return this.getListOfItems(q);
+			q += StringUtils.join(displayQueries, " OR ");
+			return this.getListOfItems(q, displayColumns);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1046,8 +1071,9 @@ public class DatahubDataModel implements DataModel{
 	 * @throws TException 
 	 * @throws DBException 
 	 */
-	public List<Item> getListOfItems(String query) throws DBException, TException {
+	public List<Item> getListOfItems(String query, List<String> displayColumns) throws DBException, TException {
 		List<Item> items = new ArrayList<Item>();
+		HashMap<String, String> attributes = new HashMap<String, String>();
 		ResultSet res;
 		synchronized(this.client) {
 			res = this.client.execute_sql(this.conn, query, null);
@@ -1058,13 +1084,14 @@ public class DatahubDataModel implements DataModel{
 			List<ByteBuffer> cells = t.getCells();
 			Item item = new Item();
 			item.setId(Long.parseLong(new String(cells.get(colToIndex.get("kibitz_generated_id")).array())));
-			item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
-			item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
-			if (!new String(cells.get(colToIndex.get("image")).array()).equals("None"))
-				item.setImage(new String(cells.get(colToIndex.get("image")).array()));
-			if (colToIndex.containsKey("rating") && !new String(cells.get(colToIndex.get("rating")).array()).equals("None"))
-				item.setRating(Long.parseLong(new String(cells.get(colToIndex.get("image")).array())));
-			items.add(item);
+			
+			attributes = new HashMap<String, String>();
+			for (String column: displayColumns) {
+				if (colToIndex.containsKey(column) && !new String(cells.get(colToIndex.get(column)).array()).equals("None"))
+					attributes.put(column, new String(cells.get(colToIndex.get(column)).array()));
+			}
+			
+			item.setAttributes(attributes);
 		}
 		return items;
 	}

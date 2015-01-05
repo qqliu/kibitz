@@ -35,11 +35,8 @@ import org.slf4j.LoggerFactory;
 public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.io.Serializable, Cloneable, Comparable<Item> {
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Item");
 
-  private static final org.apache.thrift.protocol.TField ID_FIELD_DESC = new org.apache.thrift.protocol.TField("id", org.apache.thrift.protocol.TType.I64, (short)1);
-  private static final org.apache.thrift.protocol.TField TITLE_FIELD_DESC = new org.apache.thrift.protocol.TField("title", org.apache.thrift.protocol.TType.STRING, (short)2);
-  private static final org.apache.thrift.protocol.TField DESCRIPTION_FIELD_DESC = new org.apache.thrift.protocol.TField("description", org.apache.thrift.protocol.TType.STRING, (short)3);
-  private static final org.apache.thrift.protocol.TField IMAGE_FIELD_DESC = new org.apache.thrift.protocol.TField("image", org.apache.thrift.protocol.TType.STRING, (short)4);
-  private static final org.apache.thrift.protocol.TField RATING_FIELD_DESC = new org.apache.thrift.protocol.TField("rating", org.apache.thrift.protocol.TType.I64, (short)5);
+  private static final org.apache.thrift.protocol.TField ATTRIBUTES_FIELD_DESC = new org.apache.thrift.protocol.TField("attributes", org.apache.thrift.protocol.TType.MAP, (short)1);
+  private static final org.apache.thrift.protocol.TField ID_FIELD_DESC = new org.apache.thrift.protocol.TField("id", org.apache.thrift.protocol.TType.I64, (short)2);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -47,19 +44,13 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
     schemes.put(TupleScheme.class, new ItemTupleSchemeFactory());
   }
 
+  public Map<String,String> attributes; // required
   public long id; // required
-  public String title; // required
-  public String description; // required
-  public String image; // required
-  public long rating; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-    ID((short)1, "id"),
-    TITLE((short)2, "title"),
-    DESCRIPTION((short)3, "description"),
-    IMAGE((short)4, "image"),
-    RATING((short)5, "rating");
+    ATTRIBUTES((short)1, "attributes"),
+    ID((short)2, "id");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -74,16 +65,10 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
      */
     public static _Fields findByThriftId(int fieldId) {
       switch(fieldId) {
-        case 1: // ID
+        case 1: // ATTRIBUTES
+          return ATTRIBUTES;
+        case 2: // ID
           return ID;
-        case 2: // TITLE
-          return TITLE;
-        case 3: // DESCRIPTION
-          return DESCRIPTION;
-        case 4: // IMAGE
-          return IMAGE;
-        case 5: // RATING
-          return RATING;
         default:
           return null;
       }
@@ -125,20 +110,15 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
 
   // isset id assignments
   private static final int __ID_ISSET_ID = 0;
-  private static final int __RATING_ISSET_ID = 1;
   private byte __isset_bitfield = 0;
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+    tmpMap.put(_Fields.ATTRIBUTES, new org.apache.thrift.meta_data.FieldMetaData("attributes", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+        new org.apache.thrift.meta_data.MapMetaData(org.apache.thrift.protocol.TType.MAP, 
+            new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING), 
+            new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
     tmpMap.put(_Fields.ID, new org.apache.thrift.meta_data.FieldMetaData("id", org.apache.thrift.TFieldRequirementType.REQUIRED, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
-    tmpMap.put(_Fields.TITLE, new org.apache.thrift.meta_data.FieldMetaData("title", org.apache.thrift.TFieldRequirementType.REQUIRED, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.DESCRIPTION, new org.apache.thrift.meta_data.FieldMetaData("description", org.apache.thrift.TFieldRequirementType.REQUIRED, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.IMAGE, new org.apache.thrift.meta_data.FieldMetaData("image", org.apache.thrift.TFieldRequirementType.REQUIRED, 
-        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-    tmpMap.put(_Fields.RATING, new org.apache.thrift.meta_data.FieldMetaData("rating", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Item.class, metaDataMap);
@@ -148,20 +128,13 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
   }
 
   public Item(
-    long id,
-    String title,
-    String description,
-    String image,
-    long rating)
+    Map<String,String> attributes,
+    long id)
   {
     this();
+    this.attributes = attributes;
     this.id = id;
     setIdIsSet(true);
-    this.title = title;
-    this.description = description;
-    this.image = image;
-    this.rating = rating;
-    setRatingIsSet(true);
   }
 
   /**
@@ -169,17 +142,11 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
    */
   public Item(Item other) {
     __isset_bitfield = other.__isset_bitfield;
+    if (other.isSetAttributes()) {
+      Map<String,String> __this__attributes = new HashMap<String,String>(other.attributes);
+      this.attributes = __this__attributes;
+    }
     this.id = other.id;
-    if (other.isSetTitle()) {
-      this.title = other.title;
-    }
-    if (other.isSetDescription()) {
-      this.description = other.description;
-    }
-    if (other.isSetImage()) {
-      this.image = other.image;
-    }
-    this.rating = other.rating;
   }
 
   public Item deepCopy() {
@@ -188,13 +155,44 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
 
   @Override
   public void clear() {
+    this.attributes = null;
     setIdIsSet(false);
     this.id = 0;
-    this.title = null;
-    this.description = null;
-    this.image = null;
-    setRatingIsSet(false);
-    this.rating = 0;
+  }
+
+  public int getAttributesSize() {
+    return (this.attributes == null) ? 0 : this.attributes.size();
+  }
+
+  public void putToAttributes(String key, String val) {
+    if (this.attributes == null) {
+      this.attributes = new HashMap<String,String>();
+    }
+    this.attributes.put(key, val);
+  }
+
+  public Map<String,String> getAttributes() {
+    return this.attributes;
+  }
+
+  public Item setAttributes(Map<String,String> attributes) {
+    this.attributes = attributes;
+    return this;
+  }
+
+  public void unsetAttributes() {
+    this.attributes = null;
+  }
+
+  /** Returns true if field attributes is set (has been assigned a value) and false otherwise */
+  public boolean isSetAttributes() {
+    return this.attributes != null;
+  }
+
+  public void setAttributesIsSet(boolean value) {
+    if (!value) {
+      this.attributes = null;
+    }
   }
 
   public long getId() {
@@ -220,103 +218,16 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
     __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ID_ISSET_ID, value);
   }
 
-  public String getTitle() {
-    return this.title;
-  }
-
-  public Item setTitle(String title) {
-    this.title = title;
-    return this;
-  }
-
-  public void unsetTitle() {
-    this.title = null;
-  }
-
-  /** Returns true if field title is set (has been assigned a value) and false otherwise */
-  public boolean isSetTitle() {
-    return this.title != null;
-  }
-
-  public void setTitleIsSet(boolean value) {
-    if (!value) {
-      this.title = null;
-    }
-  }
-
-  public String getDescription() {
-    return this.description;
-  }
-
-  public Item setDescription(String description) {
-    this.description = description;
-    return this;
-  }
-
-  public void unsetDescription() {
-    this.description = null;
-  }
-
-  /** Returns true if field description is set (has been assigned a value) and false otherwise */
-  public boolean isSetDescription() {
-    return this.description != null;
-  }
-
-  public void setDescriptionIsSet(boolean value) {
-    if (!value) {
-      this.description = null;
-    }
-  }
-
-  public String getImage() {
-    return this.image;
-  }
-
-  public Item setImage(String image) {
-    this.image = image;
-    return this;
-  }
-
-  public void unsetImage() {
-    this.image = null;
-  }
-
-  /** Returns true if field image is set (has been assigned a value) and false otherwise */
-  public boolean isSetImage() {
-    return this.image != null;
-  }
-
-  public void setImageIsSet(boolean value) {
-    if (!value) {
-      this.image = null;
-    }
-  }
-
-  public long getRating() {
-    return this.rating;
-  }
-
-  public Item setRating(long rating) {
-    this.rating = rating;
-    setRatingIsSet(true);
-    return this;
-  }
-
-  public void unsetRating() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __RATING_ISSET_ID);
-  }
-
-  /** Returns true if field rating is set (has been assigned a value) and false otherwise */
-  public boolean isSetRating() {
-    return EncodingUtils.testBit(__isset_bitfield, __RATING_ISSET_ID);
-  }
-
-  public void setRatingIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __RATING_ISSET_ID, value);
-  }
-
   public void setFieldValue(_Fields field, Object value) {
     switch (field) {
+    case ATTRIBUTES:
+      if (value == null) {
+        unsetAttributes();
+      } else {
+        setAttributes((Map<String,String>)value);
+      }
+      break;
+
     case ID:
       if (value == null) {
         unsetId();
@@ -325,57 +236,16 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
       }
       break;
 
-    case TITLE:
-      if (value == null) {
-        unsetTitle();
-      } else {
-        setTitle((String)value);
-      }
-      break;
-
-    case DESCRIPTION:
-      if (value == null) {
-        unsetDescription();
-      } else {
-        setDescription((String)value);
-      }
-      break;
-
-    case IMAGE:
-      if (value == null) {
-        unsetImage();
-      } else {
-        setImage((String)value);
-      }
-      break;
-
-    case RATING:
-      if (value == null) {
-        unsetRating();
-      } else {
-        setRating((Long)value);
-      }
-      break;
-
     }
   }
 
   public Object getFieldValue(_Fields field) {
     switch (field) {
+    case ATTRIBUTES:
+      return getAttributes();
+
     case ID:
       return Long.valueOf(getId());
-
-    case TITLE:
-      return getTitle();
-
-    case DESCRIPTION:
-      return getDescription();
-
-    case IMAGE:
-      return getImage();
-
-    case RATING:
-      return Long.valueOf(getRating());
 
     }
     throw new IllegalStateException();
@@ -388,16 +258,10 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
     }
 
     switch (field) {
+    case ATTRIBUTES:
+      return isSetAttributes();
     case ID:
       return isSetId();
-    case TITLE:
-      return isSetTitle();
-    case DESCRIPTION:
-      return isSetDescription();
-    case IMAGE:
-      return isSetImage();
-    case RATING:
-      return isSetRating();
     }
     throw new IllegalStateException();
   }
@@ -415,48 +279,21 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
     if (that == null)
       return false;
 
+    boolean this_present_attributes = true && this.isSetAttributes();
+    boolean that_present_attributes = true && that.isSetAttributes();
+    if (this_present_attributes || that_present_attributes) {
+      if (!(this_present_attributes && that_present_attributes))
+        return false;
+      if (!this.attributes.equals(that.attributes))
+        return false;
+    }
+
     boolean this_present_id = true;
     boolean that_present_id = true;
     if (this_present_id || that_present_id) {
       if (!(this_present_id && that_present_id))
         return false;
       if (this.id != that.id)
-        return false;
-    }
-
-    boolean this_present_title = true && this.isSetTitle();
-    boolean that_present_title = true && that.isSetTitle();
-    if (this_present_title || that_present_title) {
-      if (!(this_present_title && that_present_title))
-        return false;
-      if (!this.title.equals(that.title))
-        return false;
-    }
-
-    boolean this_present_description = true && this.isSetDescription();
-    boolean that_present_description = true && that.isSetDescription();
-    if (this_present_description || that_present_description) {
-      if (!(this_present_description && that_present_description))
-        return false;
-      if (!this.description.equals(that.description))
-        return false;
-    }
-
-    boolean this_present_image = true && this.isSetImage();
-    boolean that_present_image = true && that.isSetImage();
-    if (this_present_image || that_present_image) {
-      if (!(this_present_image && that_present_image))
-        return false;
-      if (!this.image.equals(that.image))
-        return false;
-    }
-
-    boolean this_present_rating = true;
-    boolean that_present_rating = true;
-    if (this_present_rating || that_present_rating) {
-      if (!(this_present_rating && that_present_rating))
-        return false;
-      if (this.rating != that.rating)
         return false;
     }
 
@@ -476,52 +313,22 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
 
     int lastComparison = 0;
 
+    lastComparison = Boolean.valueOf(isSetAttributes()).compareTo(other.isSetAttributes());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetAttributes()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.attributes, other.attributes);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
     lastComparison = Boolean.valueOf(isSetId()).compareTo(other.isSetId());
     if (lastComparison != 0) {
       return lastComparison;
     }
     if (isSetId()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.id, other.id);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetTitle()).compareTo(other.isSetTitle());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetTitle()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.title, other.title);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetDescription()).compareTo(other.isSetDescription());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetDescription()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.description, other.description);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetImage()).compareTo(other.isSetImage());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetImage()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.image, other.image);
-      if (lastComparison != 0) {
-        return lastComparison;
-      }
-    }
-    lastComparison = Boolean.valueOf(isSetRating()).compareTo(other.isSetRating());
-    if (lastComparison != 0) {
-      return lastComparison;
-    }
-    if (isSetRating()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.rating, other.rating);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -546,36 +353,16 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
     StringBuilder sb = new StringBuilder("Item(");
     boolean first = true;
 
+    sb.append("attributes:");
+    if (this.attributes == null) {
+      sb.append("null");
+    } else {
+      sb.append(this.attributes);
+    }
+    first = false;
+    if (!first) sb.append(", ");
     sb.append("id:");
     sb.append(this.id);
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("title:");
-    if (this.title == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.title);
-    }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("description:");
-    if (this.description == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.description);
-    }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("image:");
-    if (this.image == null) {
-      sb.append("null");
-    } else {
-      sb.append(this.image);
-    }
-    first = false;
-    if (!first) sb.append(", ");
-    sb.append("rating:");
-    sb.append(this.rating);
     first = false;
     sb.append(")");
     return sb.toString();
@@ -583,16 +370,10 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
 
   public void validate() throws org.apache.thrift.TException {
     // check for required fields
+    if (attributes == null) {
+      throw new org.apache.thrift.protocol.TProtocolException("Required field 'attributes' was not present! Struct: " + toString());
+    }
     // alas, we cannot check 'id' because it's a primitive and you chose the non-beans generator.
-    if (title == null) {
-      throw new org.apache.thrift.protocol.TProtocolException("Required field 'title' was not present! Struct: " + toString());
-    }
-    if (description == null) {
-      throw new org.apache.thrift.protocol.TProtocolException("Required field 'description' was not present! Struct: " + toString());
-    }
-    if (image == null) {
-      throw new org.apache.thrift.protocol.TProtocolException("Required field 'image' was not present! Struct: " + toString());
-    }
     // check for sub-struct validity
   }
 
@@ -632,42 +413,30 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
           break;
         }
         switch (schemeField.id) {
-          case 1: // ID
+          case 1: // ATTRIBUTES
+            if (schemeField.type == org.apache.thrift.protocol.TType.MAP) {
+              {
+                org.apache.thrift.protocol.TMap _map0 = iprot.readMapBegin();
+                struct.attributes = new HashMap<String,String>(2*_map0.size);
+                for (int _i1 = 0; _i1 < _map0.size; ++_i1)
+                {
+                  String _key2;
+                  String _val3;
+                  _key2 = iprot.readString();
+                  _val3 = iprot.readString();
+                  struct.attributes.put(_key2, _val3);
+                }
+                iprot.readMapEnd();
+              }
+              struct.setAttributesIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 2: // ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.id = iprot.readI64();
               struct.setIdIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 2: // TITLE
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.title = iprot.readString();
-              struct.setTitleIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 3: // DESCRIPTION
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.description = iprot.readString();
-              struct.setDescriptionIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 4: // IMAGE
-            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-              struct.image = iprot.readString();
-              struct.setImageIsSet(true);
-            } else { 
-              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
-            }
-            break;
-          case 5: // RATING
-            if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.rating = iprot.readI64();
-              struct.setRatingIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -690,26 +459,21 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
       struct.validate();
 
       oprot.writeStructBegin(STRUCT_DESC);
+      if (struct.attributes != null) {
+        oprot.writeFieldBegin(ATTRIBUTES_FIELD_DESC);
+        {
+          oprot.writeMapBegin(new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRING, struct.attributes.size()));
+          for (Map.Entry<String, String> _iter4 : struct.attributes.entrySet())
+          {
+            oprot.writeString(_iter4.getKey());
+            oprot.writeString(_iter4.getValue());
+          }
+          oprot.writeMapEnd();
+        }
+        oprot.writeFieldEnd();
+      }
       oprot.writeFieldBegin(ID_FIELD_DESC);
       oprot.writeI64(struct.id);
-      oprot.writeFieldEnd();
-      if (struct.title != null) {
-        oprot.writeFieldBegin(TITLE_FIELD_DESC);
-        oprot.writeString(struct.title);
-        oprot.writeFieldEnd();
-      }
-      if (struct.description != null) {
-        oprot.writeFieldBegin(DESCRIPTION_FIELD_DESC);
-        oprot.writeString(struct.description);
-        oprot.writeFieldEnd();
-      }
-      if (struct.image != null) {
-        oprot.writeFieldBegin(IMAGE_FIELD_DESC);
-        oprot.writeString(struct.image);
-        oprot.writeFieldEnd();
-      }
-      oprot.writeFieldBegin(RATING_FIELD_DESC);
-      oprot.writeI64(struct.rating);
       oprot.writeFieldEnd();
       oprot.writeFieldStop();
       oprot.writeStructEnd();
@@ -728,36 +492,35 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
     @Override
     public void write(org.apache.thrift.protocol.TProtocol prot, Item struct) throws org.apache.thrift.TException {
       TTupleProtocol oprot = (TTupleProtocol) prot;
+      {
+        oprot.writeI32(struct.attributes.size());
+        for (Map.Entry<String, String> _iter5 : struct.attributes.entrySet())
+        {
+          oprot.writeString(_iter5.getKey());
+          oprot.writeString(_iter5.getValue());
+        }
+      }
       oprot.writeI64(struct.id);
-      oprot.writeString(struct.title);
-      oprot.writeString(struct.description);
-      oprot.writeString(struct.image);
-      BitSet optionals = new BitSet();
-      if (struct.isSetRating()) {
-        optionals.set(0);
-      }
-      oprot.writeBitSet(optionals, 1);
-      if (struct.isSetRating()) {
-        oprot.writeI64(struct.rating);
-      }
     }
 
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, Item struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
+      {
+        org.apache.thrift.protocol.TMap _map6 = new org.apache.thrift.protocol.TMap(org.apache.thrift.protocol.TType.STRING, org.apache.thrift.protocol.TType.STRING, iprot.readI32());
+        struct.attributes = new HashMap<String,String>(2*_map6.size);
+        for (int _i7 = 0; _i7 < _map6.size; ++_i7)
+        {
+          String _key8;
+          String _val9;
+          _key8 = iprot.readString();
+          _val9 = iprot.readString();
+          struct.attributes.put(_key8, _val9);
+        }
+      }
+      struct.setAttributesIsSet(true);
       struct.id = iprot.readI64();
       struct.setIdIsSet(true);
-      struct.title = iprot.readString();
-      struct.setTitleIsSet(true);
-      struct.description = iprot.readString();
-      struct.setDescriptionIsSet(true);
-      struct.image = iprot.readString();
-      struct.setImageIsSet(true);
-      BitSet incoming = iprot.readBitSet(1);
-      if (incoming.get(0)) {
-        struct.rating = iprot.readI64();
-        struct.setRatingIsSet(true);
-      }
     }
   }
 
