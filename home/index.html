@@ -1,256 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-
-    <title>Kibitz</title>
-
-    <!-- Bootstrap Core CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Custom CSS -->
-    <link href="css/stylish-portfolio.css" rel="stylesheet">
-
-    <!-- Custom Fonts -->
-    <link href="font-awesome-4.1.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-    <link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
-
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
-
-</head>
-
-<body>
-
-    <!-- Navigation -->
-    <a id="menu-toggle" href="#" class="btn btn-dark btn-lg toggle"><i class="fa fa-bars"></i></a>
-    <nav id="sidebar-wrapper">
-        <ul class="sidebar-nav">
-            <a id="menu-close" href="#" class="btn btn-light btn-lg pull-right toggle"><i class="fa fa-times"></i></a>
-            <li class="sidebar-brand">
-                <a href="#top">Start Bootstrap</a>
-            </li>
-            <li>
-                <a href="#top">Home</a>
-            </li>
-            <li>
-                <a href="#about">About</a>
-            </li>
-            <li>
-                <a href="#services">Services</a>
-            </li>
-            <li>
-                <a href="#portfolio">Portfolio</a>
-            </li>
-            <li>
-                <a href="#contact">Contact</a>
-            </li>
-        </ul>
-    </nav>
-
-    <!-- Header -->
-    <header id="top" class="header">
-        <div class="text-vertical-center">
-            <h1>Kibitz</h1>
-            <div id="intro">
-                <h3>Import a table from <a href="http://datahub.csail.mit.edu">DataHub</a> and start recommending.</h3>
-                <h2>Option 1</h2>
-                <br>
-                <form>
-                  <h3>DataHub Username: </h3> <input id="username" name="username" type="text" /><br /><br />
-                  <h3>DataHub Password: </h3><input id="password" name="password" type="password" /><br /><br />
-                  <h3>DataHub Repository: </h3><input id="repo" name="repo" type="text" /><br /><br />
-                  <h3>DataHub Table Name: </h3><input id="tablename" name="tablename" type="text" /><br /><br /><br />
-                  <h3>Item Similarity Column 1 (Optional): </h3><input id="item-similarity-1" name="tablename" type="text" /><br /><br /><br />
-                  <select id = "item-similarity-1-type-1">
-                    <option value="lp">Long Phrase</option>
-                    <option value="ssn">Short Phrase (Nouns)</option>
-                    <option value="ssv">Short Phrase (Verb)</option>
-                    <option value="ss">Short Phrase (Variety)</option>
-                    <option value="number">Numbers</option>
-                  </select> 
-                  <h3>Item Similarity Column 2 (Optional): </h3><input id="item-similarity-2" name="tablename" type="text" /><br /><br /><br />
-                  <select id = "item-similarity-2-type-1">
-                    <option value="lp">Long Phrase</option>
-                    <option value="ssn">Short Phrase (Nouns)</option>
-                    <option value="ssv">Short Phrase (Verb)</option>
-                    <option value="ss">Short Phrase (Variety)</option>
-                    <option value="number">Numbers</option>
-                  </select> 
-                  <h3>Item Similarity Column 3 (Optional): </h3><input id="tablename" name="item-similarity-3" type="text" /><br /><br /><br />
-                  <select id = "item-similarity-2-type-1">
-                    <option value="lp">Long Phrase</option>
-                    <option value="ssn">Short Phrase (Nouns)</option>
-                    <option value="ssv">Short Phrase (Verb)</option>
-                    <option value="ss">Short Phrase (Variety)</option>
-                    <option value="number">Numbers</option>
-                  </select>
-                  <h3>Recommendation Types: </h3><br />
-                  <input type="checkbox" id="user-1" name="recommender-type" value="user">User-Based<br />
-                  <input type="checkbox" id="item-1" name="recommender-type" value="item">Item-Based<br /> 
-                  <input type="checkbox" id="overall-1" name="recommender-type" value="overal">Overall Ratings<br />
-                  <input type="checkbox" id="random-1" name="recommender-type" value="random">Random <br />
-                  
-                  <h3>Recommender Format: </h3><br />
-                  <input type="radio" id="zip-1" name="format" value="zip">Zip File<br />
-                  <input type="radio" id="subdomain-1" name="format" value="subdomain">Subdomain
-                  
-                  <button class="btn btn-dark btn-lg" value="Create" onclick="create();">Create!</button>
-                </form>
-                
-                <h2>Option 2</h2>
-                <br>
-                <form>
-                  <h3>DataHub Username: </h3> <input id="username" name="username" type="text" /><br /><br />
-                  <h3>DataHub Password: </h3><input id="password" name="password" type="password" /><br /><br />
-                  <h3>DataHub Repository: </h3><input id="repo" name="repo" type="text" /><br /><br />
-                  <h3>DataHub Table Name: </h3><input id="tablename" name="tablename" type="text" /><br /><br /><br />
-                  <h3>Primary Key Column Name: </h3><input id="primary-key" name="primary-key" type="text" /><br /><br /><br />
-                  <h3>Display Information Columns (comma separated list): </h3><input id="display-items" name="display-items" type="text" /><br /><br /><br />
-                  <h3>Item Similarity Column 1 (Optional): </h3><input id="item-similarity-1" name="item-similarity-1" type="text" /><br /><br /><br />
-                  <select id = "item-similarity-1-type-2">
-                    <option value="lp">Long Phrase</option>
-                    <option value="ssn">Short Phrase (Nouns)</option>
-                    <option value="ssv">Short Phrase (Verb)</option>
-                    <option value="ss">Short Phrase (Variety)</option>
-                    <option value="number">Numbers</option>
-                  </select> 
-                  <h3>Item Similarity Column 2 (Optional): </h3><input id="item-similarity-2" name="item-similarity-2" type="text" /><br /><br /><br />
-                  <select id = "item-similarity-1-type-2">
-                    <option value="lp">Long Phrase</option>
-                    <option value="ssn">Short Phrase (Nouns)</option>
-                    <option value="ssv">Short Phrase (Verb)</option>
-                    <option value="ss">Short Phrase (Variety)</option>
-                    <option value="number">Numbers</option>
-                  </select> 
-                  <h3>Item Similarity Column 3 (Optional): </h3><input id="item-similarity-3" name="item-similarity-3" type="text" /><br /><br /><br />
-                  <select id = "item-similarity-1-type-2">
-                    <option value="lp">Long Phrase</option>
-                    <option value="ssn">Short Phrase (Nouns)</option>
-                    <option value="ssv">Short Phrase (Verb)</option>
-                    <option value="ss">Short Phrase (Variety)</option>
-                    <option value="number">Numbers</option>
-                  </select>
-                  <h3>Recommendation Types: </h3><br />
-                  <input type="checkbox" id="user-2" name="recommender-type" value="user">User-Based<br />
-                  <input type="checkbox" id="item-2" name="recommender-type" value="item">Item-Based<br /> 
-                  <input type="checkbox" id="overall-2" name="recommender-type" value="overal">Overall Ratings<br />
-                  <input type="checkbox" id="random-2" name="recommender-type" value="random">Random<br />
-                  <button class="btn btn-dark btn-lg" value="Create" onclick="create();">Create!</button>
-                </form>
-            </div>
-            <div id="link">
-            </div>
-        </div>
-    </header>
-
-    <!-- Footer -->
-    <footer>
-        <h3>To create your own recommender, choose one of two options. Option 1 creates the recommneder front-end for you either as a self-downloading zip file or as
-        a subdomain under kibitz.csail.mit.edu. You have to format your table a certain way in order to choose Option 1. If you choose Option 2, you may have any
-        columns in your table, however, you have to create your own website using our API.</h3>
-        <h4>Option 1:</h4>
-        <h4><ol>
-                <li>Datahub credentials.</li>
-                <li>Name of the table containing a list of items. The table must have column names "title", "description", and "image". The "title" column contains
-                the names of your items, the "description" column contains a description of your item, and the "image" column contains urls for images of your items. If
-                you do not have images, you may create an empty column filled with "None". Your table may contain other columns but the three required columns
-                will be used to provide information about your items. The "title" column <b>must</b> be your Primary Key.</li>
-                <li>Check the boxes for the type of recommendations you would like to use. Note that it may take a while to create your recommender if you choose to use
-                item-based recommendations.</li>
-                <li>For item-based recommendations, provide us with at most three different columns to compute similarities. If you choose item-based recommendations, you
-                must provide at least one column. Select what types of items are contained in the given columns. The item similarities will be weighted with decreasing weight.</li>
-                <li>Check whether you want to create a recommender under the kibitz.csail.mit.edu domain or want to receive it as a standalone downloadable zip file.</li>
-            </ol>
-        </h4><br />
-        <h4>Option 2:</h4>
-        <h4><ol>
-                <li>Datahub credentials.</li>
-                <li>What is the column containing your Primary Key? Your table <b>must have</b> a Primary Key.</li>
-                <li>Give us the names of the columns you want to display for your items. Provide us the columns in a comma separated list.</li>
-                <li>Check the boxes for the type of recommendations you would like to use. Note that it may take a while to create your recommender if you choose to use
-                item-based recommendations. If you choose the overall ratings recommender, you must provide a column that contains the overall ratings.</li>
-                <li>For item-based recommendations, provide us with at most three different columns to compute similarities. If you choose item-based recommendations, you
-                must provide at least one column. Select what types of items are contained in the given columns. The item similarities will be weighted with decreasing weight.</li>
-                <li>Check whether you want to create a recommender under the kibitz.csail.mit.edu domain or want to receive it as a standalone downloadable zip file.</li>
-            </ol>
-        </h4>
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-10 col-lg-offset-1 text-center">
-                    <h4><strong>Kibitz</strong>
-                    <p>Upload a file and start recommending.</p>
-                    <a href="https://github.com/qqliu/kibitz"><i class="fa fa-github fa-fw fa-3x"></i>
-                    <p class="text-muted">Copyright &copy; Kibitz</p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- jQuery Version 1.11.0 -->
-    <script src="js/jquery-1.11.0.js"></script>
-
-    <!-- Bootstrap Core JavaScript -->
-    <script src="js/bootstrap.min.js"></script>
-    <!--Thrift-->
-    <script type="text/javascript" src="thrift.js"></script>
-    <script type="text/javascript" src="kibitz_types.js"></script>
-    <script type="text/javascript" src="RecommenderService.js"></script>
-
-    <!-- Custom Theme JavaScript -->
-    <script>
-        var transport = new Thrift.Transport("http://localhost:9888/kibitz/");
-        var protocol = new Thrift.Protocol(transport);
-        var client = new kibitz.RecommenderServiceClient(protocol);
-        var name = "Demo";
-        
-        transport.open();
-        
-        var create =  function createNewRecommender() {
-            name=document.getElementById('username').value;
-            var password=document.getElementById('password').value;
-            var repo = document.getElementById('repo').value;
-            var table = document.getElementById('tablename').value;
-            var created = client.createNewRecommender(name, password, repo, table);
-            console.log(created);
-            if (created) {
-                swap("link", "intro");
-                document.getElementById('link').innerHTML = "<h2>Your recommender is located at <a href= '" + table + "'/>"+ table + " home</a></h2>";
-                
-                var tablename=$('#tablename').val();
-                var repo = $('#repo').val();
-                var username = $('#username').val();
-                var password = $('#password').val();
-                
-                var formData = "tablename="+tablename + "&username=" + username + "&password=" + password + "&repo=" + repo;
-                $.ajax({
-                    url : "create_directory.php",
-                    type: "POST",
-                    data : formData,
-                    success: function(data, textStatus, jqXHR)
-                    {
-                        console.log(data);
-                    },
-                });
-            }
-        };
-        
-        var swap = function swap(one, two) {
-            document.getElementById(one).style.display = 'block';
-            document.getElementById(two).style.display = 'none';
-        };
-    </script>
-
-</body>
-
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>Kibitz</title>
+        <!-- Bootstrap Core CSS -->
+        <link href="css/stylish-portfolio.css" rel="stylesheet">
+    </head>
+    <body>
+        <!-- multistep form -->
+        <form id="msform">
+                <!-- progressbar -->
+                <ul id="progressbar">
+                        <li class="active">Account Setup</li>
+                        <li>Import Datahub Table</li>
+                        <li>Customization Options</li>
+                        <li>Choose Recommender Types</li>
+                </ul>
+                <!-- fieldsets -->
+                <fieldset>
+                        <h2 class="fs-title">Kibitz account</h2>
+                        <input type="text" name="email" placeholder="Email" />
+                        <input type="password" name="pass" placeholder="Password" />
+                        <input type="password" name="cpass" placeholder="Confirm Password" />
+                        <input type="button" name="next" class="next action-button" value="Next" />
+                </fieldset>
+                <fieldset>
+                        <h2 class="fs-title">Import Datahub Table</h2>
+                        <h3 class="fs-subtitle">We will keep your credentials secure.</h3>
+                        <input type="text" name="dh-username" placeholder="Datahub Username/Email" />
+                        <input type="text" name="dh-password" placeholder="Datahub Password" />
+                        <input type="text" name="dh-repository" placeholder="Repository Name" />
+                        <input type="text" name="dh-table" placeholder="Table Name" />
+                        <input type="button" name="previous" class="previous action-button" value="Previous" />
+                        <input type="button" name="next" class="next action-button" value="Next" />
+                </fieldset>
+                <fieldset id="customization-form">
+                        <h2 class="fs-title">Customization Options</h2>
+                        <h3 class="fs-subtitle">Option 1 creates the recommender for you. For this option, your table must contain the following columns: <b>title (primary key),
+                        description, image</b>.</h3>
+                        <input type="button" class="next form-button" value="Option 1" />
+                        <h3 class="fs-subtitle">Option 2 lets you customize your table columns, but you must code your own recommender using the <a href="">Kibitz API</a>.</h3>
+                        <input type="button" class="form-button" id="option-2" value="Option 2" />
+                        <input type="button" name="previous" class="previous action-button" value="Previous" />
+                </fieldset>
+                <fieldset id="option-1-form-1">
+                        <h2 class="fs-title">Recommender Types</h2>
+                        <h3 class="fs-subtitle">User-based recommends based on individual user ratings.</h3>
+                        <input type="button" class="selection-button button-inactive" value="User-Based" onclick="setColor(event);"/>
+                        <h3 class="fs-subtitle">Item-based computes item similarity.</h3>
+                        <input type="button" id="item-based-button" class="selection-button button-inactive" value="Item-Based" onclick="setColor(event);"/>
+                        <h3 class="fs-subtitle">You must have a column in your table providing numerical ratings for each item to use overall ratings.</h3>
+                        <input type="button" id="ratings-based-button" class="selection-button button-inactive" value="Overall Ratings" onclick="setColor(event);" />
+                        <input type="button" class="selection-button button-inactive" value="Random" onclick="setColor(event);" />
+                        <input type="button" name="previous" class="previous action-button" value="Previous" />
+                        <input type="button" name="next" class="next-opt-2 action-button" value="Next" />
+                </fieldset>
+                <fieldset id="item-rating-based-recommender-option-1">
+                        <h2 class="fs-title">Item-Based/Rating Info</h2>
+                        <h3 class="fs-subtitle">To use overall ratings and item-based, provide the following info.</h3>
+                        <input type="text" name="rating-column" placeholder="Ratings column name" />
+                        <h3 class="fs-subtitle">For item-based, provide column names for at least one comparison column. Ranked by importance.</h3>
+                        <input type="text" name="item-based-col-name-1" placeholder="1st Similarity" />
+                        <input type="text" name="item-based-col-name-2" placeholder="2nd Similarity (Optional)" />
+                        <input type="text" name="item-based-col-name-3" placeholder="3rd Similarity (Optional)" />
+                        <input type="button" name="previous" class="previous-opt-1 action-button" value="Previous" />
+                        <input type="button" name="next" class="next-opt-1 action-button" value="Next" />
+                </fieldset>
+                <fieldset id="ratings-based-recommender-option-1">
+                        <h2 class="fs-title">Rating Info</h2>
+                        <h3 class="fs-subtitle">To use overall ratings, provide the column name containing numerical ratings for each item.</h3>
+                        <input type="text" name="rating-column" placeholder="Ratings column name" />
+                        <input type="button" name="previous" class="previous-opt-1 action-button" value="Previous" />
+                        <input type="button" name="next" class="next-opt-1 action-button" value="Next" />
+                </fieldset>
+                <fieldset id="item-based-recommender-option-1">
+                        <h2 class="fs-title">Item-Based/Rating Info</h2>
+                        <h3 class="fs-subtitle">To use item-based, provide column names for at least one comparison columnn used to compute similarity. Ranked by importance.</h3>
+                        <input type="text" name="item-based-col-name-1" placeholder="1st Similarity" />
+                        <input type="text" name="item-based-col-name-2" placeholder="2nd Similarity (Optional)" />
+                        <input type="text" name="item-based-col-name-3" placeholder="3rd Similarity (Optional)" />
+                        <input type="button" name="previous" class="previous-opt-1 action-button" value="Previous" />
+                        <input type="button" name="next" class="next-opt-1 action-button" value="Next" />
+                </fieldset>
+                <<fieldset id="option-1-form-2">
+                        <h2 class="fs-title">Form Complete</h2>
+                        <h3 class="fs-subtitle"></h3>
+                        <input type="text" name="item-based-col-name-1" placeholder="1st Similarity" />
+                        <input type="text" name="item-based-col-name-2" placeholder="2nd Similarity (Optional)" />
+                        <input type="text" name="item-based-col-name-3" placeholder="3rd Similarity (Optional)" />
+                        <input type="button" name="previous" class="previous-opt-1 action-button" value="Previous" />
+                        <input type="button" name="next" class="next-opt-1 action-button" value="Next" />
+                </fieldset>
+                <fieldset id="option-1-form-3">
+                        <h2 class="fs-title">Export Recommender</h2>
+                        <h3 class="fs-subtitle">Choose how to host your recommender.</h3>
+                        <input type="button" class="next form-button" value="Export as ZIP file" />
+                        <input type="button" class="next form-button" value="Create Kibitz subdomain" />
+                        <input type="button" name="previous" class="previous-opt-1 action-button" value="Previous" />
+                </fieldset>
+                <fieldset id="option-2-form">
+                        <h2 class="fs-title">Option 2</h2>
+                        <h3 class="fs-subtitle">Enter the primary key column name of your Datahub items table.</h3>
+                        <input type="text" name="primary-key" placeholder="Primary Key" />
+                        <h3 class="fs-subtitle">Enter the column names of info you want to display in your recommender. Comma separated.</h3>
+                        <input type="text" name="display-columns" placeholder="Display Columns" />
+                        <input type="button" name="previous-opt-2" class="previous-opt-2 action-button" value="Previous" />
+                        <input type="button" name="submit" class="submit action-button" value="Submit" />
+                </fieldset>
+                <fieldset>
+                        <h2 class="fs-title"></h2>
+                        <h3 class="fs-subtitle">Enter the primary key column name of your Datahub items table.</h3>
+                        <input type="text" name="primary-key" placeholder="Primary Key" />
+                        <h3 class="fs-subtitle">Enter the column names of info you want to display in your recommender. Comma separated.</h3>
+                        <input type="text" name="display-columns" placeholder="Display Columns" />
+                        <input type="button" name="previous-opt-2" class="previous-opt-2 action-button" value="Previous" />
+                        <input type="button" name="next" class="next action-button" value="Next" />
+                </fieldset>
+        </form>
+    </body>
 </html>
+
+<!-- jQuery -->
+<script src="http://thecodeplayer.com/uploads/js/jquery-1.9.1.min.js" type="text/javascript"></script>
+<!-- jQuery easing plugin -->
+<script src="http://thecodeplayer.com/uploads/js/jquery.easing.min.js" type="text/javascript"></script>
+<script src="js/form.js"></script>
