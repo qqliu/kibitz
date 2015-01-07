@@ -66,13 +66,6 @@ function animatePrevious(cur, previous_fs) {
     });
 }
 
-$(".next").click(function(){
-    next_fs = $(this).parent().next();
-    //activate next step on progressbar using the index of next_fs
-    $("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
-    animateNext(this, next_fs);
-});
-
 $(".previous").click(function() {
     //de-activate current step on progressbar
     current_fs = $(this).parent();
@@ -97,9 +90,26 @@ $(".previous-opt-2").click(function(){
 });
 
 $(".next-opt-1").click(function(){
-    animateNext(this, $("#option-1-form-3"));
+    animateNext(this, $("#option-1-form-3"));   
 });
 
+$(".next-opt-1-1").click(function(){
+    if (validFields(['rating-column-1', 'item-based-col-name-1'])) {
+        animateNext(this, $("#option-1-form-3"));   
+    }
+});
+
+$(".next-opt-1-2").click(function(){
+    if (validFields(['rating-column-2'])) {
+        animateNext(this, $("#option-1-form-3"));   
+    }
+});
+
+$(".next-opt-1-2").click(function(){
+    if (validFields(['item-based-col-name-2'])) {
+        animateNext(this, $("#option-1-form-3"));   
+    }
+});
 
 $(".next-opt-2").click(function(){
     if ($("#item-based-button").hasClass('button-active') && $("#ratings-based-button").hasClass('button-active')) {
@@ -145,8 +155,10 @@ $(".previous-opt-2-form").click(function(){
 });
 
 $(".next-recommender-types-opt-2").click(function(){
-    $("#progressbar li").eq(3).addClass("active");
-    animateNext(this, $("#option-2-form-1"));
+    if (validFields(['primary-key', 'display-columns'])) {
+        $("#progressbar li").eq(3).addClass("active");
+        animateNext(this, $("#option-2-form-1"));
+    }
 });
 
 $(".previous-opt-2-info").click(function(){
@@ -160,6 +172,70 @@ function setColor(e) {
 
    e.target.classList.add(status ? 'button-inactive' : 'button-active');
    e.target.classList.remove(status ? 'button-active' : 'button-inactive'); 
+}
+
+function validFieldsNext(cur, fields) {
+    var resubmit = false;
+    var missing_fields = {"email": false, "confirm_password": false};
+    for (i in fields) {
+        if (fields[i] === "email") {
+            if ($("#email").val() === null || $("#email").val() === undefined || $("#email").val() === "" || $("#email").val().indexOf("@") === -1) {
+                $("#email").css("border", "2px solid red");
+                missing_fields["email"] = true;
+            } else {
+                $("#email").css("border", "1px solid #ccc");
+            }
+        } else if (fields[i] === "confirm_password") {
+            if ($("#password").val() === null || $("#password").val() === undefined || $("#password").val() === "" || ($("#password").val() !== $("#confirm_password").val())) {
+                $("#confirm_password").css("border", "2px solid red");
+                missing_fields["confirm_password"] = true;
+            } else {
+                $("#confirm_password").css("border", "1px solid #ccc");
+            }
+        } else {
+            if ($("#" + fields[i]).val() === null || $("#" + fields[i]).val() === undefined || $("#" + fields[i]).val() === "") {
+                $("#" + fields[i]).css("border", "2px solid red");
+                missing_fields[fields[i]] = true;  
+            } else {
+                $("#" + fields[i]).css("border", "1px solid #ccc");
+                missing_fields[fields[i]] = false;  
+            }
+        }
+    }
+    
+    for (i in fields) {
+        if (missing_fields[fields[i]] === true) {
+            return false;
+        }
+    }
+    
+    if (!resubmit) {
+        next_fs = $(cur).parent().next();
+        //activate next step on progressbar using the index of next_fs
+        $("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
+        animateNext(cur, next_fs);
+    }
+}
+
+function validFields(fields) {
+    var resubmit = false;
+    var missing_fields = {};
+    for (i in fields) {   
+        if ($("#" + fields[i]).val() === null || $("#" + fields[i]).val() === undefined || $("#" + fields[i]).val() === "") {
+            $("#" + fields[i]).css("border", "2px solid red");
+            missing_fields[fields[i]] = true;  
+        } else {
+            $("#" + fields[i]).css("border", "1px solid #ccc");
+            missing_fields[fields[i]] = false;  
+        }
+    }
+    
+    for (i in fields) {
+        if (missing_fields[fields[i]] === true) {
+            return false;
+        }
+    }
+    return true;
 }
 
 $(".submit").click(function(){
