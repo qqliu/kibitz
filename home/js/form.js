@@ -105,49 +105,56 @@ $(".next-opt-1-2").click(function(){
     }
 });
 
-$(".next-opt-1-2").click(function(){
-    if (validFields(['item-based-col-name-2'])) {
-        animateNext(this, $("#option-1-form-3"));   
-    }
-});
-
 $(".next-opt-2").click(function(){
+    var selectionsMade = false, tooltip;
+    
     if ($("#item-based-button").hasClass('button-active') && $("#ratings-based-button").hasClass('button-active')) {
+        selectionsMade = true;
         next_fs = $("#item-rating-based-recommender-option-1");
     } else if ($("#item-based-button").hasClass('button-active')) {
+        selectionsMade = true;
         next_fs = $("#item-based-recommender-option-1");   
     } else if ($("#ratings-based-button").hasClass('button-active')) {
+        selectionsMade = true;
         next_fs = $("#ratings-based-recommender-option-1");
-    } else {
+    } else if ($("#user-based-button").hasClass('button-active') || $("#random-button").hasClass('button-active')) {
+        selectionsMade = true;
         next_fs = $("#option-1-form-3");
     }
     
-    animateNext(this, next_fs);
-});
-
-$(".next-opt-2").click(function(){
-    if ($("#item-based-button").hasClass('button-active') && $("#ratings-based-button").hasClass('button-active')) {
-        next_fs = $("#item-rating-based-recommender-option-1");
-    } else if ($("#item-based-button").hasClass('button-active')) {
-        next_fs = $("#item-based-recommender-option-1");   
-    } else if ($("#ratings-based-button").hasClass('button-active')) {
-        next_fs = $("#ratings-based-recommender-option-1");
+    if (selectionsMade) {
+        animateNext(this, next_fs);   
     } else {
-        next_fs = $("#option-1-form-3");
+        tooltip = $(".tooltipContent.first");
+        tooltip.fadeIn();
+        setTimeout(fadeOut, 2500);
     }
-    animateNext(this, next_fs);
 });
 
 $(".next-opt-2-info").click(function(){
+    var selectionsMade = false, tooltip;
     if ($("#item-based-button-2").hasClass('button-active') && $("#ratings-based-button-2").hasClass('button-active')) {
+        selectionsMade = true;
         next_fs = $("#item-rating-based-recommender-option-2");
     } else if ($("#item-based-button-2").hasClass('button-active')) {
+        selectionsMade = true;
         next_fs = $("#item-based-recommender-option-2");   
     } else if ($("#ratings-based-button-2").hasClass('button-active')) {
+        selectionsMade = true;
         next_fs = $("#ratings-based-recommender-option-2");
+    } else if ($("#random-button-2").hasClass('button-active')) {
+        selectionsMade = true;
+    } else if ($("#user-based-button-2").hasClass('button-active')) {
+        selectionsMade = true;
     }
-    
-    animateNext(this, next_fs);
+
+    if (selectionsMade) {
+        animateNext(this, next_fs);
+    } else {
+        tooltip = $(".tooltipContent.second");
+        tooltip.fadeIn();
+        setTimeout(fadeOut, 2500);
+    }  
 });
 
 $(".previous-opt-2-form").click(function(){
@@ -236,6 +243,10 @@ function validFields(fields) {
         }
     }
     return true;
+}
+
+function fadeOut() {
+    $(".tooltipContent").fadeOut();
 }
 
 $(".submit").click(function(){

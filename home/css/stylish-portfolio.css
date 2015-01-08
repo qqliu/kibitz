@@ -184,5 +184,27 @@ body {
 	color: white;
 }
 
+/* Errors */
+.tooltip {
+    position: relative;
+}
 
+.tooltipContent {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    margin-left: -150px;
+    width: 90%;
+    background-color: #ffcccb;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+}
 
+.tooltipContent.first {
+    display: none;
+}
+
+.tooltipContent.second {
+    display: none;
+}
