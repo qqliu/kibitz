@@ -3,7 +3,7 @@ Orginal Page: http://thecodeplayer.com/walkthrough/jquery-multi-step-form-with-p
 
 */
 //jQuery time
-var current_fs, next_fs, previous_fs; //fieldsets
+var current_fs, next_fs, previous_fs, last_info_page; //fieldsets
 var left, opacity, scale; //fieldset properties which we will animate
 var animating; //flag to prevent quick multi-click glitches
 
@@ -85,6 +85,10 @@ $(".previous-opt-1").click(function(){
     animatePrevious(this, $("#option-1-form-1"));
 });
 
+$(".previous-opt-info").click(function(){
+    animatePrevious(this, $("#" + last_info_page));
+});
+
 $(".previous-opt-2").click(function(){
     animatePrevious(this, $("#customization-form"));
 });
@@ -111,15 +115,19 @@ $(".next-opt-2").click(function(){
     if ($("#item-based-button").hasClass('button-active') && $("#ratings-based-button").hasClass('button-active')) {
         selectionsMade = true;
         next_fs = $("#item-rating-based-recommender-option-1");
+        last_info_page = "item-rating-based-recommender-option-1";
     } else if ($("#item-based-button").hasClass('button-active')) {
         selectionsMade = true;
-        next_fs = $("#item-based-recommender-option-1");   
+        next_fs = $("#item-based-recommender-option-1");
+        last_info_page = "item-based-recommender-option-1";
     } else if ($("#ratings-based-button").hasClass('button-active')) {
         selectionsMade = true;
         next_fs = $("#ratings-based-recommender-option-1");
+        last_info_page = "ratings-based-recommender-option-1";
     } else if ($("#user-based-button").hasClass('button-active') || $("#random-button").hasClass('button-active')) {
         selectionsMade = true;
         next_fs = $("#option-1-form-3");
+        last_info_page = "option-1-form-1";
     }
     
     if (selectionsMade) {
@@ -133,18 +141,17 @@ $(".next-opt-2").click(function(){
 
 $(".next-opt-2-info").click(function(){
     var selectionsMade = false, tooltip;
+    
     if ($("#item-based-button-2").hasClass('button-active') && $("#ratings-based-button-2").hasClass('button-active')) {
         selectionsMade = true;
         next_fs = $("#item-rating-based-recommender-option-2");
     } else if ($("#item-based-button-2").hasClass('button-active')) {
         selectionsMade = true;
-        next_fs = $("#item-based-recommender-option-2");   
+        next_fs = $("#item-based-recommender-option-2");
     } else if ($("#ratings-based-button-2").hasClass('button-active')) {
         selectionsMade = true;
         next_fs = $("#ratings-based-recommender-option-2");
-    } else if ($("#random-button-2").hasClass('button-active')) {
-        selectionsMade = true;
-    } else if ($("#user-based-button-2").hasClass('button-active')) {
+    } else if ($("#random-button-2").hasClass('button-active') || $("#user-based-button-2").hasClass('button-active')) {
         selectionsMade = true;
     }
 
@@ -166,6 +173,11 @@ $(".next-recommender-types-opt-2").click(function(){
         $("#progressbar li").eq(3).addClass("active");
         animateNext(this, $("#option-2-form-1"));
     }
+});
+
+$(".next-opt-1-3").click(function(){
+   if (validFields(['item-based-col-name-2']))
+       animateNext(this, $("#option-1-form-3"));
 });
 
 $(".previous-opt-2-info").click(function(){
