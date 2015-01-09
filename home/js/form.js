@@ -3,7 +3,7 @@ Orginal Page: http://thecodeplayer.com/walkthrough/jquery-multi-step-form-with-p
 
 */
 //jQuery time
-var current_fs, next_fs, previous_fs, last_info_page; //fieldsets
+var current_fs, next_fs, previous_fs, last_info_page, option_1 = false; //fieldsets
 var left, opacity, scale; //fieldset properties which we will animate
 var animating; //flag to prevent quick multi-click glitches
 
@@ -74,11 +74,13 @@ $(".previous").click(function() {
 });
 
 $("#option-1").click(function() {
-    animateNext(this, $("#option-1-form"));
+    if ($("#option-1").hasClass("button-active"))
+        animateNext(this, $("#option-1-form-1"));
 });
 
 $("#option-2").click(function() {
-    animateNext(this, $("#option-2-form"));
+    if ($("#option-2").hasClass("button-active"))
+        animateNext(this, $("#option-2-form"));
 });
 
 $(".previous-opt-1").click(function(){
@@ -99,19 +101,39 @@ $(".next-opt-1").click(function(){
 
 $(".next-opt-1-1").click(function(){
     if (validFields(['rating-column-1', 'item-based-col-name-1'])) {
-        animateNext(this, $("#option-1-form-3"));   
+        animateNext(this, $("#submit-info"));   
     }
 });
 
 $(".next-opt-1-2").click(function(){
     if (validFields(['rating-column-2'])) {
-        animateNext(this, $("#option-1-form-3"));   
+        animateNext(this, $("#submit-info"));   
     }
+});
+
+$(".next-opt-1-3").click(function(){
+   if (validFields(['item-based-col-name-2']))
+       animateNext(this, $("#submit-info"));
+});
+
+$(".next-opt-2-1").click(function(){
+   if (validFields(['rating-column-3', 'item-based-col-name-3']))
+       animateNext(this, $("#submit-info"));
+});
+
+$(".next-opt-2-2").click(function(){
+   if (validFields(['rating-column-4']))
+       animateNext(this, $("#submit-info"));
+});
+
+$(".next-opt-2-3").click(function(){
+   if (validFields(['item-based-col-name-4']))
+       animateNext(this, $("#submit-info"));
 });
 
 $(".next-opt-2").click(function(){
     var selectionsMade = false, tooltip;
-    
+    option_1 = true;
     if ($("#item-based-button").hasClass('button-active') && $("#ratings-based-button").hasClass('button-active')) {
         selectionsMade = true;
         next_fs = $("#item-rating-based-recommender-option-1");
@@ -126,7 +148,7 @@ $(".next-opt-2").click(function(){
         last_info_page = "ratings-based-recommender-option-1";
     } else if ($("#user-based-button").hasClass('button-active') || $("#random-button").hasClass('button-active')) {
         selectionsMade = true;
-        next_fs = $("#option-1-form-3");
+        next_fs = $("#submit-info");
         last_info_page = "option-1-form-1";
     }
     
@@ -145,14 +167,19 @@ $(".next-opt-2-info").click(function(){
     if ($("#item-based-button-2").hasClass('button-active') && $("#ratings-based-button-2").hasClass('button-active')) {
         selectionsMade = true;
         next_fs = $("#item-rating-based-recommender-option-2");
+        last_info_page = "item-rating-based-recommender-option-2";
     } else if ($("#item-based-button-2").hasClass('button-active')) {
         selectionsMade = true;
         next_fs = $("#item-based-recommender-option-2");
+        last_info_page = "item-based-recommender-option-2";
     } else if ($("#ratings-based-button-2").hasClass('button-active')) {
         selectionsMade = true;
         next_fs = $("#ratings-based-recommender-option-2");
+        last_info_page = "ratings-based-recommender-option-2";
     } else if ($("#random-button-2").hasClass('button-active') || $("#user-based-button-2").hasClass('button-active')) {
         selectionsMade = true;
+        next_fs = $("#submit-info");
+        last_info_page = "option-2-form-1";
     }
 
     if (selectionsMade) {
@@ -175,14 +202,13 @@ $(".next-recommender-types-opt-2").click(function(){
     }
 });
 
-$(".next-opt-1-3").click(function(){
-   if (validFields(['item-based-col-name-2']))
-       animateNext(this, $("#option-1-form-3"));
-});
-
 $(".previous-opt-2-info").click(function(){
     $("#progressbar li").eq(3).removeClass("active");
     animatePrevious(this, $("#option-2-form"));
+});
+
+$(".previous-page-before-submit").click(function(){
+    animatePrevious(this, $("#" + last_info_page));
 });
 
 function setColor(e) {
@@ -191,6 +217,26 @@ function setColor(e) {
 
    e.target.classList.add(status ? 'button-inactive' : 'button-active');
    e.target.classList.remove(status ? 'button-active' : 'button-inactive'); 
+}
+
+function setUniqueColor(e) {
+   var target = e.target,
+       status = e.target.classList.contains('button-active');
+
+   e.target.classList.add(status ? 'button-inactive' : 'button-active');
+   e.target.classList.remove(status ? 'button-active' : 'button-inactive');
+   
+   if (e.target.id === "option-1") {
+        if ($("#option-2").hasClass("button-active")) {  
+            $("#option-2").removeClass("button-active");
+            $("#option-2").addClass("button-inactive");
+        }
+   } else {
+        if ($("#option-1").hasClass("button-active")) {
+            $("#option-1").removeClass("button-active");
+            $("#option-1").addClass("button-inactive");
+        }
+   }
 }
 
 function validFieldsNext(cur, fields) {
@@ -261,6 +307,75 @@ function fadeOut() {
     $(".tooltipContent").fadeOut();
 }
 
+// dummy fillers till more legitimate code will be written later
 $(".submit").click(function(){
-	return false;
-})
+    console.log($("#email").val() + $("#password").val() + $("#dh-username").val() +
+                $("#dh-password").val() + $("#dh-repository").val() + $("#dh-table-name").val());
+    if ($("#option-1").hasClass("button-active")) {
+        if ($("#user-based-button").hasClass("button-active")) {
+            console.log("USER BASED!");
+        }
+        
+        if ($("#item-based-button").hasClass("button-active") && $("#ratings-based-button").hasClass("button-active")) {
+            console.log("ITEMS AND RATINGS BASED!");
+            console.log($("#rating-column-1").val());
+            console.log($("#item-based-col-name-1").val());
+            if ($("#item-based-col-name-2-1").val() !== "") {
+                console.log($("#item-based-col-name-2-1").val());
+            }
+            if ($("#item-based-col-name-3-1").val() !== "") {
+                console.log($("#item-based-col-name-3-1").val());
+            }
+        } else if ($("#item-based-button").hasClass("button-active")) {
+            console.log("ITEM BASED!");
+            console.log($("#item-based-col-name-2"));
+            if ($("#item-based-col-name-2-2").val() !== "") {
+                console.log($("#item-based-col-name-2-2").val());
+            }
+            if ($("#item-based-col-name-3-2").val() !== "") {
+                console.log($("#item-based-col-name-3-2").val());
+            }
+        } else if ($("#ratings-based-button").hasClass("button-active")) {
+            console.log("RATINGS BASED!");
+            console.log($("#rating-column-2").val());
+        }
+        
+        if ($("#random-button").hasClass("button-active")) {
+            console.log("RANDOM!");
+        }
+    } else {
+        console.log($("#primary-key").val() + $("#display-columns").val());
+        if ($("#user-based-button-2").hasClass("button-active")) {
+            console.log("USER BASED!");
+        }
+        
+        if ($("#item-based-button-2").hasClass("button-active") && $("#ratings-based-button-2").hasClass("button-active")) {
+            console.log("ITEMS AND RATINGS BASED!");
+            console.log($("#rating-column-3").val());
+            console.log($("#item-based-col-name-3").val());
+            if ($("#item-based-col-name-2-3").val() !== "") {
+                console.log($("#item-based-col-name-2-3").val());
+            }
+            if ($("#item-based-col-name-3-3").val() !== "") {
+                console.log($("#item-based-col-name-3-3").val());
+            }
+        } else if ($("#item-based-button-2").hasClass("button-active")) {
+            console.log("ITEM BASED!");
+            console.log($("#item-based-col-name-4"));
+            if ($("#item-based-col-name-2-4").val() !== "") {
+                console.log($("#item-based-col-name-2-4").val());
+            }
+            if ($("#item-based-col-name-3-4").val() !== "") {
+                console.log($("#item-based-col-name-3-4").val());
+            }
+        } else if ($("#ratings-based-button-2").hasClass("button-active")) {
+            console.log("RATINGS BASED!");
+            console.log($("#rating-column-4").val());
+        }
+        
+        if ($("#random-button-2").hasClass("button-active")) {
+            console.log("RANDOM!");
+        }
+    }
+    return false;
+});

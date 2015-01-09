@@ -42,9 +42,9 @@
                         <h2 class="fs-title">Customization Options</h2>
                         <h3 class="fs-subtitle">Option 1 creates the recommender for you. For this option, your table must contain the following columns: <b>title (primary key),
                         description, image</b>.</h3>
-                        <input type="button" class="form-button" value="Option 1" onclick='validFieldsNext(this, []);'/>
+                        <input type="button" class="selection-button button-inactive" id="option-1" value="Option 1" onclick='setUniqueColor(event);'/>
                         <h3 class="fs-subtitle">Option 2 lets you customize your table columns, but you must code your own recommender using the <a href="">Kibitz API</a>.</h3>
-                        <input type="button" class="form-button" id="option-2" value="Option 2" />
+                        <input type="button" class="selection-button button-inactive" id="option-2" value="Option 2" onclick='setUniqueColor(event);'/>
                         <input type="button" name="previous" class="previous action-button" value="Previous" />
                 </fieldset>
                 <fieldset id="option-1-form-1">
@@ -92,7 +92,6 @@
                         <h3 class="fs-subtitle">Choose how to host your recommender.</h3>
                         <input type="button" class="next form-button" value="Export as ZIP file" />
                         <input type="button" class="next form-button" value="Create Kibitz subdomain" />
-                        <input type="button" name="previous" class="previous-opt-info action-button" value="Previous" />
                 </fieldset>
                 <fieldset id="option-2-form">
                         <h2 class="fs-title">Option 2</h2>
@@ -125,14 +124,14 @@
                         <div class="not-required"><input type="text" id="item-based-col-name-2-3" placeholder="2nd Similarity (Optional)" /></div>
                         <div class="not-required"><input type="text" id="item-based-col-name-3-3" placeholder="3rd Similarity (Optional)" /></div>
                         <input type="button" name="previous" class="previous-opt-2-form action-button" value="Previous" />
-                        <input type="button" name="submit" class="submit action-button" value="Submit" />
+                        <input type="button" name="next" class="next-opt-2-1 action-button" value="Next" />
                 </fieldset>
                 <fieldset id="ratings-based-recommender-option-2">
                         <h2 class="fs-title">Rating Info</h2>
                         <h3 class="fs-subtitle">To use overall ratings, provide the column name containing numerical ratings for each item.</h3>
                         <div class="required"><input type="text" id="rating-column-4" placeholder="Ratings column name" /></div>
                         <input type="button" name="previous" class="previous-opt-2-form action-button" value="Previous" />
-                        <input type="button" name="submit" class="submit action-button" value="Submit" />
+                        <input type="button" name="next" class="next-opt-2-2 action-button" value="Next" />
                 </fieldset>
                 <fieldset id="item-based-recommender-option-2">
                         <h2 class="fs-title">Item-Based Info</h2>
@@ -141,7 +140,22 @@
                         <div class="not-required"><input type="text" id="item-based-col-name-2-4" placeholder="2nd Similarity (Optional)" /></div>
                         <div class="not-required"><input type="text" id="item-based-col-name-3-4" placeholder="3rd Similarity (Optional)" /></div>
                         <input type="button" name="previous" class="previous-opt-2-form action-button" value="Previous" />
+                        <input type="button" name="next" class="next-opt-2-3 action-button" value="Next" />
+                </fieldset>
+                <fieldset id="submit-info">
+                        <h2 class="fs-title">Submit</h2>
+                        <h3 class="fs-subtitle">You have completed all fields. <br /><br />Submit to <b>create your recommender</b> or <b>go back to change your inputs.</b><br /><br />
+                        You may <b>not change</b> your inputs after you submit. <br /><br />It takes approx. an hour for the recommender to be configured. You will receive
+                        an <b>email</b> after it is ready for use.</h3>
+                        <input type="button" name="previous" class="previous-page-before-submit action-button" value="Previous" />
                         <input type="button" name="submit" class="submit action-button" value="Submit" />
+                </fieldset>
+                <fieldset id="give-kibitz-key">
+                    <h2 class="fs-title">Recommender Created!</h2>
+                    <h3 class="fs-subtitle">Congrats! You have created your first recommender! Your unique identification key is<br /><br />
+                    
+                    <br /><br /> Remember this key. We will send an email with next steps once
+                    your recommender has been configured in our system. 
                 </fieldset>
         </form>
     </body>
