@@ -5,54 +5,56 @@
 * {margin: 0; padding: 0;}
 
 html {
-	height: 100%;
-	/*Image only BG fallback*/
-	background: url('http://thecodeplayer.com/uploads/media/gs.png');
-	/*background = gradient + image pattern combo*/
-	background: 
-		linear-gradient(rgba(196, 102, 0, 0.2), rgba(155, 89, 182, 0.2)), 
-		url('http://thecodeplayer.com/uploads/media/gs.png');
+    height: 100%;
+    /*Image only BG fallback*/
+    background: url('../img/new-back.jpg');
+    /*background = gradient + image pattern combo*/
+    background: 
+            linear-gradient(rgba(196, 102, 0, 0.2), rgba(155, 89, 182, 0.2)), 
+            url('../img/new-back.jpg');
+    background-repeat: no-repeat, no-repeat;
+    background-size: 100% auto;
 }
 
 body {
-	font-family: montserrat, arial, verdana;
+    font-family: montserrat, arial, verdana;
 }
 /*form styles*/
 #msform {
-	width: 400px;
-	margin: 50px auto;
-	text-align: center;
-	position: relative;
+    width: 400px;
+    margin: 50px auto;
+    text-align: center;
+    position: relative;
 }
 #msform fieldset {
-	background: white;
-	border: 0 none;
-	border-radius: 3px;
-	box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.4);
-	padding: 20px 30px;
-	
-	box-sizing: border-box;
-	width: 80%;
-	margin: 0 10%;
-	
-	/*stacking fieldsets above each other*/
-	position: absolute;
+    background: white;
+    border: 0 none;
+    border-radius: 3px;
+    box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.4);
+    padding: 20px 30px;
+    
+    box-sizing: border-box;
+    width: 80%;
+    margin: 0 10%;
+    
+    /*stacking fieldsets above each other*/
+    position: absolute;
 }
 /*Hide all except first fieldset*/
 #msform fieldset:not(:first-of-type) {
-	display: none;
+    display: none;
 }
 /*inputs*/
 #msform input, #msform textarea {
-	padding: 15px;
-	border: 1px solid #ccc;
-        width: 95%;
-	border-radius: 3px;
-	margin-bottom: 10px;
-	box-sizing: border-box;
-	font-family: montserrat;
-	color: #2C3E50;
-	font-size: 13px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    width: 95%;
+    border-radius: 3px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    font-family: montserrat;
+    color: #2C3E50;
+    font-size: 13px;
 }
 
 .required {
@@ -66,6 +68,13 @@ body {
 .required:after {
     content: " *";
     color: #FF0000;
+}
+
+#sign-up-form {
+    background: rgb(255, 255, 255); /* Fallback */
+    background: rgba(0, 0, 0, 0.5);
+    padding-bottom: 40%;
+    padding-top: 0.2%;
 }
 
 /*buttons*/
