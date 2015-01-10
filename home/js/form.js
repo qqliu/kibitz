@@ -66,6 +66,11 @@ function animatePrevious(cur, previous_fs) {
     });
 }
 
+function show_signup_form(){
+    console.log("hiii");
+    $("#sign-up-form").show();
+}
+
 $(".previous").click(function() {
     //de-activate current step on progressbar
     current_fs = $(this).parent();
