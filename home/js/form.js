@@ -67,7 +67,6 @@ function animatePrevious(cur, previous_fs) {
 }
 
 function show_signup_form(){
-    console.log("hiii");
     $("#sign-up-form").show();
 }
 
@@ -214,6 +213,22 @@ $(".previous-opt-2-info").click(function(){
 
 $(".previous-page-before-submit").click(function(){
     animatePrevious(this, $("#" + last_info_page));
+});
+
+$("#sign-up-form").click(function(){
+   $("#sign-up-form").hide(); 
+});
+
+$("#msform").click(function(e) {
+    e.stopPropagation();   
+});
+
+$("fieldset").click(function(e){
+   e.stopPropagation();
+});
+
+$("#progressbar").click(function(e){
+    e.stopPropagation();
 });
 
 function setColor(e) {
