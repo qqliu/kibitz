@@ -70,6 +70,10 @@ function show_signup_form(){
     $("#sign-up-form").show();
 }
 
+function show_login_form() {
+    $("#login-form").show();
+}
+
 $(".previous").click(function() {
     //de-activate current step on progressbar
     current_fs = $(this).parent();
@@ -219,7 +223,7 @@ $("#sign-up-form").click(function(){
    $("#sign-up-form").hide(); 
 });
 
-$("#msform").click(function(e) {
+$(".msform").click(function(e) {
     e.stopPropagation();   
 });
 
@@ -229,6 +233,10 @@ $("fieldset").click(function(e){
 
 $("#progressbar").click(function(e){
     e.stopPropagation();
+});
+
+$("#login-form").click(function(e){
+   $("#login-form").hide(); 
 });
 
 function setColor(e) {
@@ -321,6 +329,10 @@ function validFields(fields) {
         }
     }
     return true;
+}
+
+function submitLoginInfo(cur) {
+    console.log("dummy method filler");
 }
 
 function fadeOut() {

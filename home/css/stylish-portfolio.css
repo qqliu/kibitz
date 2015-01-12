@@ -16,13 +16,13 @@ body {
     font-family: montserrat, arial, verdana;
 }
 /*form styles*/
-#msform {
+.msform {
     width: 400px;
     margin: 50px auto;
     text-align: center;
     position: relative;
 }
-#msform fieldset {
+.msform fieldset {
     background: white;
     border: 0 none;
     border-radius: 3px;
@@ -37,11 +37,11 @@ body {
     position: absolute;
 }
 /*Hide all except first fieldset*/
-#msform fieldset:not(:first-of-type) {
+.msform fieldset:not(:first-of-type) {
     display: none;
 }
 /*inputs*/
-#msform input, #msform textarea {
+.msform input, .msform textarea {
     padding: 15px;
     border: 1px solid #ccc;
     width: 95%;
@@ -77,8 +77,19 @@ body {
     padding-top: 2%;
 }
 
+#login-form {
+    display: none;
+    position: absolute;
+    background: rgb(0, 0, 0); /* Fallback */
+    background: rgba(0, 0, 0, 0.5);
+    padding-left: 35%;
+    padding-right: 40%;
+    padding-bottom: 40%;
+    padding-top: 2%;
+}
+
 /*buttons*/
-#msform .action-button {
+.msform .action-button {
 	width: 100px;
 	background: #27AE60;
 	font-weight: bold;
@@ -89,11 +100,11 @@ body {
 	padding: 10px 5px;
 	margin: 10px 5px;
 }
-#msform .action-button:hover, #msform .action-button:focus {
+.msform .action-button:hover, .msform .action-button:focus {
 	box-shadow: 0 0 0 2px white, 0 0 0 3px #27AE60;
 }
 
-#msform .form-button {
+.msform .form-button {
 	width: 70%;
 	background: #000000;
 	font-weight: bold;
@@ -104,11 +115,11 @@ body {
 	padding: 10px 5px;
 	margin: 10px 5px;
 }
-#msform .form-button:hover, #msform .form-button:focus {
+.msform .form-button:hover, .msform .form-button:focus {
 	box-shadow: 0 0 0 2px white, 0 0 0 3px #000000;
 }
 
-#msform .selection-button {
+.msform .selection-button {
 	width: 70%;
 	color: #000000;
 	border: 0 none;
@@ -117,7 +128,7 @@ body {
 	padding: 10px 5px;
 	margin: 10px 5px;
 }
-#msform .selection-button:hover, #msform .selection-button:focus {
+.msform .selection-button:hover, .msform .selection-button:focus {
 	box-shadow: 0 0 0 2px white, 0 0 0 3px #000000;
 }
 

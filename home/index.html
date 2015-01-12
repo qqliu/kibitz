@@ -34,7 +34,7 @@
     <body id="page-top" class="index">
         <div id="sign-up-form">
             <!-- multistep form -->
-            <form id="msform">
+            <form class="msform">
                 <!-- progressbar -->
                 <ul id="progressbar">
                         <li class="active">Account Setup</li>
@@ -181,6 +181,19 @@
                 </fieldset>
             </form>
         </div>
+        
+        <div id="login-form">
+            <!-- multistep form -->
+            <form class="msform">
+                <!-- fieldsets -->
+                <fieldset>
+                        <h2 class="fs-title">Login</h2>
+                        <div class="required"><input type="text" id="login_email" name="login_email" placeholder="Kibitz Account Email" /></div>
+                        <div class="required" ><input type="password" id="login_password" name="login_pass" placeholder="Kibitz Account Password" /></div>
+                        <input type="button" name="submit" class="action-button" value="Submit" onclick="submitLoginInfo();"/>
+                </fieldset>
+            </form>
+        </div>
         <!-- Navigation -->
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="container">
@@ -230,7 +243,7 @@
                     <div class="intro-lead-in">Welcome To Kibitz!</div>
                     <div class="intro-heading">Create a Recommender</div>
                     <a href="javascript:show_signup_form();" id="sign-up" class="page-scroll btn btn-xl">Sign Up</a>
-                    <a href="#log-in" id="log-in" class="page-scroll btn btn-xl">Log In</a>
+                    <a href="javascript:show_login_form();" id="log-in" class="page-scroll btn btn-xl">Log In</a>
                 </div>
             </div>
         </header>
