@@ -340,8 +340,33 @@ client.createNewIndividualServer(CLIENT_KEY);
 client.initiateModel(CLIENT_KEY, TABLE_NAME, DATAHUB_USERNAME, DATAHUB_PASSWORD, DATAHUB_DATABASE_NAME);
 </pre>
                     <h3 class="service-heading">Other Functions</h3>
-                    <p><code>list&lt;Item&gt;makeRecommendation(CLIENT_KEY, long userId, long numRecs, list&lt;string&gt; displayColumns)</code>: Takes the client key, the user id of the user we want to make recommendations for,
-                    the number of recommendations we want to make, and a list of strings of columns you want to display on your website and outputs a list of <code>Item</code> objects as items recommended.</p>
+                    <p><code>list&lt;Item&gt;makeRecommendation(CLIENT_KEY, long userId, long numRecs, list&lt;string&gt; displayColumns)</code>: Takes your client key, the user id of the user you want to make recommendations for,
+                    the number of recommendations you want to make, and a list of strings of columns you want to display on your website. Outputs a list of <code>Item</code> objects as recommended items.</p>
+                    <p><code>list&lt;Item&gt; makeItemBasedRecommendations(CLIENT_KEY, long userId, long numRecs, list&lt;string&gt; displayColumns)</code>: Takes the client key, the user id of the user you want to make item-based recommendations
+                    for, the number of recommendations you want to make, and a list of strings of columns you want to display on your website. Outputs a list of <code>Item</code> objects as recommended items.</p>
+                    <p><code>list&lt;Item&gt; getPageItems(CLIENT_KEY, long page, long numPerPage, list&lt;string&gt; displayColumns)</code>:  Takes client key, the page number, the number of items per page, and the names
+                    of the columns that you want to display. Returns a list of <code>Item</code> objects to be displayed.</p>
+                    <p><code>long getItemCount(CLIENT_KEY)</code>: Takes the client key and returns the total number of items in your items table.</p>
+                    <p><code>void recordRatings(CLIENT_KEY, long userId, long itemId, long rating)</code>: Takes the client key, the user id of the user you want to record ratings for, the item id of the item that
+                    the user rated, and the rating and records it into the corresponding ratings table in Datahub.</p>
+                    <p><code>void deleteRatings(CLIENT_KEY, long userId, long itemId)</code>: Takes client key, the user id of the user you want to delete ratings from, and the item id that you want
+                    to delete the rating for.</p>
+                    <p><code>string createNewUser(CLIENT_KEY, string username, string email, string password, bool iskibitzuser)</code>: Takes the client key, the desired username of the new user to your website,
+                    the desired password of the user, and <code>False</code>. Returns whether the username already exists.</p>
+                    <p><code>bool checkLogin(CLIENT_KEY, string username, string password, bool iskibitzuser)</code>: Takes your client key, the username of the user wishing to log in, the password of the user wishing to
+                    log in, and <code>False</code>. Returns whether the user has succesfully logged in.</p>
+                    <p><code>long retrieveUserId(CLIENT_KEY, string username, string password)</code>: Takes your client key, the username of the user you want to retrieve the id of, and the password
+                    of the user. Returns the id of the user or <code>-1</code> if the user does not exist.</p>
+                    <p><code>list&lt;Item&gt; getUserRatedItems(CLIENT_KEY, long userId, list&lt;string&gt; displayColumns)</code>: Takes your client key, the user id of the user you want to retrieve
+                    rated items for, and a list of column names you want to display information about the item. Returns a list of <code>Item</code> objects that represent items the user has rated.</p>
+                    <p><code>list&lt;Item&gt; getSearchItems(CLIENT_KEY, string query, list&lt;string&gt; displayColumns)</code>: Takes your client key, the search query your user searched,
+                    and the list of names of columns you want to display for each item. Returns a list of <code>Item</code> objects that match your search query.</p>
+                    <p><code>list&lt;Item&gt; makeOverallRatingBasedOrRandomRecommendation(CLIENT_KEY, string ratingColumnName, long numRecs, list&lt;string&gt; displayColumns)</code>: Takes your client key,
+                    the column name of the column containing the ratings for each item, the number of recommendations you want to make, and a list of column names of info you want to display for each item.
+                    Return a list of <code>Item</code> objects that were chosen either using overall ratings or randomly.</p>
+                    <p><code>list&lt;Item&gt; getItemsFromPrimaryKeys(CLIENT_KEY, string primaryKey, list&lt;string&gt; itemKeys, 4:list&lt;string&gt; displayColumns)</code>: Takes your client key, the
+                    the column name of the column that holds the primary keys in your table, a list of primary keys of items you want to return, and a list of column names you want to use to display
+                    your items. Returns a list of <code>Item</code> objects for the primary keys you queried.</p>
                 </div>
             </div>
         </section>
