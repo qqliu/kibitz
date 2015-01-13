@@ -248,39 +248,72 @@
             </div>
         </header>
     
-        <!-- Services Section -->
+        <!-- Recommenders Description Section -->
         <section id="services">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12 text-center">
-                        <h2 class="section-heading">Services</h2>
-                        <h3 class="section-subheading text-muted">Lorem ipsum dolor sit amet consectetur.</h3>
+                        <h2 class="section-heading">Recommenders</h2>
+                        <h3 class="section-subheading text-muted">Kibitz offers two different ways to build your recommenders and four different types of recommenders.</h3>
                     </div>
                 </div>
                 <div class="row text-center">
-                    <div class="col-md-4">
+                    <h3 class="subsection-heading">Creation Options</h3>
+                    <div class="col-md-6">
                         <span class="fa-stack fa-4x">
                             <i class="fa fa-circle fa-stack-2x text-primary"></i>
-                            <i class="fa fa-shopping-cart fa-stack-1x fa-inverse"></i>
+                            <i class="fa fa-cloud-download fa-stack-1x fa-inverse"></i>
                         </span>
-                        <h4 class="service-heading">E-Commerce</h4>
-                        <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minima maxime quam architecto quo inventore harum ex magni, dicta impedit.</p>
+                        <h4 class="service-heading">Ready-Built</h4>
+                        <p class="text-muted">Upload a table to <a href="http://datahub.csail.mit.edu/">Datahub</a> with column names: "title", "description", and "image". Make the primary key
+                        of your table be "title". Kibitz will give you the option of either downloading a ZIP file containing your recommender to host at your own domain or hosting your recommender at
+                        <a href="http://kibitz.csail.mit.edu">kibitz.csail.mit.edu</a>/YOUR_TABLE_NAME.</p>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <span class="fa-stack fa-4x">
                             <i class="fa fa-circle fa-stack-2x text-primary"></i>
-                            <i class="fa fa-laptop fa-stack-1x fa-inverse"></i>
+                            <i class="fa fa-code fa-stack-1x fa-inverse"></i>
                         </span>
-                        <h4 class="service-heading">Responsive Design</h4>
-                        <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minima maxime quam architecto quo inventore harum ex magni, dicta impedit.</p>
+                        <h4 class="service-heading">Customize</h4>
+                        <p class="text-muted">Customize your recommender using custom table columns. Your table must still contain a primary key. If you choose to use custom table columns,
+                        you will need to code your own recommender using our, easy to learn, <a href="#portfolio">Kibitz API</a>.</p>
                     </div>
-                    <div class="col-md-4">
+                </div>
+                <div class="row text-center">
+                    <h3 class="subsection-heading">Recommender Types</h3>
+                    <p class="text-muted"><i>Mix, match, or use all four!</i></p>
+                    <div class="col-md-3">
                         <span class="fa-stack fa-4x">
                             <i class="fa fa-circle fa-stack-2x text-primary"></i>
-                            <i class="fa fa-lock fa-stack-1x fa-inverse"></i>
+                            <i class="fa fa-check-square fa-stack-1x fa-inverse"></i>
                         </span>
-                        <h4 class="service-heading">Web Security</h4>
-                        <p class="text-muted">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minima maxime quam architecto quo inventore harum ex magni, dicta impedit.</p>
+                        <h4 class="service-heading">User-Based</h4>
+                        <p class="text-muted">Users create profiles and rate items. Recommended items will be matched to users who share similar interests.</p>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="fa-stack fa-4x">
+                            <i class="fa fa-circle fa-stack-2x text-primary"></i>
+                            <i class="fa fa-file fa-stack-1x fa-inverse"></i>
+                        </span>
+                        <h4 class="service-heading">Item-Based</h4>
+                        <p class="text-muted">Upload a file of item similarities or designate columns as similarity measures. Users will be recommended items
+                        that are similar to rated items.</p>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="fa-stack fa-4x">
+                            <i class="fa fa-circle fa-stack-2x text-primary"></i>
+                            <i class="fa fa-thumbs-up fa-stack-1x fa-inverse"></i>
+                        </span>
+                        <h4 class="service-heading">Overall Ratings</h4>
+                        <p class="text-muted">Provide a column of average ratings. Highest rated items will be recommended to all users.</p>
+                    </div>
+                    <div class="col-md-3">
+                        <span class="fa-stack fa-4x">
+                            <i class="fa fa-circle fa-stack-2x text-primary"></i>
+                            <i class="fa fa-random fa-stack-1x fa-inverse"></i>
+                        </span>
+                        <h4 class="service-heading">Random</h4>
+                        <p class="text-muted">Recommend to users completely random items from your items table.</p>
                     </div>
                 </div>
             </div>
