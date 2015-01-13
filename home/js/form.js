@@ -3,7 +3,7 @@ Orginal Page: http://thecodeplayer.com/walkthrough/jquery-multi-step-form-with-p
 
 */
 //jQuery time
-var current_fs, next_fs, previous_fs, last_info_page, option_1 = false; //fieldsets
+var current_fs, next_fs, previous_fs, last_info_page, option_1 = false, client_id = null; //fieldsets
 var left, opacity, scale; //fieldset properties which we will animate
 var animating; //flag to prevent quick multi-click glitches
 
@@ -87,8 +87,10 @@ $("#option-1").click(function() {
 });
 
 $("#option-2").click(function() {
-    if ($("#option-2").hasClass("button-active"))
+    if ($("#option-2").hasClass("button-active")) {
+	$("#progressbar li").eq(3).addClass("active");
         animateNext(this, $("#option-2-form"));
+    }
 });
 
 $(".previous-opt-1").click(function(){
@@ -100,6 +102,7 @@ $(".previous-opt-info").click(function(){
 });
 
 $(".previous-opt-2").click(function(){
+    $("#progressbar li").eq(3).removeClass("active");
     animatePrevious(this, $("#customization-form"));
 });
 
@@ -332,11 +335,25 @@ function validFields(fields) {
 }
 
 function submitLoginInfo(cur) {
-    console.log("dummy method filler");
+    $("#login-panel").hide();
+    $("#successful-login").show();
 }
 
 function fadeOut() {
     $(".tooltipContent").fadeOut();
+}
+
+function printClientId() {
+    chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    
+    if (client_id == null) {
+	var result = '';
+	for (var i = 25; i > 0; --i)
+	    result += chars[Math.round(Math.random() * (chars.length - 1))];
+	client_id = result;
+    }
+    
+    $("#client_id").html("<b>" + client_id + "</b>");
 }
 
 // dummy fillers till more legitimate code will be written later
@@ -409,5 +426,9 @@ $(".submit").click(function(){
             console.log("RANDOM!");
         }
     }
+    
+    printClientId();
+    $("#submit-info").hide();
+    $("#give-kibitz-key").show();
     return false;
 });
