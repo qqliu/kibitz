@@ -6,23 +6,24 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="description" content="">
         <meta name="author" content="">
-    
+
         <title>Kibitz</title>
         <link href="css/stylish-portfolio.css" rel="stylesheet">
-            
+
         <!-- Bootstrap Core CSS -->
         <link href="css/bootstrap.min.css" rel="stylesheet">
-    
+
         <!-- Custom CSS -->
         <link href="css/index.css" rel="stylesheet">
-    
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+
         <!-- Custom Fonts -->
         <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
         <link href="//fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
         <link href='//fonts.googleapis.com/css?family=Kaushan+Script' rel='stylesheet' type='text/css'>
         <link href='//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
         <link href='//fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700' rel='stylesheet' type='text/css'>
-    
+
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
         <!--[if lt IE 9]>
@@ -30,7 +31,7 @@
         <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
     </head>
-    
+
     <body id="page-top" class="index">
         <div id="sign-up-form">
             <!-- multistep form -->
@@ -177,11 +178,11 @@
                     <h3 class="fs-subtitle">Congrats! You have created your first recommender! Your unique identification key is<br /><br />
                     <span id="client_id" style="color: red;"></span>
                     <br /><br /> Remember this key. We will send an email with next steps once
-                    your recommender has been configured in our system. 
+                    your recommender has been configured in our system.
                 </fieldset>
             </form>
         </div>
-        
+
         <div id="login-form">
             <!-- multistep form -->
             <form class="msform">
@@ -211,7 +212,7 @@
                     </button>
                     <a class="navbar-brand page-scroll" href="#page-top">Kibitz</a>
                 </div>
-    
+
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav navbar-right">
@@ -236,7 +237,7 @@
             </div>
             <!-- /.container-fluid -->
         </nav>
-    
+
         <!-- Header -->
         <header>
             <div class="container">
@@ -248,8 +249,11 @@
                 </div>
             </div>
         </header>
-    
+
         <!-- Recommenders Description Section -->
+        <div id="dialog" title="Basic dialog">
+            <p>Currently in development. Some functionality have not yet been implemented.</p>
+        </div>
         <section id="recommenders">
             <div class="container">
                 <div class="row">
@@ -322,7 +326,7 @@
                 </div>
             </div>
         </section>
-    
+
         <!-- API Section -->
         <section id="api" class="bg-light-gray">
             <div class="container">
@@ -374,7 +378,7 @@ client.initiateModel(CLIENT_KEY, TABLE_NAME, DATAHUB_USERNAME, DATAHUB_PASSWORD,
                 </div>
             </div>
         </section>
-    
+
         <!-- Team Section -->
         <section id="team">
             <div class="container">
@@ -422,7 +426,7 @@ client.initiateModel(CLIENT_KEY, TABLE_NAME, DATAHUB_USERNAME, DATAHUB_PASSWORD,
                 </div>
             </div>
         </section>
-    
+
         <section id="contact">
             <div class="container">
                 <div class="row">
@@ -462,7 +466,7 @@ client.initiateModel(CLIENT_KEY, TABLE_NAME, DATAHUB_USERNAME, DATAHUB_PASSWORD,
                 </div>
             </div>
         </section>
-    
+
         <footer>
             <div class="container">
                 <div class="row">
@@ -478,25 +482,26 @@ client.initiateModel(CLIENT_KEY, TABLE_NAME, DATAHUB_USERNAME, DATAHUB_PASSWORD,
                 </div>
             </div>
         </footer>
-    
+
         <!-- jQuery -->
         <script src="js/jquery.js"></script>
-    
+
         <!-- Bootstrap Core JavaScript -->
         <script src="js/bootstrap.min.js"></script>
-    
+
         <!-- Plugin JavaScript -->
         <script src="js/classie.js"></script>
         <script src="js/cbpAnimatedHeader.js"></script>
-    
+
         <!-- Contact Form JavaScript -->
         <script src="js/jqBootstrapValidation.js"></script>
         <script src="js/contact_me.js"></script>
-    
+
         <!-- Custom Theme JavaScript -->
         <script src="js/index.js"></script>
         <!-- jQuery easing plugin -->
         <script src="js/jquery-easing-min.js" type="text/javascript"></script>
         <script src="js/form.js"></script>
+        <script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
     </body>
 </html>
