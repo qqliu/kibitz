@@ -7,21 +7,21 @@
 html {
     height: 100%;
     /*Image only BG fallback*/
-    background: url('../img/forest.jpg');
-    background-repeat: no-repeat, no-repeat;
+    background: url('../img/forest.jpg') no-repeat;
     background-size: 100% auto;
 }
 
 body {
-    font-family: montserrat, arial, verdana;
+    font-family: montserrat, sans-serif;
 }
+
 /*form styles*/
 .msform {
     width: 400px;
-    margin: 50px auto;
+    margin: auto;
     text-align: center;
-    position: relative;
 }
+
 .msform fieldset {
     background: white;
     border: 0 none;
@@ -30,16 +30,14 @@ body {
     padding: 20px 30px;
     
     box-sizing: border-box;
-    width: 80%;
     margin: 0 10%;
-    
-    /*stacking fieldsets above each other*/
-    position: absolute;
 }
+
 /*Hide all except first fieldset*/
 .msform fieldset:not(:first-of-type) {
     display: none;
 }
+
 /*inputs*/
 .msform input, .msform textarea {
     padding: 15px;
@@ -48,44 +46,32 @@ body {
     border-radius: 3px;
     margin-bottom: 10px;
     box-sizing: border-box;
-    font-family: montserrat;
+    font-family: montserrat, sans-serif;
     color: #2C3E50;
     font-size: 13px;
 }
 
-.required {
-    text-align: left;
-}
-
+.required,
 .not-required {
     text-align: left;
 }
 
 .required:after {
     content: " *";
-    color: #FF0000;
+    color: red;
 }
 
-#sign-up-form {
-    display: none;
-    position: absolute;
-    background: rgb(0, 0, 0); /* Fallback */
-    background: rgba(0, 0, 0, 0.5);
-    padding-left: 35%;
-    padding-right: 40%;
-    padding-bottom: 40%;
-    padding-top: 2%;
-}
-
+#sign-up-form,
 #login-form {
-    display: none;
-    position: absolute;
+    display: none; /* TODO: modify JS to add display: flex; instead of block! */
+    align-items: center;
+    position: fixed;
+    z-index: 1;
+    width: 100vw;
+    height: 100vh;
+    padding: 50px;
     background: rgb(0, 0, 0); /* Fallback */
     background: rgba(0, 0, 0, 0.5);
-    padding-left: 35%;
-    padding-right: 40%;
-    padding-bottom: 40%;
-    padding-top: 10%;
 }
 
 /*buttons*/
@@ -99,13 +85,14 @@ body {
 	padding: 10px 5px;
 	margin: 10px 5px;
 }
+
 .msform .action-button:hover, .msform .action-button:focus {
 	box-shadow: 0 0 0 2px white, 0 0 0 3px #27AE60;
 }
 
 .msform .form-button {
 	width: 70%;
-	background: #000000;
+	background: black;
 	font-weight: bold;
 	color: white;
 	border: 0 none;
@@ -176,13 +163,13 @@ body {
     content: counter(step);
     counter-increment: step;
     width: 20px;
-    line-height: 20px;
+    line-height: 2; /* avoid explicit line heights, you have to edit them every time you change the font-size */
     display: block;
-    font-size: 10px;
+    font-size: 115%;
     color: #333;
     background: white;
     border-radius: 3px;
-    margin: 0 auto 5px auto;
+    margin: 0 auto 5px;
 }
 /*progressbar connectors*/
 #progressbar li:after {
