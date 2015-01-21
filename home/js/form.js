@@ -7,7 +7,7 @@ var current_fs, next_fs, previous_fs, last_info_page, option_1 = false, client_i
 
 //Kibitz fieldsets
 var transport, protocol, client;
-transport = new Thrift.Transport("//localhost:9888/kibitz/");
+transport = new Thrift.Transport("//18.189.104.97:9888/kibitz/");
 protocol = new Thrift.Protocol(transport);
 client = new kibitz.RecommenderServiceClient(protocol);
 
