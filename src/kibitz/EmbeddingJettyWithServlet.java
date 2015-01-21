@@ -5,6 +5,7 @@ import java.util.EnumSet;
 import javax.servlet.DispatcherType;
 
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
@@ -19,7 +20,15 @@ public class EmbeddingJettyWithServlet {
 		
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath("/kibitz");
-		context.addFilter(CrossOriginFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
+
+		// Enable CORS - cross origin resource sharing (for http and https)
+		FilterHolder cors = new FilterHolder();
+		cors.setInitParameter("allowedOrigins", "*");
+		cors.setInitParameter("allowedHeaders", "*");
+		cors.setInitParameter("allowedMethods", "GET, POST");
+		cors.setFilter(new CrossOriginFilter());
+		context.addFilter(cors, "*", EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC, DispatcherType.INCLUDE));
+		
 		server.setHandler(context);
 		MysqlDataSource dataSource = new MysqlDataSource();
 		dataSource.setServerName("http://datahub.csail.mit.edu/service");

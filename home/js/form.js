@@ -4,6 +4,13 @@ Orginal Page: http://thecodeplayer.com/walkthrough/jquery-multi-step-form-with-p
 */
 //jQuery time
 var current_fs, next_fs, previous_fs, last_info_page, option_1 = false, client_id = null; //fieldsets
+
+//Kibitz fieldsets
+var transport, protocol, client;
+transport = new Thrift.Transport("//localhost:9888/kibitz/");
+protocol = new Thrift.Protocol(transport);
+client = new kibitz.RecommenderServiceClient(protocol);
+
 var left, opacity, scale; //fieldset properties which we will animate
 var animating; //flag to prevent quick multi-click glitches
 
@@ -346,7 +353,7 @@ function fadeOut() {
 function printClientId() {
     chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
-    if (client_id == null) {
+    if (client_id === null) {
 	var result = '';
 	for (var i = 25; i > 0; --i)
 	    result += chars[Math.round(Math.random() * (chars.length - 1))];
@@ -354,80 +361,89 @@ function printClientId() {
     }
 
     $("#client_id").html("<b>" + client_id + "</b>");
+    return client_id;
 }
 
-// dummy fillers till more legitimate code will be written later
 $(".submit").click(function(){
-    console.log($("#email").val() + $("#password").val() + $("#dh-username").val() +
-                $("#dh-password").val() + $("#dh-repository").val() + $("#dh-table-name").val());
+    var email, password, dh_username, dh_password, dh_repo, dh_tablename, user_based,
+	item_based, ratings_based, random, primary_key, display_columns, item_based_col_1, item_based_col_2,
+	item_based_col_3, ratings_based_col;
+
+    email = $("#email").val();
+    password = $("#password").val();
+    dh_username = $("#dh-username").val();
+    dh_password = $("#dh-password").val()
+    dh_repo = $("#dh-repository").val();
+    dh_tablename = $("#dh-table-name").val();
     if ($("#option-1").hasClass("button-active")) {
+	primary_key = "title";
         if ($("#user-based-button").hasClass("button-active")) {
-            console.log("USER BASED!");
+            user_based = true;
         }
 
         if ($("#item-based-button").hasClass("button-active") && $("#ratings-based-button").hasClass("button-active")) {
-            console.log("ITEMS AND RATINGS BASED!");
-            console.log($("#rating-column-1").val());
-            console.log($("#item-based-col-name-1").val());
+	    item_based_col_1 = $("#rating-column-1").val();
+            ratings_based_col = $("#item-based-col-name-1").val();
             if ($("#item-based-col-name-2-1").val() !== "") {
-                console.log($("#item-based-col-name-2-1").val());
+                item_based_col_2 = $("#item-based-col-name-2-1").val();
             }
             if ($("#item-based-col-name-3-1").val() !== "") {
-                console.log($("#item-based-col-name-3-1").val());
+                item_based_col_3 = $("#item-based-col-name-3-1").val();
             }
         } else if ($("#item-based-button").hasClass("button-active")) {
-            console.log("ITEM BASED!");
-            console.log($("#item-based-col-name-2"));
+            item_based_col_1 = $("#item-based-col-name-2").val();
             if ($("#item-based-col-name-2-2").val() !== "") {
-                console.log($("#item-based-col-name-2-2").val());
+                item_based_col_2 = $("#item-based-col-name-2-2").val();
             }
             if ($("#item-based-col-name-3-2").val() !== "") {
-                console.log($("#item-based-col-name-3-2").val());
+                item_based_col_3 = $("#item-based-col-name-3-2").val();
             }
         } else if ($("#ratings-based-button").hasClass("button-active")) {
-            console.log("RATINGS BASED!");
-            console.log($("#rating-column-2").val());
+            ratings_based_col = $("#rating-column-2").val();
         }
 
         if ($("#random-button").hasClass("button-active")) {
-            console.log("RANDOM!");
+            random = true;
         }
     } else {
-        console.log($("#primary-key").val() + $("#display-columns").val());
+        primary_key = $("#primary-key").val();
+        display_columns = $("#display-columns").val();
         if ($("#user-based-button-2").hasClass("button-active")) {
-            console.log("USER BASED!");
+            user_based = true;
         }
 
         if ($("#item-based-button-2").hasClass("button-active") && $("#ratings-based-button-2").hasClass("button-active")) {
-            console.log("ITEMS AND RATINGS BASED!");
-            console.log($("#rating-column-3").val());
-            console.log($("#item-based-col-name-3").val());
+            ratings_based_col = $("#rating-column-3").val();
+            item_based_col_1 = $("#item-based-col-name-3").val();
             if ($("#item-based-col-name-2-3").val() !== "") {
-                console.log($("#item-based-col-name-2-3").val());
+                item_based_col_2 = $("#item-based-col-name-2-3").val();
             }
             if ($("#item-based-col-name-3-3").val() !== "") {
-                console.log($("#item-based-col-name-3-3").val());
+                item_based_col_3 = $("#item-based-col-name-3-3").val();
             }
         } else if ($("#item-based-button-2").hasClass("button-active")) {
-            console.log("ITEM BASED!");
-            console.log($("#item-based-col-name-4"));
+            item_based_col_1 = $("#item-based-col-name-4").val();
             if ($("#item-based-col-name-2-4").val() !== "") {
-                console.log($("#item-based-col-name-2-4").val());
+                item_based_col_2 = $("#item-based-col-name-2-4").val();
             }
             if ($("#item-based-col-name-3-4").val() !== "") {
-                console.log($("#item-based-col-name-3-4").val());
+                item_based_col_3 = $("#item-based-col-name-3-4").val();
             }
         } else if ($("#ratings-based-button-2").hasClass("button-active")) {
-            console.log("RATINGS BASED!");
-            console.log($("#rating-column-4").val());
+            ratings_based_col = $("#rating-column-4").val();
         }
 
         if ($("#random-button-2").hasClass("button-active")) {
-            console.log("RANDOM!");
+            random = true;
         }
     }
 
-    printClientId();
+    client_id = printClientId();
+    
+    transport.open();
+    debugger;
+    client.createNewRecommender(email, primary_key, password, dh_repo, dh_tablename, item_based_col_1, item_based_col_2, item_based_col_3, "p", "p", "p", display_columns);
+
     $("#submit-info").hide();
     $("#give-kibitz-key").show();
     return false;
