@@ -51,7 +51,7 @@ public class EmbeddingJettyWithServlet {
 	    https_config.addCustomizer(new SecureRequestCustomizer());
 
 	    SslContextFactory sslContextFactory = new SslContextFactory();
-	    sslContextFactory.setKeyStorePath(home + "/keystore.jks");
+	    sslContextFactory.setKeyStorePath(home + "/keystore");
 	    sslContextFactory.setKeyStorePassword("hof9924ne@!");
 	    sslContextFactory.setKeyManagerPassword("hof9924ne@!");
 
