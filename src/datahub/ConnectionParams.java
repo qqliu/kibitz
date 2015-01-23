@@ -39,7 +39,9 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
   private static final org.apache.thrift.protocol.TField SEQ_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("seq_id", org.apache.thrift.protocol.TType.STRING, (short)2);
   private static final org.apache.thrift.protocol.TField USER_FIELD_DESC = new org.apache.thrift.protocol.TField("user", org.apache.thrift.protocol.TType.STRING, (short)3);
   private static final org.apache.thrift.protocol.TField PASSWORD_FIELD_DESC = new org.apache.thrift.protocol.TField("password", org.apache.thrift.protocol.TType.STRING, (short)4);
-  private static final org.apache.thrift.protocol.TField REPO_BASE_FIELD_DESC = new org.apache.thrift.protocol.TField("repo_base", org.apache.thrift.protocol.TType.STRING, (short)5);
+  private static final org.apache.thrift.protocol.TField APP_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("app_id", org.apache.thrift.protocol.TType.STRING, (short)5);
+  private static final org.apache.thrift.protocol.TField APP_TOKEN_FIELD_DESC = new org.apache.thrift.protocol.TField("app_token", org.apache.thrift.protocol.TType.STRING, (short)6);
+  private static final org.apache.thrift.protocol.TField REPO_BASE_FIELD_DESC = new org.apache.thrift.protocol.TField("repo_base", org.apache.thrift.protocol.TType.STRING, (short)7);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -51,6 +53,8 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
   public String seq_id; // optional
   public String user; // optional
   public String password; // optional
+  public String app_id; // optional
+  public String app_token; // optional
   public String repo_base; // optional
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
@@ -59,7 +63,9 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
     SEQ_ID((short)2, "seq_id"),
     USER((short)3, "user"),
     PASSWORD((short)4, "password"),
-    REPO_BASE((short)5, "repo_base");
+    APP_ID((short)5, "app_id"),
+    APP_TOKEN((short)6, "app_token"),
+    REPO_BASE((short)7, "repo_base");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -82,7 +88,11 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
           return USER;
         case 4: // PASSWORD
           return PASSWORD;
-        case 5: // REPO_BASE
+        case 5: // APP_ID
+          return APP_ID;
+        case 6: // APP_TOKEN
+          return APP_TOKEN;
+        case 7: // REPO_BASE
           return REPO_BASE;
         default:
           return null;
@@ -124,7 +134,7 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
   }
 
   // isset id assignments
-  private _Fields optionals[] = {_Fields.CLIENT_ID,_Fields.SEQ_ID,_Fields.USER,_Fields.PASSWORD,_Fields.REPO_BASE};
+  private _Fields optionals[] = {_Fields.CLIENT_ID,_Fields.SEQ_ID,_Fields.USER,_Fields.PASSWORD,_Fields.APP_ID,_Fields.APP_TOKEN,_Fields.REPO_BASE};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -135,6 +145,10 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
     tmpMap.put(_Fields.USER, new org.apache.thrift.meta_data.FieldMetaData("user", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.PASSWORD, new org.apache.thrift.meta_data.FieldMetaData("password", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.APP_ID, new org.apache.thrift.meta_data.FieldMetaData("app_id", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.APP_TOKEN, new org.apache.thrift.meta_data.FieldMetaData("app_token", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.REPO_BASE, new org.apache.thrift.meta_data.FieldMetaData("repo_base", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
@@ -161,6 +175,12 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
     if (other.isSetPassword()) {
       this.password = other.password;
     }
+    if (other.isSetApp_id()) {
+      this.app_id = other.app_id;
+    }
+    if (other.isSetApp_token()) {
+      this.app_token = other.app_token;
+    }
     if (other.isSetRepo_base()) {
       this.repo_base = other.repo_base;
     }
@@ -176,6 +196,8 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
     this.seq_id = null;
     this.user = null;
     this.password = null;
+    this.app_id = null;
+    this.app_token = null;
     this.repo_base = null;
   }
 
@@ -275,6 +297,54 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
     }
   }
 
+  public String getApp_id() {
+    return this.app_id;
+  }
+
+  public ConnectionParams setApp_id(String app_id) {
+    this.app_id = app_id;
+    return this;
+  }
+
+  public void unsetApp_id() {
+    this.app_id = null;
+  }
+
+  /** Returns true if field app_id is set (has been assigned a value) and false otherwise */
+  public boolean isSetApp_id() {
+    return this.app_id != null;
+  }
+
+  public void setApp_idIsSet(boolean value) {
+    if (!value) {
+      this.app_id = null;
+    }
+  }
+
+  public String getApp_token() {
+    return this.app_token;
+  }
+
+  public ConnectionParams setApp_token(String app_token) {
+    this.app_token = app_token;
+    return this;
+  }
+
+  public void unsetApp_token() {
+    this.app_token = null;
+  }
+
+  /** Returns true if field app_token is set (has been assigned a value) and false otherwise */
+  public boolean isSetApp_token() {
+    return this.app_token != null;
+  }
+
+  public void setApp_tokenIsSet(boolean value) {
+    if (!value) {
+      this.app_token = null;
+    }
+  }
+
   public String getRepo_base() {
     return this.repo_base;
   }
@@ -333,6 +403,22 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
       }
       break;
 
+    case APP_ID:
+      if (value == null) {
+        unsetApp_id();
+      } else {
+        setApp_id((String)value);
+      }
+      break;
+
+    case APP_TOKEN:
+      if (value == null) {
+        unsetApp_token();
+      } else {
+        setApp_token((String)value);
+      }
+      break;
+
     case REPO_BASE:
       if (value == null) {
         unsetRepo_base();
@@ -358,6 +444,12 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
     case PASSWORD:
       return getPassword();
 
+    case APP_ID:
+      return getApp_id();
+
+    case APP_TOKEN:
+      return getApp_token();
+
     case REPO_BASE:
       return getRepo_base();
 
@@ -380,6 +472,10 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
       return isSetUser();
     case PASSWORD:
       return isSetPassword();
+    case APP_ID:
+      return isSetApp_id();
+    case APP_TOKEN:
+      return isSetApp_token();
     case REPO_BASE:
       return isSetRepo_base();
     }
@@ -432,6 +528,24 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
       if (!(this_present_password && that_present_password))
         return false;
       if (!this.password.equals(that.password))
+        return false;
+    }
+
+    boolean this_present_app_id = true && this.isSetApp_id();
+    boolean that_present_app_id = true && that.isSetApp_id();
+    if (this_present_app_id || that_present_app_id) {
+      if (!(this_present_app_id && that_present_app_id))
+        return false;
+      if (!this.app_id.equals(that.app_id))
+        return false;
+    }
+
+    boolean this_present_app_token = true && this.isSetApp_token();
+    boolean that_present_app_token = true && that.isSetApp_token();
+    if (this_present_app_token || that_present_app_token) {
+      if (!(this_present_app_token && that_present_app_token))
+        return false;
+      if (!this.app_token.equals(that.app_token))
         return false;
     }
 
@@ -496,6 +610,26 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
     }
     if (isSetPassword()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.password, other.password);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetApp_id()).compareTo(other.isSetApp_id());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetApp_id()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.app_id, other.app_id);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetApp_token()).compareTo(other.isSetApp_token());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetApp_token()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.app_token, other.app_token);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -566,6 +700,26 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
         sb.append("null");
       } else {
         sb.append(this.password);
+      }
+      first = false;
+    }
+    if (isSetApp_id()) {
+      if (!first) sb.append(", ");
+      sb.append("app_id:");
+      if (this.app_id == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.app_id);
+      }
+      first = false;
+    }
+    if (isSetApp_token()) {
+      if (!first) sb.append(", ");
+      sb.append("app_token:");
+      if (this.app_token == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.app_token);
       }
       first = false;
     }
@@ -654,7 +808,23 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 5: // REPO_BASE
+          case 5: // APP_ID
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.app_id = iprot.readString();
+              struct.setApp_idIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 6: // APP_TOKEN
+            if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+              struct.app_token = iprot.readString();
+              struct.setApp_tokenIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 7: // REPO_BASE
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.repo_base = iprot.readString();
               struct.setRepo_baseIsSet(true);
@@ -705,6 +875,20 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
           oprot.writeFieldEnd();
         }
       }
+      if (struct.app_id != null) {
+        if (struct.isSetApp_id()) {
+          oprot.writeFieldBegin(APP_ID_FIELD_DESC);
+          oprot.writeString(struct.app_id);
+          oprot.writeFieldEnd();
+        }
+      }
+      if (struct.app_token != null) {
+        if (struct.isSetApp_token()) {
+          oprot.writeFieldBegin(APP_TOKEN_FIELD_DESC);
+          oprot.writeString(struct.app_token);
+          oprot.writeFieldEnd();
+        }
+      }
       if (struct.repo_base != null) {
         if (struct.isSetRepo_base()) {
           oprot.writeFieldBegin(REPO_BASE_FIELD_DESC);
@@ -742,10 +926,16 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
       if (struct.isSetPassword()) {
         optionals.set(3);
       }
-      if (struct.isSetRepo_base()) {
+      if (struct.isSetApp_id()) {
         optionals.set(4);
       }
-      oprot.writeBitSet(optionals, 5);
+      if (struct.isSetApp_token()) {
+        optionals.set(5);
+      }
+      if (struct.isSetRepo_base()) {
+        optionals.set(6);
+      }
+      oprot.writeBitSet(optionals, 7);
       if (struct.isSetClient_id()) {
         oprot.writeString(struct.client_id);
       }
@@ -758,6 +948,12 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
       if (struct.isSetPassword()) {
         oprot.writeString(struct.password);
       }
+      if (struct.isSetApp_id()) {
+        oprot.writeString(struct.app_id);
+      }
+      if (struct.isSetApp_token()) {
+        oprot.writeString(struct.app_token);
+      }
       if (struct.isSetRepo_base()) {
         oprot.writeString(struct.repo_base);
       }
@@ -766,7 +962,7 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, ConnectionParams struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(5);
+      BitSet incoming = iprot.readBitSet(7);
       if (incoming.get(0)) {
         struct.client_id = iprot.readString();
         struct.setClient_idIsSet(true);
@@ -784,6 +980,14 @@ public class ConnectionParams implements org.apache.thrift.TBase<ConnectionParam
         struct.setPasswordIsSet(true);
       }
       if (incoming.get(4)) {
+        struct.app_id = iprot.readString();
+        struct.setApp_idIsSet(true);
+      }
+      if (incoming.get(5)) {
+        struct.app_token = iprot.readString();
+        struct.setApp_tokenIsSet(true);
+      }
+      if (incoming.get(6)) {
         struct.repo_base = iprot.readString();
         struct.setRepo_baseIsSet(true);
       }

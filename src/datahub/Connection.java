@@ -38,8 +38,9 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
   private static final org.apache.thrift.protocol.TField CLIENT_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("client_id", org.apache.thrift.protocol.TType.STRING, (short)1);
   private static final org.apache.thrift.protocol.TField SEQ_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("seq_id", org.apache.thrift.protocol.TType.STRING, (short)2);
   private static final org.apache.thrift.protocol.TField USER_FIELD_DESC = new org.apache.thrift.protocol.TField("user", org.apache.thrift.protocol.TType.STRING, (short)3);
-  private static final org.apache.thrift.protocol.TField REPO_BASE_FIELD_DESC = new org.apache.thrift.protocol.TField("repo_base", org.apache.thrift.protocol.TType.STRING, (short)4);
-  private static final org.apache.thrift.protocol.TField CURSOR_FIELD_DESC = new org.apache.thrift.protocol.TField("cursor", org.apache.thrift.protocol.TType.I64, (short)5);
+  private static final org.apache.thrift.protocol.TField IS_APP_FIELD_DESC = new org.apache.thrift.protocol.TField("is_app", org.apache.thrift.protocol.TType.BOOL, (short)4);
+  private static final org.apache.thrift.protocol.TField REPO_BASE_FIELD_DESC = new org.apache.thrift.protocol.TField("repo_base", org.apache.thrift.protocol.TType.STRING, (short)5);
+  private static final org.apache.thrift.protocol.TField CURSOR_FIELD_DESC = new org.apache.thrift.protocol.TField("cursor", org.apache.thrift.protocol.TType.I64, (short)6);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -50,6 +51,7 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
   public String client_id; // optional
   public String seq_id; // optional
   public String user; // optional
+  public boolean is_app; // optional
   public String repo_base; // optional
   public long cursor; // optional
 
@@ -58,8 +60,9 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
     CLIENT_ID((short)1, "client_id"),
     SEQ_ID((short)2, "seq_id"),
     USER((short)3, "user"),
-    REPO_BASE((short)4, "repo_base"),
-    CURSOR((short)5, "cursor");
+    IS_APP((short)4, "is_app"),
+    REPO_BASE((short)5, "repo_base"),
+    CURSOR((short)6, "cursor");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -80,9 +83,11 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
           return SEQ_ID;
         case 3: // USER
           return USER;
-        case 4: // REPO_BASE
+        case 4: // IS_APP
+          return IS_APP;
+        case 5: // REPO_BASE
           return REPO_BASE;
-        case 5: // CURSOR
+        case 6: // CURSOR
           return CURSOR;
         default:
           return null;
@@ -124,9 +129,10 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
   }
 
   // isset id assignments
-  private static final int __CURSOR_ISSET_ID = 0;
+  private static final int __IS_APP_ISSET_ID = 0;
+  private static final int __CURSOR_ISSET_ID = 1;
   private byte __isset_bitfield = 0;
-  private _Fields optionals[] = {_Fields.CLIENT_ID,_Fields.SEQ_ID,_Fields.USER,_Fields.REPO_BASE,_Fields.CURSOR};
+  private _Fields optionals[] = {_Fields.CLIENT_ID,_Fields.SEQ_ID,_Fields.USER,_Fields.IS_APP,_Fields.REPO_BASE,_Fields.CURSOR};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
     Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
@@ -136,6 +142,8 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.USER, new org.apache.thrift.meta_data.FieldMetaData("user", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+    tmpMap.put(_Fields.IS_APP, new org.apache.thrift.meta_data.FieldMetaData("is_app", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
+        new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BOOL)));
     tmpMap.put(_Fields.REPO_BASE, new org.apache.thrift.meta_data.FieldMetaData("repo_base", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
     tmpMap.put(_Fields.CURSOR, new org.apache.thrift.meta_data.FieldMetaData("cursor", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
@@ -161,6 +169,7 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
     if (other.isSetUser()) {
       this.user = other.user;
     }
+    this.is_app = other.is_app;
     if (other.isSetRepo_base()) {
       this.repo_base = other.repo_base;
     }
@@ -176,6 +185,8 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
     this.client_id = null;
     this.seq_id = null;
     this.user = null;
+    setIs_appIsSet(false);
+    this.is_app = false;
     this.repo_base = null;
     setCursorIsSet(false);
     this.cursor = 0;
@@ -253,6 +264,29 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
     }
   }
 
+  public boolean isIs_app() {
+    return this.is_app;
+  }
+
+  public Connection setIs_app(boolean is_app) {
+    this.is_app = is_app;
+    setIs_appIsSet(true);
+    return this;
+  }
+
+  public void unsetIs_app() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __IS_APP_ISSET_ID);
+  }
+
+  /** Returns true if field is_app is set (has been assigned a value) and false otherwise */
+  public boolean isSetIs_app() {
+    return EncodingUtils.testBit(__isset_bitfield, __IS_APP_ISSET_ID);
+  }
+
+  public void setIs_appIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __IS_APP_ISSET_ID, value);
+  }
+
   public String getRepo_base() {
     return this.repo_base;
   }
@@ -326,6 +360,14 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
       }
       break;
 
+    case IS_APP:
+      if (value == null) {
+        unsetIs_app();
+      } else {
+        setIs_app((Boolean)value);
+      }
+      break;
+
     case REPO_BASE:
       if (value == null) {
         unsetRepo_base();
@@ -356,6 +398,9 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
     case USER:
       return getUser();
 
+    case IS_APP:
+      return Boolean.valueOf(isIs_app());
+
     case REPO_BASE:
       return getRepo_base();
 
@@ -379,6 +424,8 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
       return isSetSeq_id();
     case USER:
       return isSetUser();
+    case IS_APP:
+      return isSetIs_app();
     case REPO_BASE:
       return isSetRepo_base();
     case CURSOR:
@@ -424,6 +471,15 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
       if (!(this_present_user && that_present_user))
         return false;
       if (!this.user.equals(that.user))
+        return false;
+    }
+
+    boolean this_present_is_app = true && this.isSetIs_app();
+    boolean that_present_is_app = true && that.isSetIs_app();
+    if (this_present_is_app || that_present_is_app) {
+      if (!(this_present_is_app && that_present_is_app))
+        return false;
+      if (this.is_app != that.is_app)
         return false;
     }
 
@@ -487,6 +543,16 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
     }
     if (isSetUser()) {
       lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.user, other.user);
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+    }
+    lastComparison = Boolean.valueOf(isSetIs_app()).compareTo(other.isSetIs_app());
+    if (lastComparison != 0) {
+      return lastComparison;
+    }
+    if (isSetIs_app()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.is_app, other.is_app);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -558,6 +624,12 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
       } else {
         sb.append(this.user);
       }
+      first = false;
+    }
+    if (isSetIs_app()) {
+      if (!first) sb.append(", ");
+      sb.append("is_app:");
+      sb.append(this.is_app);
       first = false;
     }
     if (isSetRepo_base()) {
@@ -645,7 +717,15 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 4: // REPO_BASE
+          case 4: // IS_APP
+            if (schemeField.type == org.apache.thrift.protocol.TType.BOOL) {
+              struct.is_app = iprot.readBool();
+              struct.setIs_appIsSet(true);
+            } else { 
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+            }
+            break;
+          case 5: // REPO_BASE
             if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
               struct.repo_base = iprot.readString();
               struct.setRepo_baseIsSet(true);
@@ -653,7 +733,7 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 5: // CURSOR
+          case 6: // CURSOR
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
               struct.cursor = iprot.readI64();
               struct.setCursorIsSet(true);
@@ -697,6 +777,11 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
           oprot.writeFieldEnd();
         }
       }
+      if (struct.isSetIs_app()) {
+        oprot.writeFieldBegin(IS_APP_FIELD_DESC);
+        oprot.writeBool(struct.is_app);
+        oprot.writeFieldEnd();
+      }
       if (struct.repo_base != null) {
         if (struct.isSetRepo_base()) {
           oprot.writeFieldBegin(REPO_BASE_FIELD_DESC);
@@ -736,13 +821,16 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
       if (struct.isSetUser()) {
         optionals.set(2);
       }
-      if (struct.isSetRepo_base()) {
+      if (struct.isSetIs_app()) {
         optionals.set(3);
       }
-      if (struct.isSetCursor()) {
+      if (struct.isSetRepo_base()) {
         optionals.set(4);
       }
-      oprot.writeBitSet(optionals, 5);
+      if (struct.isSetCursor()) {
+        optionals.set(5);
+      }
+      oprot.writeBitSet(optionals, 6);
       if (struct.isSetClient_id()) {
         oprot.writeString(struct.client_id);
       }
@@ -751,6 +839,9 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
       }
       if (struct.isSetUser()) {
         oprot.writeString(struct.user);
+      }
+      if (struct.isSetIs_app()) {
+        oprot.writeBool(struct.is_app);
       }
       if (struct.isSetRepo_base()) {
         oprot.writeString(struct.repo_base);
@@ -763,7 +854,7 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
     @Override
     public void read(org.apache.thrift.protocol.TProtocol prot, Connection struct) throws org.apache.thrift.TException {
       TTupleProtocol iprot = (TTupleProtocol) prot;
-      BitSet incoming = iprot.readBitSet(5);
+      BitSet incoming = iprot.readBitSet(6);
       if (incoming.get(0)) {
         struct.client_id = iprot.readString();
         struct.setClient_idIsSet(true);
@@ -777,10 +868,14 @@ public class Connection implements org.apache.thrift.TBase<Connection, Connectio
         struct.setUserIsSet(true);
       }
       if (incoming.get(3)) {
+        struct.is_app = iprot.readBool();
+        struct.setIs_appIsSet(true);
+      }
+      if (incoming.get(4)) {
         struct.repo_base = iprot.readString();
         struct.setRepo_baseIsSet(true);
       }
-      if (incoming.get(4)) {
+      if (incoming.get(5)) {
         struct.cursor = iprot.readI64();
         struct.setCursorIsSet(true);
       }

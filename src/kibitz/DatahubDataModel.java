@@ -176,7 +176,7 @@ public class DatahubDataModel implements DataModel{
 			this.con_params = new ConnectionParams();
 			this.con_params.setUser(this.datahubUsername);
 			this.con_params.setPassword(this.datahubPassword);
-			this.conn = this.client.open_connection(con_params);
+			this.conn = this.client.open_connection(this.con_params);
 			
 			/*if (this.datahubTableName != null) {
 				int numItems = this.getItemCount(this.datahubTableName);
@@ -231,7 +231,7 @@ public class DatahubDataModel implements DataModel{
 			e.printStackTrace();
 		}*/
 			ResultSet updatelogExists =  this.client.execute_sql(this.conn, "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '" + this.datahubDatabase + ".update_log'", null);
-			if (updatelogExists != null) {
+			if (updatelogExists != null && updatelogExists.getTuples().size() > 0) {
 				ResultSet last = this.client.execute_sql(this.conn, "SELECT MAX(updated) FROM " + this.datahubDatabase + "." + "update_log where table_name='" + this.datahubTableName + "'", null);
 			
 				if(last != null) {
@@ -240,13 +240,12 @@ public class DatahubDataModel implements DataModel{
 						this.lastTimestamp = new String(cells.get(0).array());
 					}
 				}
+				long startTime = System.nanoTime();
+				this.delegate = new FileDataModel(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.datahubDatabase + 
+						"/" + this.datahubDatabase + "." + this.datahubTableName + ".csv"));
+				long endTime = System.nanoTime();
+				System.out.println("Time it takes to retrieve items from file: " + (endTime - startTime));
 			}
-			
-			long startTime = System.nanoTime();
-			this.delegate = new FileDataModel(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.datahubDatabase + 
-					"/" + this.datahubDatabase + "." + this.datahubTableName + ".csv"));
-			long endTime = System.nanoTime();
-			System.out.println("Time it takes to retrieve items from file: " + (endTime - startTime));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -358,6 +357,15 @@ public class DatahubDataModel implements DataModel{
 		try {
 			synchronized(this.client) {
 				//this.client.execute_sql(this.conn, "alter table " + this.datahubDatabase + "." + table + " add id serial", null);
+				this.client.execute_sql(this.conn, "drop table if exists " + this.datahubDatabase + "." + table + "_items;", null);
+				this.client.execute_sql(this.conn, "drop table if exists " + this.datahubDatabase + "." + table + "_ratings;", null);
+				this.client.execute_sql(this.conn, "drop table if exists " + this.datahubDatabase + "." + table + "_users;", null);
+				this.client.execute_sql(this.conn, "drop table if exists " + this.datahubDatabase + ".update_log;", null);
+				this.client.execute_sql(this.conn, "drop trigger if exists " + table + "_timestamp_update_log on " + this.datahubDatabase + "." + table, null);
+				this.client.execute_sql(this.conn, "drop trigger if exists " + table + "_ratings_timestamp_update_log on " + this.datahubDatabase + "." + table, null);
+				this.client.execute_sql(this.conn, "drop function if exists " + this.datahubUsername + "_" + this.datahubDatabase 
+						+ "_" + table + "_timestamp_update_log() cascade", null);
+				
 				this.client.execute_sql(this.conn, "select " + StringUtils.join(displayColumns, ',') + " into " + 
 					this.datahubDatabase + "." + table + "_items from " + this.datahubDatabase + "." + table, null);
 				this.client.execute_sql(this.conn, "alter table " + this.datahubDatabase + "." + table + "_items add column kibitz_generated_id serial primary key", null);
@@ -366,13 +374,18 @@ public class DatahubDataModel implements DataModel{
 				this.client.execute_sql(this.conn, "create table " + this.datahubDatabase + "." + table + "_users (" + 
 					"kibitz_generated_id SERIAL PRIMARY KEY, username varchar(255), email varchar(255), password varchar(255))" , null);
 				this.client.execute_sql(this.conn, "CREATE TABLE " + this.datahubDatabase + ".update_log(table_name text, updated timestamp NOT NULL DEFAULT now());" 
-										+ "CREATE FUNCTION timestamp_update_log() RETURNS TRIGGER LANGUAGE 'plpgsql' AS $$" 
+										+ "CREATE FUNCTION " + this.datahubUsername + "_" + this.datahubDatabase + "_" 
+										+ table + "_timestamp_update_log() RETURNS TRIGGER LANGUAGE 'plpgsql' AS $$" 
 									    + "BEGIN INSERT INTO " + this.datahubDatabase + ".update_log(table_name) VALUES(TG_TABLE_NAME); RETURN NEW;"
 									    + "END $$", null);
-				this.client.execute_sql(this.conn, "CREATE TRIGGER " + table + "_timestamp_update_log"
-												+ "AFTER INSERT OR UPDATE ON " + this.datahubDatabase + "." + table + " FOR EACH STATEMENT EXECUTE procedure timestamp_update_log();", null);
-				this.client.execute_sql(this.conn, "CREATE TRIGGER " + table + "_ratings_timestamp_update_log"
-												+ "AFTER INSERT OR UPDATE ON " + this.datahubDatabase + "." + table + "_ratings FOR EACH STATEMENT EXECUTE procedure timestamp_update_log();", null);
+				this.client.execute_sql(this.conn, "CREATE TRIGGER " + table + "_timestamp_update_log "
+												+ "AFTER INSERT OR UPDATE ON " + this.datahubDatabase + "." + table + " FOR EACH STATEMENT EXECUTE procedure "
+														+ this.datahubUsername + "_" + this.datahubDatabase + "_" 
+														+ table + "_timestamp_update_log();", null);
+				this.client.execute_sql(this.conn, "CREATE TRIGGER " + table + "_ratings_timestamp_update_log "
+												+ "AFTER INSERT OR UPDATE ON " + this.datahubDatabase + "." + table + "_ratings FOR EACH STATEMENT EXECUTE procedure "
+														+ this.datahubUsername + "_" + this.datahubDatabase + "_" 
+														+ table + "_timestamp_update_log();", null);
 			}
 			
 			float firstColumnScore = 0;
