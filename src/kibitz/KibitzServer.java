@@ -150,7 +150,7 @@ public class KibitzServer implements Iface {
 			this.dataModel = new DatahubDataModel(this.dataSource.getServerName(), database, 
 				username,
 				password,
-				null);
+				table);
 			return this.dataModel.createNewRecommender(table, primaryKey, firstColumnName, secondColumnName, thirdColumnName,
 					firstColumnType, secondColumnType, thirdColumnType, displayColumns);
 		} catch (UnknownHostException e) {

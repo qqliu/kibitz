@@ -169,7 +169,6 @@ public class DatahubDataModel implements DataModel{
 		
 		try {
 			this.transport = new THttpClient(this.datahubHost);
-			
 			this.protocol = new  TBinaryProtocol(transport);
 			this.client = new DataHub.Client(protocol);
 			System.out.println("Connected to Datahub Successfully");
@@ -231,12 +230,15 @@ public class DatahubDataModel implements DataModel{
 		} catch(Exception e) {
 			e.printStackTrace();
 		}*/
-			ResultSet last = this.client.execute_sql(this.conn, "SELECT MAX(updated) FROM " + this.datahubDatabase + "." + "update_log where table_name='" + this.datahubTableName + "'", null);
+			ResultSet updatelogExists =  this.client.execute_sql(this.conn, "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '" + this.datahubDatabase + ".update_log'", null);
+			if (updatelogExists != null) {
+				ResultSet last = this.client.execute_sql(this.conn, "SELECT MAX(updated) FROM " + this.datahubDatabase + "." + "update_log where table_name='" + this.datahubTableName + "'", null);
 			
-			if(last != null) {
-				for (Tuple t : last.getTuples()) {
-					List<ByteBuffer> cells = t.getCells();
-					this.lastTimestamp = new String(cells.get(0).array());
+				if(last != null) {
+					for (Tuple t : last.getTuples()) {
+						List<ByteBuffer> cells = t.getCells();
+						this.lastTimestamp = new String(cells.get(0).array());
+					}
 				}
 			}
 			
