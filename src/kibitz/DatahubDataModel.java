@@ -177,59 +177,7 @@ public class DatahubDataModel implements DataModel{
 			this.con_params.setUser(this.datahubUsername);
 			this.con_params.setPassword(this.datahubPassword);
 			this.conn = this.client.open_connection(this.con_params);
-			
-			/*if (this.datahubTableName != null) {
-				int numItems = this.getItemCount(this.datahubTableName);
-				System.out.println(this.datahubTableName);
-				System.out.println(numItems);
-				for (int i = 0; i < numItems; i += 10000) {
-					ResultSet res;
-					Thread.sleep(4000);
-					synchronized(this.client) {
-						long startTime = System.nanoTime();
-					    res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + this.datahubTableName + " limit " + 10000 + " offset " + i, null);
-						//res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + this.datahubTableName, null);
-						long endTime = System.nanoTime();
-						long duration = (endTime - startTime);  //divide by 1000000 to get milliseconds.
-						System.out.println("Time buildModel took to run on iteration " + i + ": " + duration);
-					}
-					HashMap<String, Integer> colToIndex = this.getFieldNames(res);
-					
-					if (res != null) {
-						for (Tuple t : res.getTuples()) {
-							List<ByteBuffer> cells = t.getCells();
-							long userID = Long.parseLong(new String(cells.get(colToIndex.get("user_id")).array()));
-							long itemID = Long.parseLong(new String(cells.get(colToIndex.get("item_id")).array()));
-							long ratingValue = Long.parseLong(new String(cells.get(colToIndex.get("rating")).array()));
 
-							Collection<Preference> userPrefs = userIDPrefMap.get(userID);
-							if (userPrefs == null) {
-								userPrefs = Lists.newArrayListWithCapacity(2);
-								userIDPrefMap.put(userID, userPrefs);
-							}
-							userPrefs.add(new GenericPreference(userID, itemID, ratingValue));
-						}
-					}
-				}
-			}
-			
-			synchronized(this.client) {
-				ResultSet last = this.client.execute_sql(this.conn, "SELECT MAX(updated) FROM " + this.datahubDatabase + "." + "update_log where table_name='" + this.datahubTableName + "'", null);
-				
-				if(last != null) {
-					for (Tuple t : last.getTuples()) {
-						List<ByteBuffer> cells = t.getCells();
-						this.lastTimestamp = new String(cells.get(0).array());
-					}
-				}
-				
-				this.generalModel = new GenericDataModel(GenericDataModel.toDataMap(userIDPrefMap, true));
-				this.delegate = new PlusAnonymousConcurrentUserDataModel(this.generalModel, 10);
-				userIDPrefMap = null;
-			}
-		} catch(Exception e) {
-			e.printStackTrace();
-		}*/
 			ResultSet updatelogExists =  this.client.execute_sql(this.conn, "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '" + this.datahubDatabase + ".update_log'", null);
 			if (updatelogExists != null && updatelogExists.getTuples().size() > 0) {
 				ResultSet last = this.client.execute_sql(this.conn, "SELECT MAX(updated) FROM " + this.datahubDatabase + "." + "update_log where table_name='" + this.datahubTableName + "'", null);
@@ -260,49 +208,6 @@ public class DatahubDataModel implements DataModel{
 			e.printStackTrace();
 		}
 	}
-	
-	/**
-	 * Gets list of all items from items table; deprecated
-	 */
-	/*public List<Item> getItems(String table) {
-		List<Item> items = new ArrayList<Item>();
-		try {
-			long startTime = System.nanoTime();
-			ResultSet res;
-			//ResultSet ratings;
-			synchronized(this.client) {
-				res = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + table, null);
-				System.out.println("select * from " + this.datahubDatabase + "." + this.datahubTableName);
-				/*long start = System.nanoTime();
-				ratings = this.client.execute_sql(this.conn, "select * from " + this.datahubDatabase + "." + this.datahubTableName, null);
-				long end = System.nanoTime();
-				System.out.println("Time takes to get all ratings: " + (end - start));
-			}
-			long endTime = System.nanoTime();
-			long duration = (endTime - startTime);  //divide by 1000000 to get milliseconds.
-			System.out.println("Time getItems took to run: " + duration);
-			
-			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
-			
-			for (Tuple t : res.getTuples()) {
-				List<ByteBuffer> cells = t.getCells();
-				Item item = new Item();
-				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("kibitz_generated_id")).array())));
-				item.setTitle(new String(cells.get(colToIndex.get("title")).array()));
-				item.setDescription(new String(cells.get(colToIndex.get("description")).array()));
-				item.setImage(new String(cells.get(colToIndex.get("image")).array()));
-				items.add(item);
-			}
-			return items;
-		} catch (DBException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}*/
 	
 	/**
 	 * Display a page of items
@@ -361,6 +266,7 @@ public class DatahubDataModel implements DataModel{
 				this.client.execute_sql(this.conn, "drop table if exists " + this.datahubDatabase + "." + table + "_ratings;", null);
 				this.client.execute_sql(this.conn, "drop table if exists " + this.datahubDatabase + "." + table + "_users;", null);
 				this.client.execute_sql(this.conn, "drop table if exists " + this.datahubDatabase + ".update_log;", null);
+				this.client.execute_sql(this.conn, "drop table if exists " + this.datahubDatabase + "." + table + "_item_combos", null);
 				this.client.execute_sql(this.conn, "drop trigger if exists " + table + "_timestamp_update_log on " + this.datahubDatabase + "." + table, null);
 				this.client.execute_sql(this.conn, "drop trigger if exists " + table + "_ratings_timestamp_update_log on " + this.datahubDatabase + "." + table, null);
 				this.client.execute_sql(this.conn, "drop function if exists " + this.datahubUsername + "_" + this.datahubDatabase 
@@ -393,7 +299,7 @@ public class DatahubDataModel implements DataModel{
 			float thirdColumnScore = 0;
 			int numItems = this.getItemCount(table);
 			
-			String query = "SELECT DISTINCT p1.kibitz_generated_id AS firstid, p2.kibitz_generated_id AS secondid, ";
+			String query = "SELECT p1.kibitz_generated_id AS firstid, p2.kibitz_generated_id AS secondid, ";
 			
 			if (firstColumnName != null) {
 				query += "p1." + firstColumnName + " AS first1, p2." + firstColumnName + " AS second1";
@@ -407,12 +313,15 @@ public class DatahubDataModel implements DataModel{
 				query += ",p1." + thirdColumnName + " AS first3, p2." + thirdColumnName + " AS second3";
 			}
 			
+			query += " INTO " + this.datahubDatabase + "." + table + "_item_combos FROM " + this.datahubDatabase + "." + table 
+					+ "_items AS p1, " + this.datahubDatabase + "." + table + "_items AS p2;";
+			this.client.execute_sql(this.conn, query, null);
 			for (int i = 0; i < numItems; i+= 10000) {
-				query += " FROM " + this.datahubDatabase + "." + table + " AS p1, " + this.datahubDatabase + "." + table + " AS p2 ORDER BY p1.kibitz_generated_id, p2.kibitz_generated_id LIMIT " + 10000 + " OFFSET " + i;
+				String item_combos = "SELECT * FROM " + this.datahubDatabase + "." + table + "_item_combos LIMIT 10000 OFFSET " + i;
 			
 				ResultSet res;
 				synchronized(this.client) {
-					res = this.client.execute_sql(this.conn, query, null);
+					res = this.client.execute_sql(this.conn, item_combos, null);
 				}
 				HashMap<String, Integer> colToIndex = this.getFieldNames(res);
 			
@@ -664,13 +573,6 @@ public class DatahubDataModel implements DataModel{
 		long finishRecordTime = System.nanoTime();
 		System.out.println("Time saveIntoDb took: " + (finishDBTime - startTime));
 		System.out.println("Time writeNewRatings took: " + (finishRecordTime - startTime));
-		/*try {
-			this.delegate.setPreference(userId, itemId, (float) rating);
-		} catch (TasteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
-		//this.delegate.refresh(null);
 	 }
 	 
 	 /**
@@ -730,7 +632,6 @@ public class DatahubDataModel implements DataModel{
 			 // TODO Auto-generated catch block
 			 e.printStackTrace();
 		 }*/
-		 //this.delegate.refresh(null);
 	 }
 	 
 	 public List<Item> getItemsFromPrimaryKeys(String primaryKey, List<String> itemKeys, List<String> displayColumns, String table) {
@@ -1056,23 +957,6 @@ public class DatahubDataModel implements DataModel{
 			e.printStackTrace();
 		}
 	}
-	
-	/**
-	 * Removes Datahub User Item
-	 */
-	private void removeDatahubUserItem(String userID, String itemID) {
-	}
-	
-	/**
-	 * Adds Datahub User Item
-	 */
-	private void addDatahubUserItem(String userID, String itemID) {
-	}
-	
-	/*private DataModel removeUserItem(long userID, Iterable<List<String>> items) {
-		FastByIDMap<PreferenceArray> rawData = ((GenericDataModel) delegate).getRawUserData();
-		return new GenericDataModel(rawData);
-	}*/
 	
 	private HashMap<String, Integer> getFieldNames(ResultSet res) {
 		List<String> fieldNames = res.getField_names();
