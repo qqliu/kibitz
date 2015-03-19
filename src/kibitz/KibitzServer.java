@@ -145,14 +145,14 @@ public class KibitzServer implements Iface {
     public boolean createNewRecommender(String username, String primaryKey, String password, String database, String table,
     		String firstColumnName, String secondColumnName, String thirdColumnName,
     		String firstColumnType, String secondColumnType, String thirdColumnType,
-    		List<String> displayColumns) {
+    		List<String> displayColumns, String clientKey) {
 		try {
 			this.dataModel = new DatahubDataModel(this.dataSource.getServerName(), database, 
 				username,
 				password,
 				table);
 			return this.dataModel.createNewRecommender(table, primaryKey, firstColumnName, secondColumnName, thirdColumnName,
-					firstColumnType, secondColumnType, thirdColumnType, displayColumns);
+					firstColumnType, secondColumnType, thirdColumnType, displayColumns, clientKey);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -389,7 +389,7 @@ public class KibitzServer implements Iface {
 		return null;
 	}
 	
-	@Override
+	/*@Override
 	public List<Item> getItemsFromPrimaryKeys(String key, String primaryKey, List<String> itemKeys, List<String> displayColumns) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
@@ -411,7 +411,7 @@ public class KibitzServer implements Iface {
 		}
 		
 		return null;
-	}
+	}*/
 	
 	public class RecommenderRunnable implements Runnable {	
 		public void run() {

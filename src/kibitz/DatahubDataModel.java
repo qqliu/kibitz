@@ -1,11 +1,9 @@
 package kibitz;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.security.NoSuchAlgorithmException;
@@ -15,13 +13,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.mahout.cf.taste.common.Refreshable;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.common.FastIDSet;
@@ -35,9 +29,17 @@ import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.THttpClient;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
+import org.zeroturnaround.zip.ZipUtil;
 
 import updates.UpdateLocalFiles;
 import datahub.*;
+import edu.cmu.lti.lexical_db.ILexicalDatabase;
+import edu.cmu.lti.lexical_db.NictWordNet;
+import edu.cmu.lti.ws4j.RelatednessCalculator;
+import edu.cmu.lti.ws4j.impl.Lin;
+import edu.cmu.lti.ws4j.impl.Path;
+import edu.cmu.lti.ws4j.impl.WuPalmer;
+import edu.cmu.lti.ws4j.util.WS4JConfiguration;
 
 public class DatahubDataModel implements DataModel{
 	/**
@@ -60,7 +62,9 @@ public class DatahubDataModel implements DataModel{
 	/** Default Datahub Table Name*/
 	private static final String DEFAULT_DATAHUB_TABLENAME = "users";
 	
-	private static final String USER_AGENT = "Mozilla/5.0";
+	/** Default Webserver Location*/
+	private static final String WEBSERVER_DIR = "/Applications/XAMPP/htdocs/kibitz-demo/home/";
+	
 	
 	private String datahubHost = getDefaultDatahubHost();
 	private String datahubUsername = getDefaultDatahubUsername();
@@ -68,6 +72,11 @@ public class DatahubDataModel implements DataModel{
 	private String datahubDatabase = DEFAULT_DATAHUB_DATABASE;
 	private String datahubTableName = getDefaultDatahubTablename();
 	private FileDataModel delegate = null;
+	
+	private static ILexicalDatabase db = new NictWordNet();
+    private static RelatednessCalculator[] rcs = { new WuPalmer(db), new Lin(db), new Path(db) };
+
+	
 	private String lastTimestamp;
 	private boolean refreshed;
 	
@@ -77,8 +86,7 @@ public class DatahubDataModel implements DataModel{
 	private ConnectionParams con_params;
 	private Connection conn;
 
-	private BufferedWriter writer = null;
-	private File file = null;
+	public HashMap<Integer, CreateItemSimilarityRunnable> activeThreads;
 
 	/**
 	* Creates a new DatahubDataModel
@@ -177,6 +185,8 @@ public class DatahubDataModel implements DataModel{
 			this.con_params.setUser(this.datahubUsername);
 			this.con_params.setPassword(this.datahubPassword);
 			this.conn = this.client.open_connection(this.con_params);
+			
+			this.activeThreads = new HashMap<Integer, CreateItemSimilarityRunnable>();
 
 			ResultSet updatelogExists =  this.client.execute_sql(this.conn, "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '" + this.datahubDatabase + ".update_log'", null);
 			if (updatelogExists != null && updatelogExists.getTuples().size() > 0) {
@@ -189,8 +199,7 @@ public class DatahubDataModel implements DataModel{
 					}
 				}
 				long startTime = System.nanoTime();
-				this.delegate = new FileDataModel(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.datahubDatabase + 
-						"/" + this.datahubDatabase + "." + this.datahubTableName + ".csv"));
+				this.delegate = new FileDataModel(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() +  this.datahubUsername + "/" + this.datahubDatabase + "/" + this.datahubTableName + ".csv"));
 				long endTime = System.nanoTime();
 				System.out.println("Time it takes to retrieve items from file: " + (endTime - startTime));
 			}
@@ -258,131 +267,171 @@ public class DatahubDataModel implements DataModel{
 	 * Creates all associated tables associated with a new recommender.
 	 */
 	public boolean createNewRecommender(String table, String primaryKey, String firstColumnName, String secondColumnName, String thirdColumnName,
-    		String firstColumnType, String secondColumnType, String thirdColumnType, List<String> displayColumns) {
+    		String firstColumnType, String secondColumnType, String thirdColumnType, List<String> displayColumns, String clientKey) {
 		try {
 			synchronized(this.client) {
-				//this.client.execute_sql(this.conn, "alter table " + this.datahubDatabase + "." + table + " add id serial", null);
-				this.client.execute_sql(this.conn, "drop table if exists " + this.datahubDatabase + "." + table + "_items;", null);
-				this.client.execute_sql(this.conn, "drop table if exists " + this.datahubDatabase + "." + table + "_ratings;", null);
-				this.client.execute_sql(this.conn, "drop table if exists " + this.datahubDatabase + "." + table + "_users;", null);
-				this.client.execute_sql(this.conn, "drop table if exists " + this.datahubDatabase + ".update_log;", null);
-				this.client.execute_sql(this.conn, "drop table if exists " + this.datahubDatabase + "." + table + "_item_combos", null);
-				this.client.execute_sql(this.conn, "drop trigger if exists " + table + "_timestamp_update_log on " + this.datahubDatabase + "." + table, null);
-				this.client.execute_sql(this.conn, "drop trigger if exists " + table + "_ratings_timestamp_update_log on " + this.datahubDatabase + "." + table, null);
-				this.client.execute_sql(this.conn, "drop function if exists " + this.datahubUsername + "_" + this.datahubDatabase 
-						+ "_" + table + "_timestamp_update_log() cascade", null);
-				
-				this.client.execute_sql(this.conn, "select " + StringUtils.join(displayColumns, ',') + " into " + 
-					this.datahubDatabase + "." + table + "_items from " + this.datahubDatabase + "." + table, null);
-				this.client.execute_sql(this.conn, "alter table " + this.datahubDatabase + "." + table + "_items add column kibitz_generated_id serial primary key", null);
-				this.client.execute_sql(this.conn, "create table " + this.datahubDatabase + "." + table + "_ratings (" + 
-					"user_id int, item_id int, rating varchar(255))" , null);
-				this.client.execute_sql(this.conn, "create table " + this.datahubDatabase + "." + table + "_users (" + 
-					"kibitz_generated_id SERIAL PRIMARY KEY, username varchar(255), email varchar(255), password varchar(255))" , null);
-				this.client.execute_sql(this.conn, "CREATE TABLE " + this.datahubDatabase + ".update_log(table_name text, updated timestamp NOT NULL DEFAULT now());" 
-										+ "CREATE FUNCTION " + this.datahubUsername + "_" + this.datahubDatabase + "_" 
+				this.client.execute_sql(this.conn, "alter table " + this.datahubDatabase + "." + table + " drop column if exists kibitz_generated_id;"
+										+ " alter table " + this.datahubDatabase + "." + table + " drop constraint if exists " + primaryKey + ";"
+										+ " alter table " + this.datahubDatabase + "." + table + " add column kibitz_generated_id serial primary key;"
+										+ " create table if not exists " + this.datahubDatabase + "." + table + "_ratings (" 
+										+  "user_id int, item_id int, rating varchar(255));"
+										+ " create table if not exists " + this.datahubDatabase + "." + table + "_users (" 
+										+ "kibitz_generated_id SERIAL PRIMARY KEY, username varchar(255), email varchar(255), password varchar(255));"
+										+ " CREATE TABLE if not exists " + this.datahubDatabase + ".update_log(table_name text, updated timestamp NOT NULL DEFAULT now());" 
+										+ "drop function if exists " + this.datahubUsername + "_" + this.datahubDatabase + "_" + table 
+										+ "_timestamp_update_log() cascade; " + "CREATE FUNCTION " + this.datahubUsername + "_" + this.datahubDatabase + "_" 
 										+ table + "_timestamp_update_log() RETURNS TRIGGER LANGUAGE 'plpgsql' AS $$" 
 									    + "BEGIN INSERT INTO " + this.datahubDatabase + ".update_log(table_name) VALUES(TG_TABLE_NAME); RETURN NEW;"
-									    + "END $$", null);
-				this.client.execute_sql(this.conn, "CREATE TRIGGER " + table + "_timestamp_update_log "
-												+ "AFTER INSERT OR UPDATE ON " + this.datahubDatabase + "." + table + " FOR EACH STATEMENT EXECUTE procedure "
-														+ this.datahubUsername + "_" + this.datahubDatabase + "_" 
-														+ table + "_timestamp_update_log();", null);
-				this.client.execute_sql(this.conn, "CREATE TRIGGER " + table + "_ratings_timestamp_update_log "
-												+ "AFTER INSERT OR UPDATE ON " + this.datahubDatabase + "." + table + "_ratings FOR EACH STATEMENT EXECUTE procedure "
-														+ this.datahubUsername + "_" + this.datahubDatabase + "_" 
-														+ table + "_timestamp_update_log();", null);
+									    + "END $$; " + " drop trigger if exists " + table + "_timestamp_update_log on " + this.datahubDatabase + "." + table + "; "
+										+ "CREATE TRIGGER " + table + "_timestamp_update_log "
+										+ "AFTER INSERT OR UPDATE ON " + this.datahubDatabase + "." + table + " FOR EACH STATEMENT EXECUTE procedure "
+										+ this.datahubUsername + "_" + this.datahubDatabase + "_" 
+										+ table + "_timestamp_update_log();" + " drop trigger if exists " + table + "_ratings_timestamp_update_log on " 
+										+ this.datahubDatabase + "." + table + "; CREATE TRIGGER " + table + "_ratings_timestamp_update_log "
+										+ "AFTER INSERT OR UPDATE ON " + this.datahubDatabase + "." + table + "_ratings FOR EACH STATEMENT EXECUTE procedure "
+										+ this.datahubUsername + "_" + this.datahubDatabase + "_" 
+										+ table + "_timestamp_update_log();", null);
+			}	
+		
+			String c = "select count(*) from pg_tables where schemaname = '" + this.datahubDatabase + "' and tablename = '" + table + "_item_combos';";
+			ResultSet ifItemCombosExist;
+			synchronized(this.client) {
+				ifItemCombosExist = this.client.execute_sql(this.conn, c, null);
 			}
-			
-			float firstColumnScore = 0;
-			float secondColumnScore = 0;
-			float thirdColumnScore = 0;
-			int numItems = this.getItemCount(table);
-			
-			String query = "SELECT p1.kibitz_generated_id AS firstid, p2.kibitz_generated_id AS secondid, ";
-			
-			if (firstColumnName != null) {
-				query += "p1." + firstColumnName + " AS first1, p2." + firstColumnName + " AS second1";
-			}
-			
-			if (secondColumnName != null) {
-				query += ",p1." + secondColumnName + " AS first2, p2." + secondColumnName + " AS second2";
-			}
-			
-			if (thirdColumnName != null) {
-				query += ",p1." + thirdColumnName + " AS first3, p2." + thirdColumnName + " AS second3";
-			}
-			
-			query += " INTO " + this.datahubDatabase + "." + table + "_item_combos FROM " + this.datahubDatabase + "." + table 
-					+ "_items AS p1, " + this.datahubDatabase + "." + table + "_items AS p2;";
-			this.client.execute_sql(this.conn, query, null);
-			for (int i = 0; i < numItems; i+= 10000) {
-				String item_combos = "SELECT * FROM " + this.datahubDatabase + "." + table + "_item_combos LIMIT 10000 OFFSET " + i;
-			
-				ResultSet res;
-				synchronized(this.client) {
-					res = this.client.execute_sql(this.conn, item_combos, null);
-				}
-				HashMap<String, Integer> colToIndex = this.getFieldNames(res);
-			
-				for (Tuple t : res.getTuples()) {
-					firstColumnScore = 0;
-					secondColumnScore = 0;
-					thirdColumnScore = 0;
-					List<ByteBuffer> cells = t.getCells();
+			for (Tuple tt: ifItemCombosExist.getTuples()) {
+				List<ByteBuffer> cs = tt.getCells();
+				if ("0".equals(new String(cs.get(0).array()))) {
+					System.out.println(new String(cs.get(0).array()));
+					
+					String query = "SELECT distinct p1.kibitz_generated_id AS firstid, p2.kibitz_generated_id AS secondid, ";
+					
 					if (firstColumnName != null) {
-						String first1 = new String(cells.get(colToIndex.get("first1")).array());
-						String second1 = new String(cells.get(colToIndex.get("second1")).array());
-						if (firstColumnType.equals("ssn")) {
-							firstColumnScore += evaluateShortNounsSimilarity(first1, second1);
-						} else if (firstColumnType.equals("ssv")) {
-							firstColumnScore += evaluateShortVerbsSimilarity(first1, second1);
-						} else if (firstColumnType.equals("ss")) {
-							firstColumnScore += evaluateShortVarietySimilarity(first1, second1);
-						} else if (firstColumnType.equals("number")) {
-							firstColumnScore += evaluateNumberSimilarity(first1, second1);
-						} else {
-							firstColumnScore += evaluateLongPhraseSimilarity(first1, second1);
-						}
+						query += "p1." + firstColumnName + " AS first1, p2." + firstColumnName + " AS second1";
 					}
 					
 					if (secondColumnName != null) {
-						String first2 = new String(cells.get(colToIndex.get("first2")).array());
-						String second2 = new String(cells.get(colToIndex.get("second2")).array());
-						if (secondColumnType.equals("ssn")) {
-							secondColumnScore += evaluateShortNounsSimilarity(first2, second2);
-						} else if (secondColumnType.equals("ssv")) {
-							secondColumnScore += evaluateShortVerbsSimilarity(first2, second2);
-						} else if (secondColumnType.equals("ss")) {
-							secondColumnScore += evaluateShortVarietySimilarity(first2, second2);
-						} else if (secondColumnType.equals("number")) {
-							secondColumnScore += evaluateNumberSimilarity(first2, second2);
-						} else {
-							secondColumnScore += evaluateLongPhraseSimilarity(first2, second2);
-						}
+						query += ",p1." + secondColumnName + " AS first2, p2." + secondColumnName + " AS second2";
 					}
 					
 					if (thirdColumnName != null) {
-						String first3 = new String(cells.get(colToIndex.get("first3")).array());
-						String second3 = new String(cells.get(colToIndex.get("second3")).array());
-						if (thirdColumnType.equals("ssn")) {
-							thirdColumnScore += evaluateShortNounsSimilarity(first3, second3);
-						} else if (thirdColumnType.equals("ssv")) {
-							thirdColumnScore += evaluateShortVerbsSimilarity(first3, second3);
-						} else if (thirdColumnType.equals("ss")) {
-							thirdColumnScore += evaluateShortVarietySimilarity(first3, second3);
-						} else if (thirdColumnType.equals("number")) {
-							thirdColumnScore += evaluateNumberSimilarity(first3, second3);
-						} else {
-							thirdColumnScore += evaluateLongPhraseSimilarity(first3, second3);
+						query += ",p1." + thirdColumnName + " AS first3, p2." + thirdColumnName + " AS second3";
+					}
+					
+					query += " INTO " + this.datahubDatabase + "." + table + "_item_combos_initial FROM " + this.datahubDatabase + "." + table 
+							+ " AS p1, " + this.datahubDatabase + "." + table + " AS p2;";
+					
+					String initial_combo = "select count(*) from pg_tables where schemaname = '" + this.datahubDatabase + "' and tablename = '" + table + "_item_combos';";
+					ResultSet ifInitialItemCombosExist;
+					synchronized(this.client) {
+						ifInitialItemCombosExist = this.client.execute_sql(this.conn, initial_combo, null);
+					}
+					
+					for (Tuple initials: ifInitialItemCombosExist.getTuples()) {
+						List<ByteBuffer> icombos = initials.getCells();
+						if ("0".equals(new String(icombos.get(0).array()))) {
+							this.client.execute_sql(this.conn, query, null);
 						}
 					}
 					
-					this.writeSimilarityScore(table, new String(cells.get(colToIndex.get("firstid")).array()), 
-							new String(cells.get(colToIndex.get("secondid")).array()), (float) (0.5*firstColumnScore + 0.3*secondColumnScore + 0.2*thirdColumnScore));
+					String newQuery = "select * into " + this.datahubDatabase + "." + table + "_item_combos from " + this.datahubDatabase + "." + table
+							+ "_item_combos_initial order by random() limit 2000000";
+					this.client.execute_sql(this.conn, newQuery, null);
 				}
 			}
-			this.writer.close();
+			
+			CreateItemSimilarityRunnable t;
+			
+			for (int i = 0; i < 10; i++) {
+				t = new CreateItemSimilarityRunnable(i * 10000, (i+1)*10000, table, firstColumnName, secondColumnName, thirdColumnName);
+				this.activeThreads.put(i*10000, t);
+				t.run();
+			}
+			
+			File direc = new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.datahubUsername + "/" + this.datahubDatabase + "/homepage");
+			if (direc.isDirectory()) {
+				FileUtils.deleteDirectory(direc);
+			}   
+			
+			FileUtils.copyDirectory(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + "base"), new File(UpdateLocalFiles.getKibitzLocalStorageAddr() 
+					 + this.datahubUsername + "/" + this.datahubDatabase + "/homepage"));
+			File login_creds = new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.datahubUsername + "/" + this.datahubDatabase + "/homepage/required_functions.js");
+			String input = "var title = '" + table + "';\n" + 
+					"var client_key = '" + clientKey + "';\n" + 
+					"\n" + "$(document).ready(function() {\n" + 
+					"    transport.open();\n" + 
+					"    client.createNewIndividualServer(client_key);\n" + 
+					"    client.initiateModel('" + clientKey + "', '" + this.datahubTableName + "', '" 
+					+ this.datahubUsername + "', '" + this.datahubPassword + "', '" + this.datahubDatabase + "');\n" + 
+					"    document.getElementById(\"title\").innerHTML = title + ' Recommender';\n" + 
+					"    $('#search').keyup(function(ev) {\n" + 
+					"        if (ev.which === 13) {\n" + 
+					"            var items = client.getSearchItems(client_key, $('#search').val());\n" + 
+					"\n" + 
+					"            document.getElementById('listofitems').innerHTML = \"\";\n" + 
+					"            var itemslist =\"\";\n" + 
+					"            for (var i =0; i < items.length; i++) {\n" + 
+					"                var item = items[i];\n" + 
+					"                if (item.id != null && item.title != null) {\n" + 
+					"                    currItem = '<tr><tr><div class=\"relative\">';\n" + 
+					"                    if (item.image.indexOf('http') > -1) {\n" + 
+					"                        currItem += '<img src = \"' + item.image + '\" />';\n" + 
+					"                    }\n" + 
+					"                    currItem += '<div class=\"inline-block user-info\"><h2>' + item.title + '</h2>';\n" + 
+					"                    if (item.description != null){\n" + 
+					"                        currItem += '<div class=\"icons\"><ul class=\"list-inline\"><li>' + item.description + '</li>';\n" + 
+					"                    }\n" + 
+					"                    currItem += '<div id=\"rate' + item.id + '\" class=\"rating\">&nbsp;</div><div class=\"implementation\"></div>';\n" + 
+					"                    if (item.description != null) {\n" + 
+					"                        currItem += '</ul></div>';\n" + 
+					"                    }\n" + 
+					"                    currItem += '</div></div></td></tr>';\n" + 
+					"                                                                                                                    itemslist += currItem;\n" + 
+					"                                                                                                                          }\n" + 
+					"                                                }\n" + 
+					"                            document.getElementById('listofitems').innerHTML = itemslist;\n" + 
+					"\n" + 
+					"                                if(userId != null) {\n" + 
+					"                                                var my_rated_items = client.getUserRatedItems(client_key, userId);\n" + 
+					"                                                        for (i = 0; i < my_rated_items.length; i++) {\n" + 
+					"                                                                            item = my_rated_items[i];\n" + 
+					"                                                                                        var r = document.getElementById('rate' + item.id);\n" + 
+					"                                                                                                    if (r != null) {\n" + 
+					"                                                                                                                            r.setAttribute('value', item.rating ? item.rating: -1);\n" + 
+					"                                                                                                                                        }\n" + 
+					"                                                                                                            }\n" + 
+					"                                                            }\n" + 
+					"                                    var ratings = $('.rating');\n" + 
+					"                                        ratings.each(function (i, el) {\n" + 
+					"                                                        var rating = parseInt($(el).attr('value'));\n" + 
+					"                                                                if (rating > -1) {\n" + 
+					"                                                                                    $(el).rating('', {maxvalue: 10, curvalue: rating});\n" + 
+					"                                                                                            } else {\n" + 
+					"                                                                                                                $(el).rating('', {maxvalue: 10});\n" + 
+					"                                                                                                                        }\n" + 
+					"        });\n" + 
+					"        }\n" + 
+					"    });\n" + 
+					"});";
+			FileWriter fileWriter = new FileWriter(login_creds.getAbsolutePath(), true);
+	        BufferedWriter bufferWriter = new BufferedWriter(fileWriter);
+	        bufferWriter.write(input);
+	        bufferWriter.close();
+	        
+	        ZipUtil.pack(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() 
+					 + this.datahubUsername + "/" + this.datahubDatabase + "/homepage"), new File(UpdateLocalFiles.getKibitzLocalStorageAddr() 
+							 + this.datahubUsername + "/" + this.datahubDatabase + "/homepage.zip"));
+	        
+	        direc = new File(WEBSERVER_DIR + this.datahubUsername + "/" + this.datahubDatabase);
+			if (direc.isDirectory()) {
+				FileUtils.deleteDirectory(direc);
+			}   
+			
+			FileUtils.copyDirectory(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.datahubUsername + "/" + this.datahubDatabase + "/homepage"), new File(WEBSERVER_DIR
+					 + this.datahubUsername + "/" + this.datahubDatabase));
+			FileUtils.copyFile(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() 
+							 + this.datahubUsername + "/" + this.datahubDatabase + "/homepage.zip"), 
+							 new File(WEBSERVER_DIR + this.datahubUsername + "/" + this.datahubDatabase + "/homepage.zip"));
+	        
 			return true;
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
@@ -428,74 +477,32 @@ public class DatahubDataModel implements DataModel{
 		return null;
 	}
 	
-	private float evaluateShortNounsSimilarity(String first, String second) throws IllegalStateException, IOException {
-		String url = "http://swoogle.umbc.edu/SimService/GetSimilarity?operation=api&phrase1="
-				+ first + "_NN&phrase2=" + second + "_NN";
-		return querySimilarityEngine(url);
-	}
-	
-	private float evaluateShortVerbsSimilarity(String first, String second) throws ClientProtocolException, IOException {
-		String url = "http://swoogle.umbc.edu/SimService/GetSimilarity?operation=api&phrase1="
-				+ first + "_VB&phrase2=" + second + "_VB";
-		return querySimilarityEngine(url);
-	}
-	
-	private float evaluateShortVarietySimilarity(String first, String second) throws ClientProtocolException, IOException {
-		String url = "http://swoogle.umbc.edu/SimService/GetSimilarity?operation=api&phrase1="
-				+ first + "&phrase2=" + second;
-		return querySimilarityEngine(url);
-	}
-	
-	private float evaluateLongPhraseSimilarity(String first, String second) throws ClientProtocolException, IOException {
-		String url = "http://swoogle.umbc.edu/StsService/GetStsSim?operation=api&phrase1="
-				+ first + "&phrase2=" + second;
-		return querySimilarityEngine(url);
-	}
-	
-	private float evaluateNumberSimilarity(String first, String second) {
-		try {
-			float firstNum = Float.parseFloat(first);
-			float secondNum = Float.parseFloat(second);
-			return Math.abs(firstNum - secondNum);
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
+	private double calculatePhraseSimilarity(String first, String second) throws IllegalStateException, IOException {
+		WS4JConfiguration.getInstance().setMFS(true);
+
+		double score = 0.0;
+		for ( RelatednessCalculator rc : rcs ) {
+			double[][] r = rc.getSimilarityMatrix(first.split(" "), second.split(" "));
+            
+            double relatednessScore = 0.0;
+            int relatedWordsCount = 0;
+            for (int i = 0; i < r.length; i++) {
+            	for (int j = 0; j < r[0].length; j++) {
+            		if (r[i][j] > -1 && r[i][j] <= 1 && r[i][j] != 0) {
+            			relatednessScore += r[i][j];
+            			relatedWordsCount += 1;
+            		}
+            	}
+            }
+            
+            if (relatedWordsCount > 0) {
+            	//System.out.println(relatednessScore / relatedWordsCount);
+            	score += relatednessScore / relatedWordsCount;
+            }
 		}
-		return 0;
-	}
-	
-	private void writeSimilarityScore(String table, String firstId, String secondId, float score) {
-		try {	
-			if (this.file == null || this.writer == null) {
-				String storageDir = UpdateLocalFiles.getKibitzLocalStorageAddr();
-				this.file = new File(storageDir + this.datahubDatabase);
-				this.file.mkdir();
-				this.file = new File(storageDir + this.datahubDatabase + "/" + table + "_item_similarity.csv");
-				this.file.createNewFile();
-				this.writer  = new BufferedWriter(new FileWriter(storageDir + this.datahubDatabase + "/" + table + "_item_similarity.csv"));
-			}
-			this.writer.write(firstId + "," + secondId + "," + (double) Math.round(score * 1000) / 1000 + "\n");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	private float querySimilarityEngine(String url) throws ClientProtocolException, IOException {
-		HttpClient client = new DefaultHttpClient();
-		String escapedUrl = url.replace(" ", "%20");
-		HttpGet request = new HttpGet(escapedUrl);
-		request.addHeader("User-Agent", USER_AGENT);
 		
-		HttpResponse response = client.execute(request);
-		
-		BufferedReader rd = new BufferedReader(
-                new InputStreamReader(response.getEntity().getContent()));
-		
-		String line;
-		while ((line = rd.readLine()) != null) {
-			return new Float(line.toString());
-		}
-		return 0;
+		//System.out.println(score / 4);
+		return score / 4;
 	}
 	
 	/**
@@ -973,7 +980,7 @@ public class DatahubDataModel implements DataModel{
 	private void writeNewRatings(long userId, long itemId, long rating) {
 		try {
 		    FileWriter fw = new FileWriter(UpdateLocalFiles.getKibitzLocalStorageAddr() + 
-		    		this.datahubDatabase + "/" + this.datahubTableName + ".update.csv",true);
+		    		 this.datahubUsername + "/" + this.datahubDatabase + "/" + this.datahubTableName + ".update.csv",true);
 		    if (rating == -1) 
 		    	fw.write(userId + "," + itemId + ", \n");
 		    else 
@@ -1114,5 +1121,127 @@ public class DatahubDataModel implements DataModel{
 
 	public static String getDefaultDatahubHost() {
 		return DEFAULT_DATAHUB_HOST;
+	}
+	
+	public class CreateItemSimilarityRunnable implements Runnable {	
+		private int upperBound;
+		private String table;
+		private String firstColumnName;
+		private String secondColumnName;
+		private String thirdColumnName;
+		
+		private BufferedWriter writer = null;
+		private File file = null;
+		private int lowerBound;
+		
+		public CreateItemSimilarityRunnable(int lowerBound, int upperBound, String table, String firstColumnName, String secondColumnName, 
+				String thirdColumnName) {
+			this.upperBound = upperBound;
+			this.lowerBound = lowerBound;
+			this.table = table;
+			this.firstColumnName = firstColumnName;
+			this.secondColumnName = secondColumnName;
+			this.thirdColumnName = thirdColumnName;
+		}
+		
+		public void run() {
+			this.writeToItemSimilarityFile();
+		}
+		
+		private void writeToItemSimilarityFile() {
+			try {
+				double firstColumnScore = 0;
+				double secondColumnScore = 0;
+				double thirdColumnScore = 0;
+				
+				long startTime = 0;
+				
+				for (int i = this.lowerBound; i < this.upperBound; i+= 10000) {
+					long endTime = System.currentTimeMillis();
+					String item_combos = "SELECT * FROM " + DatahubDataModel.this.datahubDatabase + "." + table + "_item_combos LIMIT 10000 OFFSET " + i;
+					
+					System.out.println("Time it takes to process 10000 items: " + ((float) (endTime - startTime))/(10*10*10*60));
+					startTime = System.currentTimeMillis();
+					
+					ResultSet res;
+					synchronized(DatahubDataModel.this.client) {
+							res = DatahubDataModel.this.client.execute_sql(DatahubDataModel.this.conn, item_combos, null);
+					}
+					HashMap<String, Integer> colToIndex = DatahubDataModel.this.getFieldNames(res);
+				
+					for (Tuple t : res.getTuples()) {
+						firstColumnScore = 0;
+						secondColumnScore = 0;
+						thirdColumnScore = 0;
+						List<ByteBuffer> cells = t.getCells();
+						if (firstColumnName != null) {
+							String first1 = new String(cells.get(colToIndex.get("first1")).array());
+							String second1 = new String(cells.get(colToIndex.get("second1")).array());
+							firstColumnScore = DatahubDataModel.this.calculatePhraseSimilarity(first1, second1);
+						}
+						
+						if (secondColumnName != null) {
+							String first2 = new String(cells.get(colToIndex.get("first2")).array());
+							String second2 = new String(cells.get(colToIndex.get("second2")).array());
+							secondColumnScore = DatahubDataModel.this.calculatePhraseSimilarity(first2, second2);
+						}
+						
+						if (thirdColumnName != null) {
+							String first3 = new String(cells.get(colToIndex.get("first3")).array());
+							String second3 = new String(cells.get(colToIndex.get("second3")).array());
+							thirdColumnScore = DatahubDataModel.this.calculatePhraseSimilarity(first3, second3);
+						}
+						
+						this.writeSimilarityScore(table, new String(cells.get(colToIndex.get("firstid")).array()), 
+								new String(cells.get(colToIndex.get("secondid")).array()), (float) (0.5*firstColumnScore + 0.3*secondColumnScore + 0.2*thirdColumnScore));
+					}
+				}
+				
+				if (this.writer != null) 
+					this.writer.close();
+				this.completedThread();
+				
+				DatahubDataModel.this.checkCompletion();
+			} catch (DBException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		private void writeSimilarityScore(String table, String firstId, String secondId, float score) {
+			try {	
+				if (this.file == null || this.writer == null) {
+					String storageDir = UpdateLocalFiles.getKibitzLocalStorageAddr();
+					this.file = new File(storageDir + DatahubDataModel.this.datahubUsername);
+					this.file.mkdir();
+					this.file = new File(storageDir +  DatahubDataModel.this.datahubUsername + "/" + DatahubDataModel.this.datahubDatabase);
+					this.file.mkdir();
+					this.file = new File(storageDir + DatahubDataModel.this.datahubUsername + "/" + DatahubDataModel.this.datahubDatabase + "/" + table + "_item_similarity" 
+							+ this.lowerBound + "_" + this.upperBound + ".csv");
+					this.file.createNewFile();
+					this.writer  = new BufferedWriter(new FileWriter(storageDir + DatahubDataModel.this.datahubDatabase + "/" + table + "_item_similarity.csv"));
+				}
+				this.writer.write(firstId + "," + secondId + "," + (double) Math.round(score * 1000) / 1000 + "\n");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		private void completedThread() {
+			DatahubDataModel.this.activeThreads.remove(this.lowerBound);
+		}
+	}
+
+	public void checkCompletion() {
+		if (this.activeThreads.size() <= 0) {
+			System.out.println("THIS PROCESS HAS COMPLETED!");
+		}
 	}
 }

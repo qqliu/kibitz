@@ -1700,6 +1700,7 @@ kibitz.RecommenderService_createNewRecommender_args = function(args) {
   this.secondColumnType = null;
   this.thirdColumnType = null;
   this.displayColumns = null;
+  this.clientKey = null;
   if (args) {
     if (args.username !== undefined) {
       this.username = args.username;
@@ -1736,6 +1737,9 @@ kibitz.RecommenderService_createNewRecommender_args = function(args) {
     }
     if (args.displayColumns !== undefined) {
       this.displayColumns = args.displayColumns;
+    }
+    if (args.clientKey !== undefined) {
+      this.clientKey = args.clientKey;
     }
   }
 };
@@ -1850,6 +1854,13 @@ kibitz.RecommenderService_createNewRecommender_args.prototype.read = function(in
         input.skip(ftype);
       }
       break;
+      case 13:
+      if (ftype == Thrift.Type.STRING) {
+        this.clientKey = input.readString().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -1928,6 +1939,11 @@ kibitz.RecommenderService_createNewRecommender_args.prototype.write = function(o
       }
     }
     output.writeListEnd();
+    output.writeFieldEnd();
+  }
+  if (this.clientKey !== null && this.clientKey !== undefined) {
+    output.writeFieldBegin('clientKey', Thrift.Type.STRING, 13);
+    output.writeString(this.clientKey);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -3113,12 +3129,12 @@ kibitz.RecommenderServiceClient.prototype.recv_retrieveUserId = function() {
   }
   throw 'retrieveUserId failed: unknown result';
 };
-kibitz.RecommenderServiceClient.prototype.createNewRecommender = function(username, primaryKey, password, database, table, firstColumnName, secondColumnName, thirdColumnName, firstColumnType, secondColumnType, thirdColumnType, displayColumns) {
-  this.send_createNewRecommender(username, primaryKey, password, database, table, firstColumnName, secondColumnName, thirdColumnName, firstColumnType, secondColumnType, thirdColumnType, displayColumns);
+kibitz.RecommenderServiceClient.prototype.createNewRecommender = function(username, primaryKey, password, database, table, firstColumnName, secondColumnName, thirdColumnName, firstColumnType, secondColumnType, thirdColumnType, displayColumns, clientKey) {
+  this.send_createNewRecommender(username, primaryKey, password, database, table, firstColumnName, secondColumnName, thirdColumnName, firstColumnType, secondColumnType, thirdColumnType, displayColumns, clientKey);
   return this.recv_createNewRecommender();
 };
 
-kibitz.RecommenderServiceClient.prototype.send_createNewRecommender = function(username, primaryKey, password, database, table, firstColumnName, secondColumnName, thirdColumnName, firstColumnType, secondColumnType, thirdColumnType, displayColumns) {
+kibitz.RecommenderServiceClient.prototype.send_createNewRecommender = function(username, primaryKey, password, database, table, firstColumnName, secondColumnName, thirdColumnName, firstColumnType, secondColumnType, thirdColumnType, displayColumns, clientKey) {
   this.output.writeMessageBegin('createNewRecommender', Thrift.MessageType.CALL, this.seqid);
   var args = new kibitz.RecommenderService_createNewRecommender_args();
   args.username = username;
@@ -3133,6 +3149,7 @@ kibitz.RecommenderServiceClient.prototype.send_createNewRecommender = function(u
   args.secondColumnType = secondColumnType;
   args.thirdColumnType = thirdColumnType;
   args.displayColumns = displayColumns;
+  args.clientKey = clientKey;
   args.write(this.output);
   this.output.writeMessageEnd();
   return this.output.getTransport().flush();

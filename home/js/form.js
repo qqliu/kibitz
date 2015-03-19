@@ -364,6 +364,11 @@ function printClientId() {
     return client_id;
 }
 
+function printExtraOptions(url, zip) {
+    $("#additional_messages").html("<p>You may visit your recommender at <a href='" + url +
+				  "'>" + url + "</a>. Or you may download a zip file containing all necessary files <a href='" + zip + "'>here.</a></p>");
+}
+
 $(".submit").click(function(){
     var email, password, dh_username, dh_password, dh_repo, dh_tablename, user_based,
 	item_based, ratings_based, random, primary_key, display_columns, item_based_col_1, item_based_col_2,
@@ -377,6 +382,7 @@ $(".submit").click(function(){
     dh_tablename = $("#dh-table-name").val();
     if ($("#option-1").hasClass("button-active")) {
 	primary_key = "title";
+	display_columns = ["title", "description", "image"];
         if ($("#user-based-button").hasClass("button-active")) {
             user_based = true;
         }
@@ -440,9 +446,13 @@ $(".submit").click(function(){
 
     client_id = printClientId();
     
+    if ($("#option-1").hasClass("button-active")) {
+	printExtraOptions(window.location + dh_username + "/" + dh_repo, window.location + "/" + dh_username + "/" + dh_repo + "/homepage.zip");
+    }
+    
     transport.open();
     debugger;
-    client.createNewRecommender(dh_username, primary_key, dh_password, dh_repo, dh_tablename, item_based_col_1, item_based_col_2, item_based_col_3, "p", "p", "p", display_columns);
+    client.createNewRecommender(dh_username, primary_key, dh_password, dh_repo, dh_tablename, item_based_col_1, item_based_col_2, item_based_col_3, "p", "p", "p", display_columns, client_id);
 
     $("#submit-info").hide();
     $("#give-kibitz-key").show();
