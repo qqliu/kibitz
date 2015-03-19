@@ -30,29 +30,24 @@
   	<dependency>
 		<groupId>org.eclipse.jetty</groupId>
 		<artifactId>jetty-servlet</artifactId>
-		<version>8.0.0.M3</version>
+		<version>9.3.0.M1</version>
 	</dependency>
 	<dependency>
 		<groupId>org.eclipse.jetty</groupId>
 		<artifactId>jetty-servlets</artifactId>
-		<version>8.0.0.M3</version>
+		<version>9.3.0.M1</version>
 	</dependency>
 	<dependency>
 		<groupId>org.eclipse.jetty</groupId>
 		<artifactId>jetty-server</artifactId>
-		<version>8.0.0.M3</version>
+		<version>9.3.0.M1</version>
 	</dependency>
 	<dependency>
-	<groupId>org.eclipse.jetty</groupId>
-	<artifactId>jetty-util</artifactId>
-	<version>8.0.0.M3</version>
-</dependency>
-<dependency>
-	<groupId>org.eclipse.jetty</groupId>
-	<artifactId>jetty-util</artifactId>
-	<version>8.0.0.M3</version>
-</dependency>
-  	    <dependency>
+		<groupId>org.eclipse.jetty</groupId>
+		<artifactId>jetty-util</artifactId>
+		<version>9.3.0.M1</version>
+	</dependency>
+  	<dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
@@ -102,6 +97,12 @@
 		<groupId>org.apache.mahout</groupId>
 		<artifactId>mahout-math</artifactId>
 		<version>0.9</version>
+	</dependency>
+	<dependency>
+    	<groupId>org.zeroturnaround</groupId>
+    	<artifactId>zt-zip</artifactId>
+    	<version>1.8</version>
+    	<type>jar</type>
 	</dependency>
   </dependencies>
 </project>
