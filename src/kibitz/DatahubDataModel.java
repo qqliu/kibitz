@@ -43,29 +43,29 @@ import edu.cmu.lti.ws4j.util.WS4JConfiguration;
 
 public class DatahubDataModel implements DataModel{
 	/**
-	 *
+	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
+	
 	/** Default Datahub host. */
 	private static final String DEFAULT_DATAHUB_HOST = "http://datahub.csail.mit.edu/service";
-
+	
 	/** Default Datahub user. */
 	private static final String DEFAULT_DATAHUB_USERNAME = "quanquan";
-
+	
 	/**Default Datahub password. */
 	private static final String DEFAULT_DATAHUB_PASSWORD = "hof9924ne@!";
 
 	/** Default Datahub Database */
 	private static final String DEFAULT_DATAHUB_DATABASE = "quanquan.kibitz_users";
-
+	
 	/** Default Datahub Table Name*/
 	private static final String DEFAULT_DATAHUB_TABLENAME = "users";
-
+	
 	/** Default Webserver Location*/
-	private static final String WEBSERVER_DIR = "/var/www/";
-
-
+	private static final String WEBSERVER_DIR = "/Applications/XAMPP/htdocs/kibitz-demo/home/";
+	
+	
 	private String datahubHost = getDefaultDatahubHost();
 	private String datahubUsername = getDefaultDatahubUsername();
 	private String datahubPassword = getDefaultDatahubPassword();
@@ -73,14 +73,14 @@ public class DatahubDataModel implements DataModel{
 	private String datahubTableName = getDefaultDatahubTablename();
 	private String datahubOriginalTable = DEFAULT_DATAHUB_TABLENAME;
 	private FileDataModel delegate = null;
-
+	
 	private static ILexicalDatabase db = new NictWordNet();
     private static RelatednessCalculator[] rcs = { new WuPalmer(db), new Lin(db), new Path(db) };
 
-
+	
 	private String lastTimestamp;
 	private boolean refreshed;
-
+	
 	private TTransport transport;
 	private TProtocol protocol;
 	private DataHub.Client client;
@@ -95,7 +95,7 @@ public class DatahubDataModel implements DataModel{
 	public DatahubDataModel() throws UnknownHostException {
 		buildModel();
 	}
-
+	  
 	/**
 	 * Creates a new DatahubDataModel with customized Database configuration
 	 * (with authentication)
@@ -147,7 +147,7 @@ public class DatahubDataModel implements DataModel{
 		try {
 			ResultSet last;
 			synchronized(this.client) {
-				last = this.client.execute_sql(this.conn, "SELECT MAX(updated) FROM " + this.datahubDatabase + "." + this.datahubDatabase +"_"
+				last = this.client.execute_sql(this.conn, "SELECT MAX(updated) FROM " + this.datahubDatabase + "." + this.datahubDatabase +"_" 
 							+ this.datahubOriginalTable + "_update_log where table_name='" + this.datahubTableName + "'", null);
 			}
 			if(last != null) {
@@ -172,29 +172,30 @@ public class DatahubDataModel implements DataModel{
 			e.printStackTrace();
 		}
 	}
-
+	
 	private void buildModel() throws UnknownHostException {
 		// Map of user preferences by Mahout user id
 		/*FastByIDMap<Collection<Preference>> userIDPrefMap = new FastByIDMap<Collection<Preference>>();
 		System.out.println("Building model");*/
-
+		
 		try {
 			this.transport = new THttpClient(this.datahubHost);
 			this.protocol = new  TBinaryProtocol(transport);
 			this.client = new DataHub.Client(protocol);
-
+			System.out.println("Connected to Datahub Successfully");
+		
 			this.con_params = new ConnectionParams();
 			this.con_params.setUser(this.datahubUsername);
 			this.con_params.setPassword(this.datahubPassword);
 			this.conn = this.client.open_connection(this.con_params);
-
+			
 			this.activeThreads = new HashMap<Integer, CreateItemSimilarityRunnable>();
 			System.out.println("SELECT relname FROM pg_class WHERE relname = '" + this.datahubDatabase + "_" + this.datahubOriginalTable + "_update_log'");
 			ResultSet updatelogExists =  this.client.execute_sql(this.conn, "SELECT relname FROM pg_class WHERE relname = '" + this.datahubDatabase + "_" + this.datahubOriginalTable + "_update_log'", null);
 			if (updatelogExists != null && updatelogExists.getTuples().size() > 0) {
-				ResultSet last = this.client.execute_sql(this.conn, "SELECT MAX(updated) FROM " + this.datahubDatabase + "." + this.datahubDatabase
+				ResultSet last = this.client.execute_sql(this.conn, "SELECT MAX(updated) FROM " + this.datahubDatabase + "." + this.datahubDatabase 
 						+ "_" + this.datahubOriginalTable + "_update_log where table_name='" + this.datahubTableName + "'", null);
-
+			
 				if(last != null) {
 					for (Tuple t : last.getTuples()) {
 						List<ByteBuffer> cells = t.getCells();
@@ -206,7 +207,6 @@ public class DatahubDataModel implements DataModel{
 				long endTime = System.nanoTime();
 				System.out.println("Time it takes to retrieve items from file: " + (endTime - startTime));
 			}
-            System.out.println("Model successfully initiated");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -221,13 +221,13 @@ public class DatahubDataModel implements DataModel{
 			e.printStackTrace();
 		}
 	}
-
+	
 	/**
 	 * Display a page of items
 	 */
 	public List<Item> getPageItems(String table, long page, long numPerPage, List<String> displayColumns) {
 		try {
-			return this.getListOfItems( "select kibitz_generated_id, " + StringUtils.join(displayColumns, ',') + " from " +
+			return this.getListOfItems( "select kibitz_generated_id, " + StringUtils.join(displayColumns, ',') + " from " + 
 					this.datahubDatabase + "." + table + " limit " + numPerPage + " offset " + numPerPage * page, displayColumns);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
@@ -238,7 +238,7 @@ public class DatahubDataModel implements DataModel{
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Counts the number of items in the database
 	 */
@@ -252,7 +252,7 @@ public class DatahubDataModel implements DataModel{
 			long endTime = System.nanoTime();
 			long duration = (endTime - startTime);  //divide by 1000000 to get milliseconds.
 			System.out.println("Time getItemCount took to run: " + duration);
-
+			
 			for (Tuple t : res.getTuples()) {
 				List<ByteBuffer> cells = t.getCells();
 				return Integer.parseInt(new String(cells.get(0).array()));
@@ -266,7 +266,7 @@ public class DatahubDataModel implements DataModel{
 		}
 		return 0;
 	}
-
+	
 	/**
 	 * Creates all associated tables associated with a new recommender.
 	 */
@@ -277,26 +277,26 @@ public class DatahubDataModel implements DataModel{
 				this.client.execute_sql(this.conn, "alter table " + this.datahubDatabase + "." + table + " drop column if exists kibitz_generated_id;"
 										+ " alter table " + this.datahubDatabase + "." + table + " drop constraint if exists " + primaryKey + ";"
 										+ " alter table " + this.datahubDatabase + "." + table + " add column kibitz_generated_id serial primary key;"
-										+ " create table if not exists " + this.datahubDatabase + "." + table + "_ratings ("
+										+ " create table if not exists " + this.datahubDatabase + "." + table + "_ratings (" 
 										+  "user_id int, item_id int, rating varchar(255));"
-										+ " create table if not exists " + this.datahubDatabase + "." + table + "_users ("
+										+ " create table if not exists " + this.datahubDatabase + "." + table + "_users (" 
 										+ "kibitz_generated_id SERIAL PRIMARY KEY, username varchar(255), email varchar(255), password varchar(255));"
-										+ " CREATE TABLE if not exists " + this.datahubDatabase + "." + this.datahubDatabase +"_" + this.datahubOriginalTable + "_update_log(table_name text, updated timestamp NOT NULL DEFAULT now());"
-										+ "drop function if exists " + this.datahubUsername + "_" + this.datahubDatabase + "_" + table
-										+ "_timestamp_update_log() cascade; " + "CREATE FUNCTION " + this.datahubUsername + "_" + this.datahubDatabase + "_"
-										+ table + "_timestamp_update_log() RETURNS TRIGGER LANGUAGE 'plpgsql' AS $$"
+										+ " CREATE TABLE if not exists " + this.datahubDatabase + "." + this.datahubDatabase +"_" + this.datahubOriginalTable + "_update_log(table_name text, updated timestamp NOT NULL DEFAULT now());" 
+										+ "drop function if exists " + this.datahubUsername + "_" + this.datahubDatabase + "_" + table 
+										+ "_timestamp_update_log() cascade; " + "CREATE FUNCTION " + this.datahubUsername + "_" + this.datahubDatabase + "_" 
+										+ table + "_timestamp_update_log() RETURNS TRIGGER LANGUAGE 'plpgsql' AS $$" 
 									    + "BEGIN INSERT INTO " + this.datahubDatabase + "." + this.datahubDatabase +"_" + this.datahubOriginalTable + "_update_log(table_name) VALUES(TG_TABLE_NAME); RETURN NEW;"
 									    + "END $$; " + " drop trigger if exists " + table + "_timestamp_update_log on " + this.datahubDatabase + "." + table + "; "
 										+ "CREATE TRIGGER " + table + "_timestamp_update_log "
 										+ "AFTER INSERT OR UPDATE ON " + this.datahubDatabase + "." + table + " FOR EACH STATEMENT EXECUTE procedure "
-										+ this.datahubUsername + "_" + this.datahubDatabase + "_"
-										+ table + "_timestamp_update_log();" + " drop trigger if exists " + table + "_ratings_timestamp_update_log on "
+										+ this.datahubUsername + "_" + this.datahubDatabase + "_" 
+										+ table + "_timestamp_update_log();" + " drop trigger if exists " + table + "_ratings_timestamp_update_log on " 
 										+ this.datahubDatabase + "." + table + "; CREATE TRIGGER " + table + "_ratings_timestamp_update_log "
 										+ "AFTER INSERT OR UPDATE ON " + this.datahubDatabase + "." + table + "_ratings FOR EACH STATEMENT EXECUTE procedure "
-										+ this.datahubUsername + "_" + this.datahubDatabase + "_"
+										+ this.datahubUsername + "_" + this.datahubDatabase + "_" 
 										+ table + "_timestamp_update_log();", null);
-			}
-
+			}	
+		
 			String c = "select count(*) from pg_tables where schemaname = '" + this.datahubDatabase + "' and tablename = '" + table + "_item_combos';";
 			ResultSet ifItemCombosExist;
 			synchronized(this.client) {
@@ -306,139 +306,146 @@ public class DatahubDataModel implements DataModel{
 				List<ByteBuffer> cs = tt.getCells();
 				if ("0".equals(new String(cs.get(0).array()))) {
 					System.out.println(new String(cs.get(0).array()));
-
+					
 					String query = "SELECT distinct p1.kibitz_generated_id AS firstid, p2.kibitz_generated_id AS secondid, ";
-
+					
 					if (firstColumnName != null) {
 						query += "p1." + firstColumnName + " AS first1, p2." + firstColumnName + " AS second1";
 					}
-
+					
 					if (secondColumnName != null) {
 						query += ",p1." + secondColumnName + " AS first2, p2." + secondColumnName + " AS second2";
 					}
-
+					
 					if (thirdColumnName != null) {
 						query += ",p1." + thirdColumnName + " AS first3, p2." + thirdColumnName + " AS second3";
 					}
-
-					query += " INTO " + this.datahubDatabase + "." + table + "_item_combos_initial FROM " + this.datahubDatabase + "." + table
+					
+					query += " INTO " + this.datahubDatabase + "." + table + "_item_combos_initial FROM " + this.datahubDatabase + "." + table 
 							+ " AS p1, " + this.datahubDatabase + "." + table + " AS p2;";
-
+					
 					String initial_combo = "select count(*) from pg_tables where schemaname = '" + this.datahubDatabase + "' and tablename = '" + table + "_item_combos';";
 					ResultSet ifInitialItemCombosExist;
 					synchronized(this.client) {
 						ifInitialItemCombosExist = this.client.execute_sql(this.conn, initial_combo, null);
 					}
-
+					
 					for (Tuple initials: ifInitialItemCombosExist.getTuples()) {
 						List<ByteBuffer> icombos = initials.getCells();
 						if ("0".equals(new String(icombos.get(0).array()))) {
 							this.client.execute_sql(this.conn, query, null);
 						}
 					}
-
+					
 					String newQuery = "select * into " + this.datahubDatabase + "." + table + "_item_combos from " + this.datahubDatabase + "." + table
 							+ "_item_combos_initial order by random() limit 2000000";
 					this.client.execute_sql(this.conn, newQuery, null);
 				}
 			}
-
+			
 			CreateItemSimilarityRunnable t;
-
+			
 			for (int i = 0; i < 10; i++) {
 				t = new CreateItemSimilarityRunnable(i * 10000, (i+1)*10000, table, firstColumnName, secondColumnName, thirdColumnName);
 				this.activeThreads.put(i*10000, t);
 				t.run();
 			}
-
+			
 			File direc = new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.datahubUsername + "/" + this.datahubDatabase + "/homepage");
 			if (direc.isDirectory()) {
 				FileUtils.deleteDirectory(direc);
-			}
-
-            File newDir = new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.datahubUsername + "/" + this.datahubDatabase + "/homepage");
-            newDir.setExecutable(true, false);
-            newDir.setReadable(true, false);
-            newDir.setWritable(true, false);
-			FileUtils.copyDirectory(new File(WEBSERVER_DIR + "base"), newDir);
+			}   
+			
+			FileUtils.copyDirectory(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + "base"), new File(UpdateLocalFiles.getKibitzLocalStorageAddr() 
+					 + this.datahubUsername + "/" + this.datahubDatabase + "/homepage"));
 			File login_creds = new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.datahubUsername + "/" + this.datahubDatabase + "/homepage/required_functions.js");
-			String input = "var title = '" + table + "';\n" +
-					"var client_key = '" + clientKey + "';\n" +
-					"\n" + "$(document).ready(function() {\n" +
-					"    transport.open();\n" +
-					"    client.createNewIndividualServer(client_key);\n" +
-					"    client.initiateModel('" + clientKey + "', '" + this.datahubTableName + "', '"
-					+ this.datahubUsername + "', '" + this.datahubPassword + "', '" + this.datahubDatabase + "');\n" +
-					"    document.getElementById(\"title\").innerHTML = title + ' Recommender';\n" +
-					"    $('#search').keyup(function(ev) {\n" +
-					"        if (ev.which === 13) {\n" +
-					"            var items = client.getSearchItems(client_key, $('#search').val());\n" +
-					"\n" +
-					"            document.getElementById('listofitems').innerHTML = \"\";\n" +
-					"            var itemslist =\"\";\n" +
-					"            for (var i =0; i < items.length; i++) {\n" +
-					"                var item = items[i];\n" +
-					"                if (item.id != null && item.title != null) {\n" +
-					"                    currItem = '<tr><tr><div class=\"relative\">';\n" +
-					"                    if (item.image.indexOf('http') > -1) {\n" +
-					"                        currItem += '<img src = \"' + item.image + '\" />';\n" +
-					"                    }\n" +
-					"                    currItem += '<div class=\"inline-block user-info\"><h2>' + item.title + '</h2>';\n" +
-					"                    if (item.description != null){\n" +
-					"                        currItem += '<div class=\"icons\"><ul class=\"list-inline\"><li>' + item.description + '</li>';\n" +
-					"                    }\n" +
-					"                    currItem += '<div id=\"rate' + item.id + '\" class=\"rating\">&nbsp;</div><div class=\"implementation\"></div>';\n" +
-					"                    if (item.description != null) {\n" +
-					"                        currItem += '</ul></div>';\n" +
-					"                    }\n" +
-					"                    currItem += '</div></div></td></tr>';\n" +
-					"                                                                                                                    itemslist += currItem;\n" +
-					"                                                                                                                          }\n" +
-					"                                                }\n" +
-					"                            document.getElementById('listofitems').innerHTML = itemslist;\n" +
-					"\n" +
-					"                                if(userId != null) {\n" +
-					"                                                var my_rated_items = client.getUserRatedItems(client_key, userId);\n" +
-					"                                                        for (i = 0; i < my_rated_items.length; i++) {\n" +
-					"                                                                            item = my_rated_items[i];\n" +
-					"                                                                                        var r = document.getElementById('rate' + item.id);\n" +
-					"                                                                                                    if (r != null) {\n" +
-					"                                                                                                                            r.setAttribute('value', item.rating ? item.rating: -1);\n" +
-					"                                                                                                                                        }\n" +
-					"                                                                                                            }\n" +
-					"                                                            }\n" +
-					"                                    var ratings = $('.rating');\n" +
-					"                                        ratings.each(function (i, el) {\n" +
-					"                                                        var rating = parseInt($(el).attr('value'));\n" +
-					"                                                                if (rating > -1) {\n" +
-					"                                                                                    $(el).rating('', {maxvalue: 10, curvalue: rating});\n" +
-					"                                                                                            } else {\n" +
-					"                                                                                                                $(el).rating('', {maxvalue: 10});\n" +
-					"                                                                                                                        }\n" +
-					"        });\n" +
-					"        }\n" +
-					"    });\n" +
+			String input = "var title = '" + table + "';\n" + 
+					"var client_key = '" + clientKey + "';\n" + 
+					"\n" + "$(document).ready(function() {\n" + 
+					"    transport.open();\n" + 
+					"    client.createNewIndividualServer(client_key);\n" + 
+					"    client.initiateModel('" + clientKey + "', '" + this.datahubTableName + "', '" 
+					+ this.datahubUsername + "', '" + this.datahubPassword + "', '" + this.datahubDatabase + "');\n" + 
+					"    document.getElementById(\"title\").innerHTML = title + ' Recommender';\n" + 
+					"    $('#search').keyup(function(ev) {\n" + 
+					"        if (ev.which === 13) {\n" + 
+					"            var items = client.getSearchItems(client_key, $('#search').val());\n" + 
+					"\n" + 
+					"            document.getElementById('listofitems').innerHTML = \"\";\n" + 
+					"            var itemslist =\"\";\n" + 
+					"            for (var i =0; i < items.length; i++) {\n" + 
+					"                var item = items[i];\n" + 
+					"                if (item.id != null && item.title != null) {\n" + 
+					"                    currItem = '<tr><tr><div class=\"relative\">';\n" + 
+					"                    if (item.image.indexOf('http') > -1) {\n" + 
+					"                        currItem += '<img src = \"' + item.image + '\" />';\n" + 
+					"                    }\n" + 
+					"                    currItem += '<div class=\"inline-block user-info\"><h2>' + item.title + '</h2>';\n" + 
+					"                    if (item.description != null){\n" + 
+					"                        currItem += '<div class=\"icons\"><ul class=\"list-inline\"><li>' + item.description + '</li>';\n" + 
+					"                    }\n" + 
+					"                    currItem += '<div id=\"rate' + item.id + '\" class=\"rating\">&nbsp;</div><div class=\"implementation\"></div>';\n" + 
+					"                    if (item.description != null) {\n" + 
+					"                        currItem += '</ul></div>';\n" + 
+					"                    }\n" + 
+					"                    currItem += '</div></div></td></tr>';\n" + 
+					"                                                                                                                    itemslist += currItem;\n" + 
+					"                                                                                                                          }\n" + 
+					"                                                }\n" + 
+					"                            document.getElementById('listofitems').innerHTML = itemslist;\n" + 
+					"\n" + 
+					"                                if(userId != null) {\n" + 
+					"                                                var my_rated_items = client.getUserRatedItems(client_key, userId);\n" + 
+					"                                                        for (i = 0; i < my_rated_items.length; i++) {\n" + 
+					"                                                                            item = my_rated_items[i];\n" + 
+					"                                                                                        var r = document.getElementById('rate' + item.id);\n" + 
+					"                                                                                                    if (r != null) {\n" + 
+					"                                                                                                                            r.setAttribute('value', item.rating ? item.rating: -1);\n" + 
+					"                                                                                                                                        }\n" + 
+					"                                                                                                            }\n" + 
+					"                                                            }\n" + 
+					"                                    var ratings = $('.rating');\n" + 
+					"                                        ratings.each(function (i, el) {\n" + 
+					"                                                        var rating = parseInt($(el).attr('value'));\n" + 
+					"                                                                if (rating > -1) {\n" + 
+					"                                                                                    $(el).rating('', {maxvalue: 10, curvalue: rating});\n" + 
+					"                                                                                            } else {\n" + 
+					"                                                                                                                $(el).rating('', {maxvalue: 10});\n" + 
+					"                                                                                                                        }\n" + 
+					"        });\n" + 
+					"        }\n" + 
+					"    });\n" + 
 					"});";
 			FileWriter fileWriter = new FileWriter(login_creds.getAbsolutePath(), true);
 	        BufferedWriter bufferWriter = new BufferedWriter(fileWriter);
 	        bufferWriter.write(input);
 	        bufferWriter.close();
-
-	        ZipUtil.pack(new File(UpdateLocalFiles.getKibitzLocalStorageAddr()
-					 + this.datahubUsername + "/" + this.datahubDatabase + "/homepage"), new File(UpdateLocalFiles.getKibitzLocalStorageAddr()
+	        
+	        ZipUtil.pack(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() 
+					 + this.datahubUsername + "/" + this.datahubDatabase + "/homepage"), new File(UpdateLocalFiles.getKibitzLocalStorageAddr() 
 							 + this.datahubUsername + "/" + this.datahubDatabase + "/homepage.zip"));
-
+	        
 	        direc = new File(WEBSERVER_DIR + this.datahubUsername + "/" + this.datahubDatabase);
 			if (direc.isDirectory()) {
 				FileUtils.deleteDirectory(direc);
-			}
-
+			}   
+			
 			FileUtils.copyDirectory(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.datahubUsername + "/" + this.datahubDatabase + "/homepage"), new File(WEBSERVER_DIR
 					 + this.datahubUsername + "/" + this.datahubDatabase));
-			FileUtils.copyFile(new File(UpdateLocalFiles.getKibitzLocalStorageAddr()
-							 + this.datahubUsername + "/" + this.datahubDatabase + "/homepage.zip"),
+			FileUtils.copyFile(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() 
+							 + this.datahubUsername + "/" + this.datahubDatabase + "/homepage.zip"), 
 							 new File(WEBSERVER_DIR + this.datahubUsername + "/" + this.datahubDatabase + "/homepage.zip"));
-
+			
+			File ratings = new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.datahubUsername + "/" + this.datahubDatabase + "/" + this.datahubOriginalTable + "_ratings.csv");
+			ratings.createNewFile();
+			
+			fileWriter = new FileWriter(ratings.getAbsolutePath(), true);
+	        bufferWriter = new BufferedWriter(fileWriter);
+	        bufferWriter.write("1,1,1");
+	        bufferWriter.close();
+	        
+	        File item_sims = new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.datahubUsername + "/" + this.datahubDatabase + "/" + this.datahubOriginalTable + "_item_similarity.csv");
+			item_sims.createNewFile();
 			return true;
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
@@ -455,7 +462,7 @@ public class DatahubDataModel implements DataModel{
 		}
 		return false;
 	}
-
+	
 	public List<Item> makeOverallRatingsBasedRecommendation(String ratingColumnName, String table, long numRecs, List<String> displayColumns) {
 		try {
 			return this.getListOfItems("select kibitz_generated_id, "+ StringUtils.join(displayColumns, ',') + " from " + table
@@ -469,7 +476,7 @@ public class DatahubDataModel implements DataModel{
 		}
 		return null;
 	}
-
+	
 	public List<Item> makeRandomRecommmendation(long numRecs, String table, List<String> displayColumns) {
 		try {
 			return this.getListOfItems("select kibitz_generated_id, " + StringUtils.join(displayColumns, ',') + " from " + table
@@ -483,14 +490,14 @@ public class DatahubDataModel implements DataModel{
 		}
 		return null;
 	}
-
+	
 	private double calculatePhraseSimilarity(String first, String second) throws IllegalStateException, IOException {
 		WS4JConfiguration.getInstance().setMFS(true);
 
 		double score = 0.0;
 		for ( RelatednessCalculator rc : rcs ) {
 			double[][] r = rc.getSimilarityMatrix(first.split(" "), second.split(" "));
-
+            
             double relatednessScore = 0.0;
             int relatedWordsCount = 0;
             for (int i = 0; i < r.length; i++) {
@@ -501,17 +508,17 @@ public class DatahubDataModel implements DataModel{
             		}
             	}
             }
-
+            
             if (relatedWordsCount > 0) {
             	//System.out.println(relatednessScore / relatedWordsCount);
             	score += relatednessScore / relatedWordsCount;
             }
 		}
-
+		
 		//System.out.println(score / 4);
 		return score / 4;
 	}
-
+	
 	/**
 	 * Gets list of items user has rated.
 	 */
@@ -521,11 +528,11 @@ public class DatahubDataModel implements DataModel{
 			for (String name: displayColumns) {
 				itemsTableColumns.add(items_table + "." + name);
 			}
-
+			
 			displayColumns.add("rating");
-
-			return this.getListOfItems("SELECT " + ratings_table + ".item_id as kibitz_generated_id, " + ratings_table +
-					".rating, " + StringUtils.join(itemsTableColumns, ',') + ", " + ratings_table + ".user_id FROM " + ratings_table + " INNER JOIN " + items_table +
+			
+			return this.getListOfItems("SELECT " + ratings_table + ".item_id as kibitz_generated_id, " + ratings_table + 
+					".rating, " + StringUtils.join(itemsTableColumns, ',') + ", " + ratings_table + ".user_id FROM " + ratings_table + " INNER JOIN " + items_table + 
 					" ON " + ratings_table + ".item_id = " + items_table + ".kibitz_generated_id" + " WHERE user_id=" + userId, displayColumns);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
@@ -536,7 +543,7 @@ public class DatahubDataModel implements DataModel{
 		}
 		return new ArrayList<Item>();
 	}
-
+	 
 	 /**
 	  * Gets list of ids of items rated
 	  */
@@ -564,7 +571,7 @@ public class DatahubDataModel implements DataModel{
 		Long[] ids = new Long[userRatedItemsIds.size()];
 		return ArrayUtils.toPrimitive(userRatedItemsIds.toArray(ids));
 	 }
-
+	 
 	/**
 	 * Records user ratings
 	 */
@@ -588,7 +595,7 @@ public class DatahubDataModel implements DataModel{
 		System.out.println("Time saveIntoDb took: " + (finishDBTime - startTime));
 		System.out.println("Time writeNewRatings took: " + (finishRecordTime - startTime));
 	 }
-
+	 
 	 /**
 	  * Gets user ID
 	  */
@@ -625,7 +632,7 @@ public class DatahubDataModel implements DataModel{
 		}
 		return 0;
 	 }
-
+	 
 	 /**
 	  * Deletes user ratings.
 	  */
@@ -647,9 +654,9 @@ public class DatahubDataModel implements DataModel{
 			 e.printStackTrace();
 		 }*/
 	 }
-
+	 
 	 public List<Item> getItemsFromPrimaryKeys(String primaryKey, List<String> itemKeys, List<String> displayColumns, String table) {
-		 String query = "select " + StringUtils.join(displayColumns, ", ") + " from " + table + " where "
+		 String query = "select " + StringUtils.join(displayColumns, ", ") + " from " + table + " where " 
 				 + primaryKey + "=";
 		 for (int i = 0; i < itemKeys.size() - 1; i++) {
 			 query += itemKeys.get(i) + " or " + primaryKey + "=";
@@ -666,7 +673,7 @@ public class DatahubDataModel implements DataModel{
 		}
 		return null;
 	 }
-
+	 
 	 public void createNewUser(List<?> columns, String suffix, List<String>columnNames, String table, boolean isCentralRepo) {
 		 if(isCentralRepo) {
 			 saveIntoDb(columns, suffix, columnNames, DatahubDataModel.getDefaultDatahubTablename());
@@ -714,19 +721,19 @@ public class DatahubDataModel implements DataModel{
 			}
 			return false;
 	 }
-
+	 
 	 public String checkLogin(String username, String password, String table, boolean isCentralRepo) {
 		 try {
 		 	if (isCentralRepo) {
 				THttpClient transport = new THttpClient(this.datahubHost);
 				TBinaryProtocol protocol = new  TBinaryProtocol(transport);
 				DataHub.Client client = new DataHub.Client(protocol);
-
+			
 				ConnectionParams params = new ConnectionParams();
 				params.setUser(DatahubDataModel.getDefaultDatahubUsername());
 				params.setPassword(DatahubDataModel.getDefaultDatahubPassword());
 				Connection connection = client.open_connection(con_params);
-
+				
 				ResultSet res = client.execute_sql(connection, "SELECT password FROM " + DatahubDataModel.getDefaultDatahubTablename() + " WHERE username='" + username + "'", null);
 				for (Tuple t : res.getTuples()) {
 					List<ByteBuffer> cells = t.getCells();
@@ -735,7 +742,7 @@ public class DatahubDataModel implements DataModel{
 				}
 			 } else {
 				ResultSet res;
-
+				 
 				synchronized(this.client) {
 					res = this.client.execute_sql(this.conn, "SELECT password FROM " + table + " WHERE username='" + username + "'", null);
 				}
@@ -757,24 +764,24 @@ public class DatahubDataModel implements DataModel{
 		}
 		 return null;
 	 }
-
+	 
 	 /**
 	  * Checks whether username is already taken.
 	  * @param username
 	  * @return
 	  */
 	 public boolean checkUsername(String username, String table, boolean isCentralRepo) {
-			try {
+			try {	
 				if (isCentralRepo) {
 					THttpClient transport = new THttpClient(this.datahubHost);
 					TBinaryProtocol protocol = new  TBinaryProtocol(transport);
 					DataHub.Client client = new DataHub.Client(protocol);
-
+				
 					ConnectionParams params = new ConnectionParams();
 					params.setUser(DatahubDataModel.getDefaultDatahubUsername());
 					params.setPassword(DatahubDataModel.getDefaultDatahubPassword());
 					Connection connection = client.open_connection(con_params);
-
+					
 					ResultSet res;
 					synchronized(this.client) {
 						res = this.client.execute_sql(connection, "SELECT COUNT(*) FROM " + DatahubDataModel.getDefaultDatahubTablename() + " WHERE username='" + username + "'", null);
@@ -815,7 +822,7 @@ public class DatahubDataModel implements DataModel{
 			}
 			return true;
 	 }
-
+	
 	/**
 	 * Maps id from Datahub to long for Mahout recommenders
 	 */
@@ -823,25 +830,25 @@ public class DatahubDataModel implements DataModel{
 		// creates a map of the id to the long value
 		return id;
 	}
-
+	
 	/**
 	 * Gets list of items from list of ids
 	 */
 	public List<Item> getItemsFromIds(ArrayList<Long> ids, String table, String ratings_table, long userId, List<String> displayColumns) {
 		List<Item> items = new ArrayList<Item>();
-
+		
 		List<String> itemsTableColumns = new ArrayList<String>();
 		for (String name: displayColumns) {
 			itemsTableColumns.add(table + "." + name);
 		}
-
+		
 		displayColumns.add("rating");
-
-		try {
+		
+		try {			
 			synchronized(this.client) {
 				if(ids.size() > 0) {
-					String query = "SELECT " + table + ".kibitz_generated_id, " + StringUtils.join(displayColumns, ",")
-						+ ratings_table + ".rating FROM " + table + " LEFT JOIN " + ratings_table + " ON " + ratings_table
+					String query = "SELECT " + table + ".kibitz_generated_id, " + StringUtils.join(displayColumns, ",") 
+						+ ratings_table + ".rating FROM " + table + " LEFT JOIN " + ratings_table + " ON " + ratings_table 
 						+ ".item_id=" + table + ".kibitz_generated_id" + " AND user_id=" + userId + " WHERE (kibitz_generated_id='";
 					for (int i = 0; i < ids.size() - 1; i++) {
 						query += ids.get(i) + "' OR kibitz_generated_id='";
@@ -861,7 +868,7 @@ public class DatahubDataModel implements DataModel{
 		}
 		return items;
 	}
-
+	
 	/**
 	 * Gets item from item id
 	 */
@@ -869,23 +876,23 @@ public class DatahubDataModel implements DataModel{
 		try {
 			HashMap<String, String> attributes = new HashMap<String, String>();
 			ResultSet res;
-
+			
 			synchronized(this.client) {
-				res = this.client.execute_sql(this.conn, "SELECT kibitz_generated_id, " + StringUtils.join(displayColumns, ",") + " FROM " + table
+				res = this.client.execute_sql(this.conn, "SELECT kibitz_generated_id, " + StringUtils.join(displayColumns, ",") + " FROM " + table 
 						+ " WHERE kibitz_generated_id='" + id + "'", null);
 			}
 			HashMap<String, Integer> colToIndex = this.getFieldNames(res);
-
+			
 			for (Tuple t : res.getTuples()) {
 				List<ByteBuffer> cells = t.getCells();
 				Item item = new Item();
 				item.setId(Long.parseLong(new String(cells.get(colToIndex.get("kibitz_generated_id")).array())));
-
+				
 				for (String column: displayColumns) {
 					if (colToIndex.containsKey(column) && !new String(cells.get(colToIndex.get(column)).array()).equals("None"))
 						attributes.put(column, new String(cells.get(colToIndex.get(column)).array()));
 				}
-
+				
 				item.setAttributes(attributes);
 				return item;
 			}
@@ -898,7 +905,7 @@ public class DatahubDataModel implements DataModel{
 		}
 		return null;
 	}
-
+ 	
 	/**
 	 * Return search results
 	 */
@@ -928,25 +935,25 @@ public class DatahubDataModel implements DataModel{
 		}
 		return items;
 	}
-
+	
 	/**
 	 * Maps Mahout long value to Datahub ID
 	 */
 	public String fromLongToId(long id) {
 		return new String();
 	}
-
+	
 	public boolean getRefreshed() {
 		return this.refreshed;
 	}
-
+	
 	/**
 	 * Returns last timestamp; used to terminate old recommenders
 	 */
 	public String getTimestamp() {
 		return this.lastTimestamp;
 	}
-
+	
 	/**
 	 * Adds this Kibitz user to database
 	 */
@@ -955,12 +962,12 @@ public class DatahubDataModel implements DataModel{
 			THttpClient transport = new THttpClient(this.datahubHost);
 			TBinaryProtocol protocol = new  TBinaryProtocol(transport);
 			DataHub.Client clnt = new DataHub.Client(protocol);
-
+	
 			ConnectionParams params = new ConnectionParams();
 			params.setUser(DatahubDataModel.getDefaultDatahubUsername());
 			params.setPassword(DatahubDataModel.getDefaultDatahubPassword());
 			Connection connection = clnt.open_connection(params);
-
+			
 			clnt.execute_sql(connection, "INSERT INTO kibitz_users.users (database, username, password, ratings_table) "
 					+ " VALUES ('" + databaseName + "', '" + username + "', '" + password + "', '" + ratings_table + "')", null);
 		} catch (DBException e) {
@@ -971,7 +978,7 @@ public class DatahubDataModel implements DataModel{
 			e.printStackTrace();
 		}
 	}
-
+	
 	private HashMap<String, Integer> getFieldNames(ResultSet res) {
 		List<String> fieldNames = res.getField_names();
 		HashMap<String, Integer> colToIndex = new HashMap<String, Integer>();
@@ -980,28 +987,28 @@ public class DatahubDataModel implements DataModel{
 	    }
 		return colToIndex;
 	}
-
+	
 	/**
 	 * Writes newest preferences to delta files
 	 */
 	private void writeNewRatings(long userId, long itemId, long rating) {
 		try {
-		    FileWriter fw = new FileWriter(UpdateLocalFiles.getKibitzLocalStorageAddr() +
+		    FileWriter fw = new FileWriter(UpdateLocalFiles.getKibitzLocalStorageAddr() + 
 		    		 this.datahubUsername + "/" + this.datahubDatabase + "/" + this.datahubTableName + ".update.csv",true);
-		    if (rating == -1)
+		    if (rating == -1) 
 		    	fw.write(userId + "," + itemId + ", \n");
-		    else
+		    else 
 		    	fw.write(userId + "," + itemId + "," + rating + "\n");
 		    fw.close();
 		} catch(IOException e) {
 		    System.err.println("IOException: " + e.getMessage());
 		}
 	}
-
+	
 	/**
 	 * Returns list of Item objects from query
-	 * @throws TException
-	 * @throws DBException
+	 * @throws TException 
+	 * @throws DBException 
 	 */
 	public List<Item> getListOfItems(String query, List<String> displayColumns) throws DBException, TException {
 		List<Item> items = new ArrayList<Item>();
@@ -1012,30 +1019,30 @@ public class DatahubDataModel implements DataModel{
 			res = this.client.execute_sql(this.conn, query, null);
 		}
 		HashMap<String, Integer> colToIndex = this.getFieldNames(res);
-
+		
 		for (Tuple t : res.getTuples()) {
 			List<ByteBuffer> cells = t.getCells();
 			Item item = new Item();
 			item.setId(Long.parseLong(new String(cells.get(colToIndex.get("kibitz_generated_id")).array())));
-
+			
 			attributes = new HashMap<String, String>();
 			for (String column: displayColumns) {
 				if (colToIndex.containsKey(column) && !new String(cells.get(colToIndex.get(column)).array()).equals("None"))
 					attributes.put(column, new String(cells.get(colToIndex.get(column)).array()));
 			}
-
+			
 			item.setAttributes(attributes);
 			items.add(item);
 		}
 		return items;
 	}
-
+ 
 	/**
 	* Cleanup mapping collection.
 	*/
 	public void cleanupMappingCollection() {
 	}
-
+	
 	@Override
 	public LongPrimitiveIterator getUserIDs() throws TasteException {
 		return delegate.getUserIDs();
@@ -1045,7 +1052,7 @@ public class DatahubDataModel implements DataModel{
 	public PreferenceArray getPreferencesFromUser(long id) throws TasteException {
 		return delegate.getPreferencesFromUser(id);
 	}
-
+	
 	@Override
 	public FastIDSet getItemIDsFromUser(long userID) throws TasteException {
 		return delegate.getItemIDsFromUser(userID);
@@ -1131,19 +1138,19 @@ public class DatahubDataModel implements DataModel{
 	public static String getDefaultDatahubHost() {
 		return DEFAULT_DATAHUB_HOST;
 	}
-
-	public class CreateItemSimilarityRunnable implements Runnable {
+	
+	public class CreateItemSimilarityRunnable implements Runnable {	
 		private int upperBound;
 		private String table;
 		private String firstColumnName;
 		private String secondColumnName;
 		private String thirdColumnName;
-
+		
 		private BufferedWriter writer = null;
 		private File file = null;
 		private int lowerBound;
-
-		public CreateItemSimilarityRunnable(int lowerBound, int upperBound, String table, String firstColumnName, String secondColumnName,
+		
+		public CreateItemSimilarityRunnable(int lowerBound, int upperBound, String table, String firstColumnName, String secondColumnName, 
 				String thirdColumnName) {
 			this.upperBound = upperBound;
 			this.lowerBound = lowerBound;
@@ -1152,32 +1159,32 @@ public class DatahubDataModel implements DataModel{
 			this.secondColumnName = secondColumnName;
 			this.thirdColumnName = thirdColumnName;
 		}
-
+		
 		public void run() {
 			this.writeToItemSimilarityFile();
 		}
-
+		
 		private void writeToItemSimilarityFile() {
 			try {
 				double firstColumnScore = 0;
 				double secondColumnScore = 0;
 				double thirdColumnScore = 0;
-
+				
 				long startTime = 0;
-
+				
 				for (int i = this.lowerBound; i < this.upperBound; i+= 10000) {
 					long endTime = System.currentTimeMillis();
 					String item_combos = "SELECT * FROM " + DatahubDataModel.this.datahubDatabase + "." + table + "_item_combos LIMIT 10000 OFFSET " + i;
-
+					
 					System.out.println("Time it takes to process 10000 items: " + ((float) (endTime - startTime))/(10*10*10*60));
 					startTime = System.currentTimeMillis();
-
+					
 					ResultSet res;
 					synchronized(DatahubDataModel.this.client) {
 							res = DatahubDataModel.this.client.execute_sql(DatahubDataModel.this.conn, item_combos, null);
 					}
 					HashMap<String, Integer> colToIndex = DatahubDataModel.this.getFieldNames(res);
-
+				
 					for (Tuple t : res.getTuples()) {
 						firstColumnScore = 0;
 						secondColumnScore = 0;
@@ -1188,28 +1195,28 @@ public class DatahubDataModel implements DataModel{
 							String second1 = new String(cells.get(colToIndex.get("second1")).array());
 							firstColumnScore = DatahubDataModel.this.calculatePhraseSimilarity(first1, second1);
 						}
-
+						
 						if (secondColumnName != null) {
 							String first2 = new String(cells.get(colToIndex.get("first2")).array());
 							String second2 = new String(cells.get(colToIndex.get("second2")).array());
 							secondColumnScore = DatahubDataModel.this.calculatePhraseSimilarity(first2, second2);
 						}
-
+						
 						if (thirdColumnName != null) {
 							String first3 = new String(cells.get(colToIndex.get("first3")).array());
 							String second3 = new String(cells.get(colToIndex.get("second3")).array());
 							thirdColumnScore = DatahubDataModel.this.calculatePhraseSimilarity(first3, second3);
 						}
-
-						this.writeSimilarityScore(table, new String(cells.get(colToIndex.get("firstid")).array()),
+						
+						this.writeSimilarityScore(table, new String(cells.get(colToIndex.get("firstid")).array()), 
 								new String(cells.get(colToIndex.get("secondid")).array()), (float) (0.5*firstColumnScore + 0.3*secondColumnScore + 0.2*thirdColumnScore));
 					}
 				}
-
-				if (this.writer != null)
+				
+				if (this.writer != null) 
 					this.writer.close();
 				this.completedThread();
-
+				
 				DatahubDataModel.this.checkCompletion();
 			} catch (DBException e) {
 				// TODO Auto-generated catch block
@@ -1222,19 +1229,19 @@ public class DatahubDataModel implements DataModel{
 				e.printStackTrace();
 			}
 		}
-
+		
 		private void writeSimilarityScore(String table, String firstId, String secondId, float score) {
-			try {
+			try {	
 				if (this.file == null || this.writer == null) {
 					String storageDir = UpdateLocalFiles.getKibitzLocalStorageAddr();
 					this.file = new File(storageDir + DatahubDataModel.this.datahubUsername);
 					this.file.mkdir();
 					this.file = new File(storageDir +  DatahubDataModel.this.datahubUsername + "/" + DatahubDataModel.this.datahubDatabase);
 					this.file.mkdir();
-					this.file = new File(storageDir + DatahubDataModel.this.datahubUsername + "/" + DatahubDataModel.this.datahubDatabase + "/" + table + "_item_similarity"
+					this.file = new File(storageDir + DatahubDataModel.this.datahubUsername + "/" + DatahubDataModel.this.datahubDatabase + "/" + table + "_item_similarity" 
 							+ "." + this.lowerBound + "_" + this.upperBound + ".csv");
 					this.file.createNewFile();
-					this.writer  = new BufferedWriter(new FileWriter(storageDir + DatahubDataModel.this.datahubUsername + "/"
+					this.writer  = new BufferedWriter(new FileWriter(storageDir + DatahubDataModel.this.datahubUsername + "/" 
 							+ DatahubDataModel.this.datahubDatabase + "/" + table + "_item_similarity" + "." + this.lowerBound + "_" + this.upperBound + ".csv"));
 				}
 				this.writer.write(firstId + "," + secondId + "," + (double) Math.round(score * 1000) / 1000 + "\n");
@@ -1243,7 +1250,7 @@ public class DatahubDataModel implements DataModel{
 				e.printStackTrace();
 			}
 		}
-
+		
 		private void completedThread() {
 			DatahubDataModel.this.activeThreads.remove(this.lowerBound);
 		}
