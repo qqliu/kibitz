@@ -5,11 +5,10 @@
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
-    <script type="text/javascript" src="thrift.js"></script>
-    <script type="text/javascript" src="kibitz_types.js"></script>
-    <script type="text/javascript" src="RecommenderService.js"></script>
-    <script type="text/javascript" src="rating.js"></script>
-    <script type="text/javascript" src="initiate_model.js"></script>
+    <script type="text/javascript" src="js/thrift.js"></script>
+    <script type="text/javascript" src="js/kibitz_types.js"></script>
+    <script type="text/javascript" src="js/RecommenderService.js"></script>
+    <script type="text/javascript" src="js/rating.js"></script>
     <script type="text/javascript" src="required_functions.js"></script>
     <link rel="stylesheet" type="text/css" href="rating.css" />
 
@@ -65,6 +64,7 @@
         </form>
         <table id="listofitems" class="table table-striped list">
         </table>
+	<div id="pages"></div>
       </div>
     </section>
     <script>
@@ -75,7 +75,11 @@
 	    swap("login_message", "login_panel");
 	    document.getElementById('login_message').innerHTML = "<p>You are now logged in as " + username + ". <a href='javascript:logout();'>Logout</a></p>";
 
-	    var items = client.getItems(client_key);
+	    if (window.location.hash == null) {
+	      window.location.hash = 0;
+	    }
+
+	    var items = client.getPageItems(client_key, window.location.hash, 10);
 	    var itemslist ="";
 	    for (var i =0; i < items.length; i++) {
 	      var item = items[i];
@@ -118,6 +122,14 @@
 		  $(el).rating('', {maxvalue: 10});
 		}
 	    });
+
+	    var numPages = parseInt(client.getItemCount());
+	    var pages = "";
+	    for (var i = 0; i < numPages; i += 10) {
+		pages += "<a href='' onclick='processPage('" + i/10 + "')>" + i/10 + 1 + "</a>";
+	    }
+
+	    document.getElementById("pages").append(pages);
 	  } else {
 	    document.getElementById('listofitems').innerHTML = "<p>Please login or <a href='register.html'>signup</a> to see and rate items.</p>";
 	  }
