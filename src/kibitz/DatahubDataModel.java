@@ -71,6 +71,7 @@ public class DatahubDataModel implements DataModel{
 	private String datahubPassword = getDefaultDatahubPassword();
 	private String datahubDatabase = DEFAULT_DATAHUB_DATABASE;
 	private String datahubTableName = getDefaultDatahubTablename();
+	private String datahubOriginalTable = DEFAULT_DATAHUB_TABLENAME;
 	private FileDataModel delegate = null;
 
 	private static ILexicalDatabase db = new NictWordNet();
@@ -116,6 +117,7 @@ public class DatahubDataModel implements DataModel{
 		this.datahubUsername = username;
 		this.datahubPassword = password;
 		this.datahubTableName = tablename;
+		this.datahubOriginalTable = this.datahubTableName.split("_")[0];
 		this.lastTimestamp = "";
 		this.refreshed = false;
 		buildModel();
@@ -145,7 +147,8 @@ public class DatahubDataModel implements DataModel{
 		try {
 			ResultSet last;
 			synchronized(this.client) {
-				last = this.client.execute_sql(this.conn, "SELECT MAX(updated) FROM " + this.datahubDatabase + "." + "update_log where table_name='" + this.datahubTableName + "'", null);
+				last = this.client.execute_sql(this.conn, "SELECT MAX(updated) FROM " + this.datahubDatabase + "." + this.datahubDatabase +"_"
+							+ this.datahubOriginalTable + "_update_log where table_name='" + this.datahubTableName + "'", null);
 			}
 			if(last != null) {
 				for (Tuple t : last.getTuples()) {
@@ -186,11 +189,11 @@ public class DatahubDataModel implements DataModel{
 			this.conn = this.client.open_connection(this.con_params);
 
 			this.activeThreads = new HashMap<Integer, CreateItemSimilarityRunnable>();
-
-			System.out.println("Connected to Datahub Successfully");
-			ResultSet updatelogExists =  this.client.execute_sql(this.conn, "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '" + this.datahubDatabase + ".update_log'", null);
+			System.out.println("SELECT relname FROM pg_class WHERE relname = '" + this.datahubDatabase + "_" + this.datahubOriginalTable + "_update_log'");
+			ResultSet updatelogExists =  this.client.execute_sql(this.conn, "SELECT relname FROM pg_class WHERE relname = '" + this.datahubDatabase + "_" + this.datahubOriginalTable + "_update_log'", null);
 			if (updatelogExists != null && updatelogExists.getTuples().size() > 0) {
-				ResultSet last = this.client.execute_sql(this.conn, "SELECT MAX(updated) FROM " + this.datahubDatabase + "." + "update_log where table_name='" + this.datahubTableName + "'", null);
+				ResultSet last = this.client.execute_sql(this.conn, "SELECT MAX(updated) FROM " + this.datahubDatabase + "." + this.datahubDatabase
+						+ "_" + this.datahubOriginalTable + "_update_log where table_name='" + this.datahubTableName + "'", null);
 
 				if(last != null) {
 					for (Tuple t : last.getTuples()) {
@@ -278,11 +281,11 @@ public class DatahubDataModel implements DataModel{
 										+  "user_id int, item_id int, rating varchar(255));"
 										+ " create table if not exists " + this.datahubDatabase + "." + table + "_users ("
 										+ "kibitz_generated_id SERIAL PRIMARY KEY, username varchar(255), email varchar(255), password varchar(255));"
-										+ " CREATE TABLE if not exists " + this.datahubDatabase + ".update_log(table_name text, updated timestamp NOT NULL DEFAULT now());"
+										+ " CREATE TABLE if not exists " + this.datahubDatabase + "." + this.datahubDatabase +"_" + this.datahubOriginalTable + "_update_log(table_name text, updated timestamp NOT NULL DEFAULT now());"
 										+ "drop function if exists " + this.datahubUsername + "_" + this.datahubDatabase + "_" + table
 										+ "_timestamp_update_log() cascade; " + "CREATE FUNCTION " + this.datahubUsername + "_" + this.datahubDatabase + "_"
 										+ table + "_timestamp_update_log() RETURNS TRIGGER LANGUAGE 'plpgsql' AS $$"
-									    + "BEGIN INSERT INTO " + this.datahubDatabase + ".update_log(table_name) VALUES(TG_TABLE_NAME); RETURN NEW;"
+									    + "BEGIN INSERT INTO " + this.datahubDatabase + "." + this.datahubDatabase +"_" + this.datahubOriginalTable + "_update_log(table_name) VALUES(TG_TABLE_NAME); RETURN NEW;"
 									    + "END $$; " + " drop trigger if exists " + table + "_timestamp_update_log on " + this.datahubDatabase + "." + table + "; "
 										+ "CREATE TRIGGER " + table + "_timestamp_update_log "
 										+ "AFTER INSERT OR UPDATE ON " + this.datahubDatabase + "." + table + " FOR EACH STATEMENT EXECUTE procedure "
@@ -1004,6 +1007,7 @@ public class DatahubDataModel implements DataModel{
 		List<Item> items = new ArrayList<Item>();
 		HashMap<String, String> attributes = new HashMap<String, String>();
 		ResultSet res;
+		System.out.println(query);
 		synchronized(this.client) {
 			res = this.client.execute_sql(this.conn, query, null);
 		}
@@ -1021,6 +1025,7 @@ public class DatahubDataModel implements DataModel{
 			}
 
 			item.setAttributes(attributes);
+			items.add(item);
 		}
 		return items;
 	}
@@ -1227,11 +1232,10 @@ public class DatahubDataModel implements DataModel{
 					this.file = new File(storageDir +  DatahubDataModel.this.datahubUsername + "/" + DatahubDataModel.this.datahubDatabase);
 					this.file.mkdir();
 					this.file = new File(storageDir + DatahubDataModel.this.datahubUsername + "/" + DatahubDataModel.this.datahubDatabase + "/" + table + "_item_similarity"
-							+ this.lowerBound + "_" + this.upperBound + ".csv");
+							+ "." + this.lowerBound + "_" + this.upperBound + ".csv");
 					this.file.createNewFile();
-					this.writer  = new BufferedWriter(new FileWriter(storageDir + DatahubDataModel.this.datahubUsername + "/" +
-                                DatahubDataModel.this.datahubDatabase + "/" + table + "_item_similarity" + this.lowerBound +
-                                "_" + this.upperBound + ".csv"));
+					this.writer  = new BufferedWriter(new FileWriter(storageDir + DatahubDataModel.this.datahubUsername + "/"
+							+ DatahubDataModel.this.datahubDatabase + "/" + table + "_item_similarity" + "." + this.lowerBound + "_" + this.upperBound + ".csv"));
 				}
 				this.writer.write(firstId + "," + secondId + "," + (double) Math.round(score * 1000) / 1000 + "\n");
 			} catch (IOException e) {
