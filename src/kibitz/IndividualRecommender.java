@@ -261,7 +261,7 @@ public class IndividualRecommender {
 	public void initiateModel(String table, String username, String password, String database) {
 		try {
 			if (table != null) {
-				this.items_table = table + "_items";
+				this.items_table = table;
 			}
 			
 			if (username != null && password != null) {
@@ -276,14 +276,13 @@ public class IndividualRecommender {
 			this.ratings_table = table + "_ratings";
 			this.users_table = table + "_users";
 			
-			if (this.dataModel == null) {
-				this.dataModel = new DatahubDataModel(this.dataSource.getServerName(), this.databaseName, 
-						this.username,
+			
+			this.dataModel = new DatahubDataModel(this.dataSource.getServerName(), this.databaseName, this.username,
 						this.password,
 						this.ratings_table);
-				this.dataModel.addKibitzUser(this.databaseName, this.username, this.password, this.databaseName + "." + this.ratings_table);
-			}
+			this.dataModel.addKibitzUser(this.databaseName, this.username, this.password, this.databaseName + "." + this.ratings_table);
 			
+				
 			if (KibitzServer.RECOMMENDERS.get(table + username + password + database) != null) {
 				this.recommender = (GenericUserBasedRecommender) KibitzServer.RECOMMENDERS.get(table + username + password + database);
 			} else {
@@ -298,8 +297,8 @@ public class IndividualRecommender {
 			if (KibitzServer.RECOMMENDERS.get(table + username + password + database + "items") != null) {
 				this.itemRecommender = (GenericItemBasedRecommender) KibitzServer.RECOMMENDERS.get(table + username + password + database + "items");
 			} else {
-				this.itemUserSimilarity = new FileItemSimilarity(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.databaseName + 
-						"/" + this.items_table + "_similarity.csv"));
+				this.itemUserSimilarity = new FileItemSimilarity(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + username + 
+						"/" + database + "/" + table + "_item_similarity.csv"));
 				this.itemRecommender = new GenericItemBasedRecommender(this.dataModel, this.itemUserSimilarity);
 				KibitzServer.RECOMMENDERS.put(table + username + password + database + "items", this.itemRecommender);
 			}
