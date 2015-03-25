@@ -72,11 +72,11 @@
 	    username = getCookie("username");
 	    userId = parseInt(getCookie("userId"));
 
-	    if (username != "" && userId != "" && username != undefined && userId != undefined && username != null && userId != null) {
+	    if (username !== "" && userId !== "" && username !== undefined && userId !== undefined && username !== null && userId !== null) {
 	       swap("login_message", "login_panel");
 	       document.getElementById('login_message').innerHTML = "<p>You are now logged in as " + username + ". <a href='javascript:logout();'>Logout</a></p>";
 
-	       var items = client.getUserRatedItems(client_key, userId);
+	       var items = client.getUserRatedItems(client_key, userId, ['title', 'description', 'image', 'id']);
 	       var itemslist ="";
 	       for (var i =0; i < items.length; i++) {
 		 var item = items[i];

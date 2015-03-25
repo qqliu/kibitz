@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title> Recommender</title>
+      <title> Recommender</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -71,13 +71,15 @@
         $(document).ready(function() {
 	    username = getCookie("username");
 	    userId = parseInt(getCookie("userId"));
-
-	    if (username != "" && userId != "" && username != undefined && userId != undefined && username != null && userId != null) {
+        debugger;
+        console.log(username);
+        console.log(userId);
+	    if (username !== "" && userId !== "" && username !== undefined && userId !== undefined && username !== null && userId != null) {
 		swap("login_message", "login_panel");
 		document.getElementById('login_message').innerHTML = "<p>You are now logged in as " + username + ". <a href='javascript:logout();'>Logout</a></p>";
 
 		if (userId != null) {
-		var items = client.makeRecommendation(client_key, userId, 10);
+		var items = client.makeRecommendation(client_key, userId, 10, ['title', 'description', 'image', 'id']);
 		var itemslist ="";
 		    for (var i =0; i < items.length; i++) {
 		      var item = items[i];
@@ -102,7 +104,7 @@
 		}
 
 		if(userId != null) {
-		  var my_rated_items = client.getUserRatedItems(client_key, userId);
+		  var my_rated_items = client.getUserRatedItems(client_key, userId, ['title', 'description', 'image', 'id']);
 		  for (i = 0; i < my_rated_items.length; i++) {
 		    item = my_rated_items[i];
 		    var r = document.getElementById("rate" + item.id);
