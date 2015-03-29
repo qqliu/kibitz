@@ -1,0 +1,220 @@
+/*custom font*/
+@import url(http://fonts.googleapis.com/css?family=Montserrat);
+
+/*basic reset*/
+* {margin: 0; padding: 0;}
+
+html {
+    height: 100%;
+    /*Image only BG fallback*/
+    background: url('../img/forest.jpg') no-repeat;
+    background-size: 100% auto;
+}
+
+body {
+    font-family: montserrat, sans-serif;
+}
+
+/*form styles*/
+.msform {
+    width: 400px;
+    margin: auto;
+    text-align: center;
+}
+
+.msform fieldset {
+    background: white;
+    border: 0 none;
+    border-radius: 3px;
+    box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.4);
+    padding: 20px 30px;
+    
+    box-sizing: border-box;
+    margin: 0 10%;
+}
+
+/*Hide all except first fieldset*/
+.msform fieldset:not(:first-of-type) {
+    display: none;
+}
+
+/*inputs*/
+.msform input, .msform textarea {
+    padding: 15px;
+    border: 1px solid #ccc;
+    width: 95%;
+    border-radius: 3px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    font-family: montserrat, sans-serif;
+    color: #2C3E50;
+    font-size: 13px;
+}
+
+.required,
+.not-required {
+    text-align: left;
+}
+
+.required:after {
+    content: " *";
+    color: red;
+}
+
+#sign-up-form,
+#login-form {
+    display: none; /* TODO: modify JS to add display: flex; instead of block! */
+    align-items: center;
+    position: fixed;
+    z-index: 1;
+    width: 100vw;
+    height: 100vh;
+    padding: 50px;
+    background: rgb(0, 0, 0); /* Fallback */
+    background: rgba(0, 0, 0, 0.5);
+}
+
+/*buttons*/
+.msform .action-button {
+	width: 100px;
+	font-weight: bold;
+	color: white;
+	border: 0 none;
+	border-radius: 1px;
+	cursor: pointer;
+	padding: 10px 5px;
+	margin: 10px 5px;
+}
+
+.msform .action-button:hover, .msform .action-button:focus {
+	box-shadow: 0 0 0 2px white, 0 0 0 3px #27AE60;
+}
+
+.msform .form-button {
+	width: 70%;
+	background: black;
+	font-weight: bold;
+	color: white;
+	border: 0 none;
+	border-radius: 1px;
+	cursor: pointer;
+	padding: 10px 5px;
+	margin: 10px 5px;
+}
+.msform .form-button:hover, .msform .form-button:focus {
+	box-shadow: 0 0 0 2px white, 0 0 0 3px #000000;
+}
+
+.msform .selection-button {
+	width: 70%;
+	color: #000000;
+	border: 0 none;
+	border-radius: 1px;
+	cursor: pointer;
+	padding: 10px 5px;
+	margin: 10px 5px;
+}
+.msform .selection-button:hover, .msform .selection-button:focus {
+	box-shadow: 0 0 0 2px white, 0 0 0 3px #000000;
+}
+
+.button-active {
+    background-color: #fed136;  
+}
+
+.button-inactive {
+    background-color: #ccc;
+}
+
+#sign-up {
+    margin-right: 5%;
+}
+
+/*headings*/
+.fs-title {
+    font-size: 15px;
+    text-transform: uppercase;
+    color: #2C3E50;
+    margin-bottom: 10px;
+}
+.fs-subtitle {
+    font-weight: normal;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 20px;
+}
+/*progressbar*/
+#progressbar {
+    margin-bottom: 30px;
+    overflow: hidden;
+    /*CSS counters to number the steps*/
+    counter-reset: step;
+}
+#progressbar li {
+    list-style-type: none;
+    color: white;
+    text-transform: uppercase;
+    font-size: 9px;
+    width: 25%;
+    float: left;
+    position: relative;
+}
+#progressbar li:before {
+    content: counter(step);
+    counter-increment: step;
+    width: 20px;
+    line-height: 2; /* avoid explicit line heights, you have to edit them every time you change the font-size */
+    display: block;
+    font-size: 115%;
+    color: #333;
+    background: white;
+    border-radius: 3px;
+    margin: 0 auto 5px;
+}
+/*progressbar connectors*/
+#progressbar li:after {
+    content: '';
+    width: 100%;
+    height: 2px;
+    background: white;
+    position: absolute;
+    left: -50%;
+    top: 9px;
+    z-index: -1;
+}
+
+#progressbar li:first-child:after {
+    /*connector not needed before the first step*/
+    content: none; 
+}
+/*marking active/completed steps green*/
+/*The number of the step and the connector before it = green*/
+#progressbar li.active:before,  #progressbar li.active:after{
+    background: #fed136;
+    color: white;
+}
+
+/* Errors */
+.tooltip {
+    position: relative;
+}
+
+.tooltipContent {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    margin-left: -150px;
+    width: 90%;
+    background-color: #ffcccb;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.tooltipContent.first {
+    display: none;
+}
+
+.tooltipContent.second {
+    display: none;
+}
