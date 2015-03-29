@@ -13,10 +13,25 @@ Premium: http://www.gridgum.com
 body {
     color: #797979;
 	background: #f2f2f2;
-    font-family: 'Ruda', sans-serif;
+    font-family: "Roboto Slab","Helvetica Neue",Helvetica,Arial,sans-serif;
     padding: 0px !important;
     margin: 0px !important;
     font-size:13px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    text-transform: uppercase;
+    font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-weight: 700;
+}
+
+.has-js{
+    font-family: "Roboto Slab","Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
 ul li {
@@ -158,6 +173,18 @@ a, a:hover, a:focus {
 
 .btn-clear-g:hover {
 	color: white;
+}
+
+.btn-xl {
+    padding: 20px 40px;
+    border-color: #fed136;
+    border-radius: 3px;
+    text-transform: uppercase;
+    font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    background-color: #fed136;
 }
 
 hr {
