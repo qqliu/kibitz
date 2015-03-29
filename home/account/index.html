@@ -50,7 +50,7 @@
             <div class="top-menu">
             	<ul class="nav pull-right top-menu">
                     <li><a class="logout" href="javascript:show_signup_form();">Create New Recommender</a></li>
-                    <li><a class="logout" href="login.html">Logout</a></li>
+                    <li><a class="logout" href=".." onclick="deleteLoginInfo(); return false;">Logout</a></li>
             	</ul>
             </div>
         </header>
@@ -66,7 +66,7 @@
               <ul class="sidebar-menu" id="nav-accordion">
               
               	  <p class="centered"><a href="profile.html"><img src="assets/img/ui-default.png" class="img-circle" width="60"></a></p>
-              	  <h5 class="centered"><script>document.write(username);</script></h5>
+              	  <h5 class="centered" id="username_display"></h5>
                   
                   <li class="sub-menu">
                       <a href="profile.html">
