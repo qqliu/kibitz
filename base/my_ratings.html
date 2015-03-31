@@ -80,17 +80,17 @@
 	       var itemslist ="";
 	       for (var i =0; i < items.length; i++) {
 		 var item = items[i];
-		 if (item.id != null && item.title != null) {
+		 if (item.attributes.id != null && item.attributes.title != null) {
 		    currItem = '<tr><tr><div class="relative">';
-		    if (item.image.indexOf("http") > -1) {
-		      currItem += '<img src = "' + item.image + '" />';
+		    if (item.attributes.image.indexOf("http") > -1) {
+		      currItem += '<img src = "' + item.attributes.image + '" />';
 		    }
-		    currItem += '<div class="inline-block user-info"><h2>' + item.title + '</h2>';
-		    if (item.description != null){
-		      currItem += '<div class="icons"><ul class="list-inline"><li>' + item.description + '</li>';
+		    currItem += '<div class="inline-block user-info"><h2>' + item.attributes.title + '</h2>';
+		    if (item.attributes.description != null){
+		      currItem += '<div class="icons"><ul class="list-inline"><li>' + item.attributes.description + '</li>';
 		    }
-		    currItem += '<div id="rate' + item.id + '" value = "' + item.rating + '" class="rating">&nbsp;</div><div class="implementation"></div>';
-		    if (item.description != null) {
+		    currItem += '<div id="rate' + item.attributes.id + '" value = "' + item.attributes.rating + '" class="rating">&nbsp;</div><div class="implementation"></div>';
+		    if (item.attributes.description != null) {
 		      currItem += '</ul></div>';
 		    }
 		    currItem += '</div></div></td></tr>';

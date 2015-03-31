@@ -1701,8 +1701,6 @@ kibitz.RecommenderService_createNewRecommender_args = function(args) {
   this.thirdColumnType = null;
   this.displayColumns = null;
   this.clientKey = null;
-  this.ratingsColumn = null;
-  this.random = null;
   if (args) {
     if (args.username !== undefined) {
       this.username = args.username;
@@ -1742,12 +1740,6 @@ kibitz.RecommenderService_createNewRecommender_args = function(args) {
     }
     if (args.clientKey !== undefined) {
       this.clientKey = args.clientKey;
-    }
-    if (args.ratingsColumn !== undefined) {
-      this.ratingsColumn = args.ratingsColumn;
-    }
-    if (args.random !== undefined) {
-      this.random = args.random;
     }
   }
 };
@@ -1869,20 +1861,6 @@ kibitz.RecommenderService_createNewRecommender_args.prototype.read = function(in
         input.skip(ftype);
       }
       break;
-      case 14:
-      if (ftype == Thrift.Type.STRING) {
-        this.ratingsColumn = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 15:
-      if (ftype == Thrift.Type.BOOL) {
-        this.random = input.readBool().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
       default:
         input.skip(ftype);
     }
@@ -1966,16 +1944,6 @@ kibitz.RecommenderService_createNewRecommender_args.prototype.write = function(o
   if (this.clientKey !== null && this.clientKey !== undefined) {
     output.writeFieldBegin('clientKey', Thrift.Type.STRING, 13);
     output.writeString(this.clientKey);
-    output.writeFieldEnd();
-  }
-  if (this.ratingsColumn !== null && this.ratingsColumn !== undefined) {
-    output.writeFieldBegin('ratingsColumn', Thrift.Type.STRING, 14);
-    output.writeString(this.ratingsColumn);
-    output.writeFieldEnd();
-  }
-  if (this.random !== null && this.random !== undefined) {
-    output.writeFieldBegin('random', Thrift.Type.BOOL, 15);
-    output.writeBool(this.random);
     output.writeFieldEnd();
   }
   output.writeFieldStop();
@@ -2734,251 +2702,6 @@ kibitz.RecommenderService_makeOverallRatingBasedOrRandomRecommendation_result.pr
   return;
 };
 
-kibitz.RecommenderService_addKibitzUser_args = function(args) {
-  this.email = null;
-  this.password = null;
-  if (args) {
-    if (args.email !== undefined) {
-      this.email = args.email;
-    }
-    if (args.password !== undefined) {
-      this.password = args.password;
-    }
-  }
-};
-kibitz.RecommenderService_addKibitzUser_args.prototype = {};
-kibitz.RecommenderService_addKibitzUser_args.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.email = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.STRING) {
-        this.password = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-kibitz.RecommenderService_addKibitzUser_args.prototype.write = function(output) {
-  output.writeStructBegin('RecommenderService_addKibitzUser_args');
-  if (this.email !== null && this.email !== undefined) {
-    output.writeFieldBegin('email', Thrift.Type.STRING, 1);
-    output.writeString(this.email);
-    output.writeFieldEnd();
-  }
-  if (this.password !== null && this.password !== undefined) {
-    output.writeFieldBegin('password', Thrift.Type.STRING, 2);
-    output.writeString(this.password);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-kibitz.RecommenderService_addKibitzUser_result = function(args) {
-};
-kibitz.RecommenderService_addKibitzUser_result.prototype = {};
-kibitz.RecommenderService_addKibitzUser_result.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    input.skip(ftype);
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-kibitz.RecommenderService_addKibitzUser_result.prototype.write = function(output) {
-  output.writeStructBegin('RecommenderService_addKibitzUser_result');
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-kibitz.RecommenderService_checkCorrectDatahubLogin_args = function(args) {
-  this.username = null;
-  this.password = null;
-  this.repository = null;
-  this.table = null;
-  if (args) {
-    if (args.username !== undefined) {
-      this.username = args.username;
-    }
-    if (args.password !== undefined) {
-      this.password = args.password;
-    }
-    if (args.repository !== undefined) {
-      this.repository = args.repository;
-    }
-    if (args.table !== undefined) {
-      this.table = args.table;
-    }
-  }
-};
-kibitz.RecommenderService_checkCorrectDatahubLogin_args.prototype = {};
-kibitz.RecommenderService_checkCorrectDatahubLogin_args.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 1:
-      if (ftype == Thrift.Type.STRING) {
-        this.username = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 2:
-      if (ftype == Thrift.Type.STRING) {
-        this.password = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 3:
-      if (ftype == Thrift.Type.STRING) {
-        this.repository = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 4:
-      if (ftype == Thrift.Type.STRING) {
-        this.table = input.readString().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-kibitz.RecommenderService_checkCorrectDatahubLogin_args.prototype.write = function(output) {
-  output.writeStructBegin('RecommenderService_checkCorrectDatahubLogin_args');
-  if (this.username !== null && this.username !== undefined) {
-    output.writeFieldBegin('username', Thrift.Type.STRING, 1);
-    output.writeString(this.username);
-    output.writeFieldEnd();
-  }
-  if (this.password !== null && this.password !== undefined) {
-    output.writeFieldBegin('password', Thrift.Type.STRING, 2);
-    output.writeString(this.password);
-    output.writeFieldEnd();
-  }
-  if (this.repository !== null && this.repository !== undefined) {
-    output.writeFieldBegin('repository', Thrift.Type.STRING, 3);
-    output.writeString(this.repository);
-    output.writeFieldEnd();
-  }
-  if (this.table !== null && this.table !== undefined) {
-    output.writeFieldBegin('table', Thrift.Type.STRING, 4);
-    output.writeString(this.table);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
-kibitz.RecommenderService_checkCorrectDatahubLogin_result = function(args) {
-  this.success = null;
-  if (args) {
-    if (args.success !== undefined) {
-      this.success = args.success;
-    }
-  }
-};
-kibitz.RecommenderService_checkCorrectDatahubLogin_result.prototype = {};
-kibitz.RecommenderService_checkCorrectDatahubLogin_result.prototype.read = function(input) {
-  input.readStructBegin();
-  while (true)
-  {
-    var ret = input.readFieldBegin();
-    var fname = ret.fname;
-    var ftype = ret.ftype;
-    var fid = ret.fid;
-    if (ftype == Thrift.Type.STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 0:
-      if (ftype == Thrift.Type.BOOL) {
-        this.success = input.readBool().value;
-      } else {
-        input.skip(ftype);
-      }
-      break;
-      case 0:
-        input.skip(ftype);
-        break;
-      default:
-        input.skip(ftype);
-    }
-    input.readFieldEnd();
-  }
-  input.readStructEnd();
-  return;
-};
-
-kibitz.RecommenderService_checkCorrectDatahubLogin_result.prototype.write = function(output) {
-  output.writeStructBegin('RecommenderService_checkCorrectDatahubLogin_result');
-  if (this.success !== null && this.success !== undefined) {
-    output.writeFieldBegin('success', Thrift.Type.BOOL, 0);
-    output.writeBool(this.success);
-    output.writeFieldEnd();
-  }
-  output.writeFieldStop();
-  output.writeStructEnd();
-  return;
-};
-
 kibitz.RecommenderServiceClient = function(input, output) {
     this.input = input;
     this.output = (!output) ? input : output;
@@ -3406,12 +3129,12 @@ kibitz.RecommenderServiceClient.prototype.recv_retrieveUserId = function() {
   }
   throw 'retrieveUserId failed: unknown result';
 };
-kibitz.RecommenderServiceClient.prototype.createNewRecommender = function(username, primaryKey, password, database, table, firstColumnName, secondColumnName, thirdColumnName, firstColumnType, secondColumnType, thirdColumnType, displayColumns, clientKey, ratingsColumn, random) {
-  this.send_createNewRecommender(username, primaryKey, password, database, table, firstColumnName, secondColumnName, thirdColumnName, firstColumnType, secondColumnType, thirdColumnType, displayColumns, clientKey, ratingsColumn, random);
+kibitz.RecommenderServiceClient.prototype.createNewRecommender = function(username, primaryKey, password, database, table, firstColumnName, secondColumnName, thirdColumnName, firstColumnType, secondColumnType, thirdColumnType, displayColumns, clientKey) {
+  this.send_createNewRecommender(username, primaryKey, password, database, table, firstColumnName, secondColumnName, thirdColumnName, firstColumnType, secondColumnType, thirdColumnType, displayColumns, clientKey);
   return this.recv_createNewRecommender();
 };
 
-kibitz.RecommenderServiceClient.prototype.send_createNewRecommender = function(username, primaryKey, password, database, table, firstColumnName, secondColumnName, thirdColumnName, firstColumnType, secondColumnType, thirdColumnType, displayColumns, clientKey, ratingsColumn, random) {
+kibitz.RecommenderServiceClient.prototype.send_createNewRecommender = function(username, primaryKey, password, database, table, firstColumnName, secondColumnName, thirdColumnName, firstColumnType, secondColumnType, thirdColumnType, displayColumns, clientKey) {
   this.output.writeMessageBegin('createNewRecommender', Thrift.MessageType.CALL, this.seqid);
   var args = new kibitz.RecommenderService_createNewRecommender_args();
   args.username = username;
@@ -3427,8 +3150,6 @@ kibitz.RecommenderServiceClient.prototype.send_createNewRecommender = function(u
   args.thirdColumnType = thirdColumnType;
   args.displayColumns = displayColumns;
   args.clientKey = clientKey;
-  args.ratingsColumn = ratingsColumn;
-  args.random = random;
   args.write(this.output);
   this.output.writeMessageEnd();
   return this.output.getTransport().flush();
@@ -3597,73 +3318,4 @@ kibitz.RecommenderServiceClient.prototype.recv_makeOverallRatingBasedOrRandomRec
     return result.success;
   }
   throw 'makeOverallRatingBasedOrRandomRecommendation failed: unknown result';
-};
-kibitz.RecommenderServiceClient.prototype.addKibitzUser = function(email, password) {
-  this.send_addKibitzUser(email, password);
-  this.recv_addKibitzUser();
-};
-
-kibitz.RecommenderServiceClient.prototype.send_addKibitzUser = function(email, password) {
-  this.output.writeMessageBegin('addKibitzUser', Thrift.MessageType.CALL, this.seqid);
-  var args = new kibitz.RecommenderService_addKibitzUser_args();
-  args.email = email;
-  args.password = password;
-  args.write(this.output);
-  this.output.writeMessageEnd();
-  return this.output.getTransport().flush();
-};
-
-kibitz.RecommenderServiceClient.prototype.recv_addKibitzUser = function() {
-  var ret = this.input.readMessageBegin();
-  var fname = ret.fname;
-  var mtype = ret.mtype;
-  var rseqid = ret.rseqid;
-  if (mtype == Thrift.MessageType.EXCEPTION) {
-    var x = new Thrift.TApplicationException();
-    x.read(this.input);
-    this.input.readMessageEnd();
-    throw x;
-  }
-  var result = new kibitz.RecommenderService_addKibitzUser_result();
-  result.read(this.input);
-  this.input.readMessageEnd();
-
-  return;
-};
-kibitz.RecommenderServiceClient.prototype.checkCorrectDatahubLogin = function(username, password, repository, table) {
-  this.send_checkCorrectDatahubLogin(username, password, repository, table);
-  return this.recv_checkCorrectDatahubLogin();
-};
-
-kibitz.RecommenderServiceClient.prototype.send_checkCorrectDatahubLogin = function(username, password, repository, table) {
-  this.output.writeMessageBegin('checkCorrectDatahubLogin', Thrift.MessageType.CALL, this.seqid);
-  var args = new kibitz.RecommenderService_checkCorrectDatahubLogin_args();
-  args.username = username;
-  args.password = password;
-  args.repository = repository;
-  args.table = table;
-  args.write(this.output);
-  this.output.writeMessageEnd();
-  return this.output.getTransport().flush();
-};
-
-kibitz.RecommenderServiceClient.prototype.recv_checkCorrectDatahubLogin = function() {
-  var ret = this.input.readMessageBegin();
-  var fname = ret.fname;
-  var mtype = ret.mtype;
-  var rseqid = ret.rseqid;
-  if (mtype == Thrift.MessageType.EXCEPTION) {
-    var x = new Thrift.TApplicationException();
-    x.read(this.input);
-    this.input.readMessageEnd();
-    throw x;
-  }
-  var result = new kibitz.RecommenderService_checkCorrectDatahubLogin_result();
-  result.read(this.input);
-  this.input.readMessageEnd();
-
-  if (null !== result.success) {
-    return result.success;
-  }
-  throw 'checkCorrectDatahubLogin failed: unknown result';
 };

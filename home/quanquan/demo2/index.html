@@ -5,11 +5,10 @@
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
-    <script type="text/javascript" src="thrift.js"></script>
-    <script type="text/javascript" src="kibitz_types.js"></script>
-    <script type="text/javascript" src="RecommenderService.js"></script>
-    <script type="text/javascript" src="rating.js"></script>
-    <script type="text/javascript" src="initiate_model.js"></script>
+    <script type="text/javascript" src="js/thrift.js"></script>
+    <script type="text/javascript" src="js/kibitz_types.js"></script>
+    <script type="text/javascript" src="js/RecommenderService.js"></script>
+    <script type="text/javascript" src="js/rating.js"></script>
     <script type="text/javascript" src="required_functions.js"></script>
     <link rel="stylesheet" type="text/css" href="rating.css" />
 
@@ -75,26 +74,26 @@
 	  if (username != "" && userId != "" && username != undefined && userId != undefined && username != null && userId != null) {
 	    swap("login_message", "login_panel");
 	    document.getElementById('login_message').innerHTML = "<p>You are now logged in as " + username + ". <a href='javascript:logout();'>Logout</a></p>";
-	    
-	    if (window.location.hash == null) {
+
+	    if (window.location.hash === null || window.location.hash === '') {
 	      window.location.hash = 0;
 	    }
-
-	    var items = client.getPageItems(client_key, window.location.hash, 10);
+        debugger;
+	    var items = client.getPageItems(client_key, parseInt(window.location.hash.split("#")[1]), 10, ['title', 'description', 'image', 'id']);
 	    var itemslist ="";
 	    for (var i =0; i < items.length; i++) {
 	      var item = items[i];
-	      if (item.id != null && item.title != null) {
+	      if (item.attributes.title != null && item.attributes.id != null) {
 		currItem = '<tr><tr><div class="relative">';
-		if (item.image.indexOf("http") > -1) {
-		  currItem += '<img src = "' + item.image + '" />';
+		if (item.attributes.image.indexOf("http") > -1) {
+		  currItem += '<img src = "' + item.attributes.image + '" />';
 		}
-		currItem += '<div class="inline-block user-info"><h2>' + item.title + '</h2>';
-		if (item.description != null){
-		  currItem += '<div class="icons"><ul class="list-inline"><li>' + item.description + '</li>';
+		currItem += '<div class="inline-block user-info"><h2>' + item.attributes.title + '</h2>';
+		if (item.attributes.description != null){
+		  currItem += '<div class="icons"><ul class="list-inline"><li>' + item.attributes.description + '</li>';
 		}
-		currItem += '<div id="rate' + item.id + '" class="rating">&nbsp;</div><div class="implementation"></div>';
-		if (item.description != null) {
+		currItem += '<div id="rate' + item.attributes.id + '" class="rating">&nbsp;</div><div class="implementation"></div>';
+		if (item.attributes.description != null) {
 		  currItem += '</ul></div>';
 		}
 		currItem += '</div></div></td></tr>';
@@ -104,12 +103,12 @@
 	    document.getElementById('listofitems').innerHTML = itemslist;
 
 	    if(userId != null) {
-	      var my_rated_items = client.getUserRatedItems(client_key, userId);
+	      var my_rated_items = client.getUserRatedItems(client_key, userId, ['title', 'description', 'image', 'id']);
 	      for (i = 0; i < my_rated_items.length; i++) {
 		item = my_rated_items[i];
-		var r = document.getElementById("rate" + item.id);
+		var r = document.getElementById("rate" + item.attributes.id);
 		if (r != null) {
-		    r.setAttribute("value", item.rating ? item.rating: -1);
+		    r.setAttribute("value", item.attributes.rating ? item.attributes.rating: -1);
 		}
 	      }
 	    }
@@ -123,14 +122,14 @@
 		  $(el).rating('', {maxvalue: 10});
 		}
 	    });
-	    
-	    var numPages = parseInt(client.getItemCount());
+
+	    var numPages = parseInt(client.getItemCount(client_key));
 	    var pages = "";
 	    for (var i = 0; i < numPages; i += 10) {
 		pages += "<a href='' onclick='processPage('" + i/10 + "')>" + i/10 + 1 + "</a>";
 	    }
-	    
-	    document.getElementById("pages").append(pages);
+
+	    $("#pages").append(pages);
 	  } else {
 	    document.getElementById('listofitems').innerHTML = "<p>Please login or <a href='register.html'>signup</a> to see and rate items.</p>";
 	  }

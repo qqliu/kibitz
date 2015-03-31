@@ -311,13 +311,72 @@ function validFieldsNext(cur, fields) {
             return false;
         }
     }
-
-    if (!resubmit) {
-        next_fs = $(cur).parent().next();
-        //activate next step on progressbar using the index of next_fs
-        $("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
-        animateNext(cur, next_fs);
+    
+    var already_exists = client.checkUsername(null, $("#email").val(), true);
+    
+    if (already_exists) {
+	$("#username_already_exists").show();
+	return false;
+    } else {
+	$("#username_already_exists").hide();
+	client.addKibitzUser($("#email").val(), $("#password").val());
+	if (!resubmit) {
+	    next_fs = $(cur).parent().next();
+	    //activate next step on progressbar using the index of next_fs
+	    $("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
+	    animateNext(cur, next_fs);
+	}
     }
+    return true;
+}
+
+function createNewRecommender(cur, fields) {
+    var resubmit = false;
+    var missing_fields = {"email": false, "confirm_password": false};
+    for (i in fields) {
+        if (fields[i] === "email") {
+            if ($("#email").val() === null || $("#email").val() === undefined || $("#email").val() === "" || $("#email").val().indexOf("@") === -1) {
+                $("#email").css("border", "2px solid red");
+                missing_fields["email"] = true;
+            } else {
+                $("#email").css("border", "1px solid #ccc");
+            }
+        } else if (fields[i] === "confirm_password") {
+            if ($("#password").val() === null || $("#password").val() === undefined || $("#password").val() === "" || ($("#password").val() !== $("#confirm_password").val())) {
+                $("#confirm_password").css("border", "2px solid red");
+                missing_fields["confirm_password"] = true;
+            } else {
+                $("#confirm_password").css("border", "1px solid #ccc");
+            }
+        } else {
+            if ($("#" + fields[i]).val() === null || $("#" + fields[i]).val() === undefined || $("#" + fields[i]).val() === "") {
+                $("#" + fields[i]).css("border", "2px solid red");
+                missing_fields[fields[i]] = true;
+            } else {
+                $("#" + fields[i]).css("border", "1px solid #ccc");
+                missing_fields[fields[i]] = false;
+            }
+        }
+    }
+
+    for (i in fields) {
+        if (missing_fields[fields[i]] === true) {
+            return false;
+        }
+    }
+    
+    if (!client.checkCorrectDatahubLogin($('#dh-username').val(), $('#dh-password').val(), $('#dh-repository').val(), $('#dh-table-name').val())) {
+	$("#incorrect-datahub-login").show();
+	return false;
+    }
+    $("#incorrect-datahub-login").hide();
+    if (!resubmit) {
+	next_fs = $(cur).parent().next();
+	//activate next step on progressbar using the index of next_fs
+	$("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
+	animateNext(cur, next_fs);
+    }
+    return true;
 }
 
 function validFields(fields) {
@@ -342,8 +401,14 @@ function validFields(fields) {
 }
 
 function submitLoginInfo(cur) {
-    $("#login-panel").hide();
-    $("#successful-login").show();
+    //Check password
+    if (validFields(['login_email', 'login_password'])) {
+	sessionStorage.setItem("username", $("#login_email").val());
+	document.cookie="username=" + $("#login_email").val();
+	setCookie("username", $("#login_email").val());
+	document.location.href = "account";
+    }
+    //$("#successful-login").show();
 }
 
 function fadeOut() {
@@ -462,3 +527,25 @@ $(".submit").click(function(){
 $(function() {
     $( "#dialog" ).dialog();
 });
+
+function setCookie(cname, cvalue, exdays) {
+    if (exdays !== null) {
+	var d = new Date();
+	d.setTime(d.getTime() + (exdays*24*60*60*1000));
+	var expires = "expires="+d.toUTCString();
+	document.cookie = cname + "=" + cvalue + "; " + expires;
+    } else {
+	document.cookie = cname + "=" + cvalue + "; ";
+    }
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+        if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+    }
+    return "";
+} 

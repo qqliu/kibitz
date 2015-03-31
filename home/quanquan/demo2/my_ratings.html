@@ -11,12 +11,11 @@
     <!--Bootshape-->
     <link href="snippet.css" rel="stylesheet">
     <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
-    <script type="text/javascript" src="rating.js"></script>
-    <script type="text/javascript" src="thrift.js"></script>
-    <script type="text/javascript" src="kibitz_types.js"></script>
-    <script type="text/javascript" src="RecommenderService.js"></script>
-    <script type="text/javascript" src="rating.js"></script>
-    <script type="text/javascript" src="initiate_model.js"></script>
+    <script type="text/javascript" src="js/rating.js"></script>
+    <script type="text/javascript" src="js/thrift.js"></script>
+    <script type="text/javascript" src="js/kibitz_types.js"></script>
+    <script type="text/javascript" src="js/RecommenderService.js"></script>
+    <script type="text/javascript" src="js/rating.js"></script>
     <script type="text/javascript" src="required_functions.js"></script>
     <link rel="stylesheet" type="text/css" href="rating.css" />
 
@@ -73,11 +72,11 @@
 	    username = getCookie("username");
 	    userId = parseInt(getCookie("userId"));
 
-	    if (username != "" && userId != "" && username != undefined && userId != undefined && username != null && userId != null) {
+	    if (username !== "" && userId !== "" && username !== undefined && userId !== undefined && username !== null && userId !== null) {
 	       swap("login_message", "login_panel");
 	       document.getElementById('login_message').innerHTML = "<p>You are now logged in as " + username + ". <a href='javascript:logout();'>Logout</a></p>";
 
-	       var items = client.getUserRatedItems(client_key, userId);
+	       var items = client.getUserRatedItems(client_key, userId, ['title', 'description', 'image', 'id']);
 	       var itemslist ="";
 	       for (var i =0; i < items.length; i++) {
 		 var item = items[i];

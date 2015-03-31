@@ -2,7 +2,7 @@ var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
 
-app.use(bodyParser.json());
+app.use(bodyParser.json()); 
 
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
@@ -26,7 +26,7 @@ app.use(allowCrossDomain);
 app.post('http://localhost:9888/kibitz/rate', function(request, response){
     // Pass to next layer of middleware
     next();
-
+    
     console.log(request.body.user.name);
     console.log(request.body.user.email);
 });

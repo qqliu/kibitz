@@ -865,3 +865,8 @@ img::-moz-selection {
 body {
     webkit-tap-highlight-color: #fed136;
 }
+
+.error {
+    color: red;
+    display: none;
+}

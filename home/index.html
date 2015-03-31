@@ -46,6 +46,7 @@
                 <!-- fieldsets -->
                 <fieldset>
                         <h2 class="fs-title">Kibitz account</h2>
+                        <div id="username_already_exists" class="fs-subtitle error">Email already exists.</div>
                         <div class="required"><input type="text" id="email" name="email" placeholder="Email" /></div>
                         <div class="required" ><input type="password" id="password" name="pass" placeholder="Password" /></div>
                         <div class="required" ><input type="password" id="confirm_password" name="cpass" placeholder="Confirm Password" /></div>
@@ -54,12 +55,12 @@
                 <fieldset>
                         <h2 class="fs-title">Import Datahub Table</h2>
                         <h3 class="fs-subtitle">We will keep your credentials secure.</h3>
+                        <div id="incorrect-datahub-login" class="fs-subtitle error">Incorrect Datahub Information.</div>
                         <div class="required"><input type="text" id="dh-username" placeholder="Datahub Username/Email" /></div>
                         <div class="required"><input type="password" id="dh-password" placeholder="Datahub Password" /></div>
                         <div class="required"><input type="text" id="dh-repository" placeholder="Repository Name" /></div>
                         <div class="required"><input type="text" id="dh-table-name" placeholder="Table Name" /></div>
-                        <input type="button" name="previous" class="previous action-button btn btn-xl" value="Previous" />
-                        <input type="button" name="next" class="action-button btn btn-xl" value="Next" onclick="validFieldsNext(this, ['dh-username', 'dh-password', 'dh-repository', 'dh-table-name']);"/>
+                        <input type="button" name="next" class="action-button btn btn-xl" value="Next" onclick="createNewRecommender(this, ['dh-username', 'dh-password', 'dh-repository', 'dh-table-name']);"/>
                 </fieldset>
                 <fieldset id="customization-form">
                         <h2 class="fs-title">Customization Options</h2>
@@ -71,9 +72,8 @@
                         <input type="button" name="previous" class="previous action-button btn btn-xl" value="Previous" />
                 </fieldset>
                 <fieldset id="option-1-form-1">
-                        <h2 class="fs-title">Recommender Types</h2>
-                        <h3 class="fs-subtitle">User-based recommends based on individual user ratings.</h3>
-                        <input type="button" class="selection-button button-inactive" id="user-based-button" value="User-Based" onclick="setColor(event);"/>
+                        <h2 class="fs-title">Additional Recommender Types</h2>
+                        <h3 class="fs-subtitle">User-based recommends based on individual user ratings (Included!).</h3>
                         <h3 class="fs-subtitle">Item-based computes item similarity.</h3>
                         <input type="button" id="item-based-button" class="selection-button button-inactive" value="Item-Based" onclick="setColor(event);"/>
                         <h3 class="fs-subtitle">You must have a column in your table providing numerical ratings for each item to use overall ratings.</h3>
@@ -126,9 +126,8 @@
                         <input type="button" name="next" class="next-recommender-types-opt-2 action-button btn btn-xl" value="Next" />
                 </fieldset>
                 <fieldset id="option-2-form-1">
-                        <h2 class="fs-title">Recommender Types</h2>
-                        <h3 class="fs-subtitle">User-based recommends based on individual user ratings.</h3>
-                        <input type="button" class="selection-button button-inactive" id="user-based-button-2" value="User-Based" onclick="setColor(event);"/>
+                        <h2 class="fs-title">Additional Recommender Types</h2>
+                        <h3 class="fs-subtitle">User-based recommends based on individual user ratings (Included!).</h3>
                         <h3 class="fs-subtitle">Item-based computes item similarity.</h3>
                         <input type="button" id="item-based-button-2" class="selection-button button-inactive" value="Item-Based" onclick="setColor(event);"/>
                         <h3 class="fs-subtitle">You must have a column in your table providing numerical ratings for each item to use overall ratings.</h3>

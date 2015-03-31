@@ -57,8 +57,13 @@ public class IndividualRecommender {
 	public List<Item> makeRecommendation(long userId, long numRecs, List<String> displayColumns) {
 		try {
 			if (this.dataModel != null) {
+				List<Boolean> recommenderTypes = this.dataModel.getRecommenderTypes();
+				
 				long startTime = System.nanoTime();
 				List<RecommendedItem> recommendations = this.recommender.recommend((int) userId, (int) numRecs);
+				if (recommendations.size() == 0 && recommenderTypes.get(0)) {
+					recommendations = this.itemRecommender.recommend((int) userId, (int) numRecs);
+				}
 				
 				ArrayList<Long> recommendationNames = new ArrayList<Long>();
 				for (int i = 0; i < recommendations.size(); i++) {
@@ -68,7 +73,16 @@ public class IndividualRecommender {
 						this.databaseName + "." + this.ratings_table, userId, displayColumns);
 				long endTime = System.nanoTime();
 				System.out.println("Time it takes to get recommendation: " + (endTime - startTime));
-				return recs;
+				
+				if (recs.size() == 0 && recommenderTypes.get(2)) {
+					recs = this.dataModel.makeOverallRatingsBasedRecommendation(this.databaseName + "." + this.items_table, numRecs, displayColumns);
+				}
+				
+				if (recs.size() == 0 && recommenderTypes.get(1)) {
+					return this.dataModel.makeRandomRecommmendation(numRecs, this.databaseName + "." + this.items_table, displayColumns);
+				} else {
+					return recs;
+				}
 			}
 		} catch (TasteException e) {
 			e.printStackTrace();
@@ -127,8 +141,7 @@ public class IndividualRecommender {
 	}
 	
 	public List<Item> makeOverallRatingBasedRecommendation(String ratingColumnName, long numRecs, List<String> displayColumns) {
-		return this.dataModel.makeOverallRatingsBasedRecommendation(ratingColumnName, 
-				this.databaseName + "." + this.items_table, numRecs, displayColumns);
+		return this.dataModel.makeOverallRatingsBasedRecommendation(this.databaseName + "." + this.items_table, numRecs, displayColumns);
 	}
 	
 	public List<Item> makeRandomRecommendation(long numRecs, List<String> displayColumns) {
@@ -195,7 +208,7 @@ public class IndividualRecommender {
 		return false;
 	}
 	
-    private String generatePasswordHash(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    public static String generatePasswordHash(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
         int iterations = 1000;
         char[] chars = password.toCharArray();
         byte[] salt = getSalt().getBytes();
@@ -206,14 +219,14 @@ public class IndividualRecommender {
         return iterations + ":" + toHex(salt) + ":" + toHex(hash);
     }
      
-    private String getSalt() throws NoSuchAlgorithmException {
+    private static String getSalt() throws NoSuchAlgorithmException {
         SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
         byte[] salt = new byte[16];
         sr.nextBytes(salt);
         return salt.toString();
     }
      
-    private String toHex(byte[] array) throws NoSuchAlgorithmException {
+    private static String toHex(byte[] array) throws NoSuchAlgorithmException {
         BigInteger bi = new BigInteger(1, array);
         String hex = bi.toString(16);
         int paddingLength = (array.length * 2) - hex.length();
@@ -280,9 +293,9 @@ public class IndividualRecommender {
 			this.dataModel = new DatahubDataModel(this.dataSource.getServerName(), this.databaseName, this.username,
 						this.password,
 						this.ratings_table);
-			this.dataModel.addKibitzUser(this.databaseName, this.username, this.password, this.databaseName + "." + this.ratings_table);
 			
-				
+			List<Boolean> recs = this.dataModel.getRecommenderTypes();
+			
 			if (KibitzServer.RECOMMENDERS.get(table + username + password + database) != null) {
 				this.recommender = (GenericUserBasedRecommender) KibitzServer.RECOMMENDERS.get(table + username + password + database);
 			} else {
@@ -294,13 +307,17 @@ public class IndividualRecommender {
 				KibitzServer.RECOMMENDERS.put(table + username + password + database, this.recommender);
 			}
 			
-			if (KibitzServer.RECOMMENDERS.get(table + username + password + database + "items") != null) {
-				this.itemRecommender = (GenericItemBasedRecommender) KibitzServer.RECOMMENDERS.get(table + username + password + database + "items");
-			} else {
-				this.itemUserSimilarity = new FileItemSimilarity(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + username + 
+			if (recs != null) {
+				if (recs.get(0)) {
+					if (KibitzServer.RECOMMENDERS.get(table + username + password + database + "items") != null) {
+						this.itemRecommender = (GenericItemBasedRecommender) KibitzServer.RECOMMENDERS.get(table + username + password + database + "items");
+					} else {
+						this.itemUserSimilarity = new FileItemSimilarity(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + username + 
 						"/" + database + "/" + table + "_item_similarity.csv"));
-				this.itemRecommender = new GenericItemBasedRecommender(this.dataModel, this.itemUserSimilarity);
-				KibitzServer.RECOMMENDERS.put(table + username + password + database + "items", this.itemRecommender);
+						this.itemRecommender = new GenericItemBasedRecommender(this.dataModel, this.itemUserSimilarity);
+						KibitzServer.RECOMMENDERS.put(table + username + password + database + "items", this.itemRecommender);
+					}
+				}
 			}
 		} catch (UnknownHostException e) {
 			System.err.println(e);

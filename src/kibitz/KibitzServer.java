@@ -12,9 +12,17 @@ import java.util.regex.Pattern;
 import kibitz.RecommenderService.Iface;
 
 import org.apache.mahout.cf.taste.impl.recommender.AbstractRecommender;
+import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.transport.THttpClient;
+import org.apache.thrift.transport.TTransportException;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
+import datahub.Connection;
+import datahub.ConnectionParams;
+import datahub.DBException;
+import datahub.DataHub;
 import static java.util.concurrent.TimeUnit.*;
 
 public class KibitzServer implements Iface {
@@ -145,19 +153,30 @@ public class KibitzServer implements Iface {
     public boolean createNewRecommender(String username, String primaryKey, String password, String database, String table,
     		String firstColumnName, String secondColumnName, String thirdColumnName,
     		String firstColumnType, String secondColumnType, String thirdColumnType,
-    		List<String> displayColumns, String clientKey) {
+    		List<String> displayColumns, String clientKey, String ratingsColumn, boolean random) {
 		try {
 			this.dataModel = new DatahubDataModel(this.dataSource.getServerName(), database, 
 				username,
 				password,
 				table);
 			return this.dataModel.createNewRecommender(table, primaryKey, firstColumnName, secondColumnName, thirdColumnName,
-					firstColumnType, secondColumnType, thirdColumnType, displayColumns, clientKey);
+					firstColumnType, secondColumnType, thirdColumnType, displayColumns, clientKey, ratingsColumn, random);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return false;
+	}
+	
+	@Override
+	public void addKibitzUser(String email, String password) {
+		try {
+			DatahubDataModel model = new DatahubDataModel();
+			model.addKibitzUser(email, password);
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
@@ -201,6 +220,16 @@ public class KibitzServer implements Iface {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
 				return SESSIONS.get(key).checkUsername(username, isKibitzUser);
+			} 
+		}
+		else if (isKibitzUser) {
+			DatahubDataModel model;
+			try {
+				model = new DatahubDataModel();
+				return model.checkUsername(username, null, true);
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		return false;
@@ -476,6 +505,33 @@ public class KibitzServer implements Iface {
 					}
 				}
 			}
+		}
+	}
+
+	@Override
+	public boolean checkCorrectDatahubLogin(String username, String password,
+			String repository, String table) {
+		try {
+			THttpClient transport = new THttpClient("http://datahub.csail.mit.edu/service");
+			TBinaryProtocol protocol = new  TBinaryProtocol(transport);
+			DataHub.Client client = new DataHub.Client(protocol);
+		
+			ConnectionParams params = new ConnectionParams();
+			params.setUser(username);
+			params.setPassword(password);
+			Connection connection = client.open_connection(params);
+			
+			client.execute_sql(connection, "Select * from " + repository + "." + table, null);
+			return true;
+		} catch (TTransportException e) {
+			// TODO Auto-generated catch block
+			return false;
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			return false;
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			return false;
 		}
 	}
 }

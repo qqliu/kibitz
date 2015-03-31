@@ -49,7 +49,36 @@ var logout = function() {
     document.location = ".";
 };
 
+var processPage = function(page) {
+    window.location.hash = page;
+    document.getElementById('listofitems').innerHTML = "";
+
+    var items = client.getPageItems(client_key, window.location.hash, 10);
+    var itemslist ="";
+    for (var i =0; i < items.length; i++) {
+      var item = items[i];
+      if (item.id != null && item.title != null) {
+        currItem = '<tr><tr><div class="relative">';
+        if (item.image.indexOf("http") > -1) {
+          currItem += '<img src = "' + item.image + '" />';
+        }
+        currItem += '<div class="inline-block user-info"><h2>' + item.title + '</h2>';
+        if (item.description != null){
+          currItem += '<div class="icons"><ul class="list-inline"><li>' + item.description + '</li>';
+        }
+        currItem += '<div id="rate' + item.id + '" class="rating">&nbsp;</div><div class="implementation"></div>';
+        if (item.description != null) {
+          currItem += '</ul></div>';
+        }
+        currItem += '</div></div></td></tr>';
+        itemslist += currItem;
+      }
+    }
+    document.getElementById('listofitems').innerHTML = itemslist;
+};
+
 //var transport = new Thrift.Transport("http://kibitz.csail.mit.edu:9888/kibitz/");
-var transport = new Thrift.Transport("http://localhost:9888/kibitz/");
+var transport = new Thrift.Transport("http://localhost:9889/kibitz/");
 var protocol = new Thrift.Protocol(transport);
 var client = new kibitz.RecommenderServiceClient(protocol);
+

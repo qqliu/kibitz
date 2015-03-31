@@ -52,7 +52,7 @@ var logout = function() {
 var processPage = function(page) {
     window.location.hash = page;
     document.getElementById('listofitems').innerHTML = "";
-    
+
     var items = client.getPageItems(client_key, window.location.hash, 10);
     var itemslist ="";
     for (var i =0; i < items.length; i++) {
@@ -77,16 +77,18 @@ var processPage = function(page) {
     document.getElementById('listofitems').innerHTML = itemslist;
 };
 
-var transport = new Thrift.Transport("http://kibitz.csail.mit.edu:9888/kibitz/");
-//var transport = new Thrift.Transport("http://localhost:9888/kibitz/");
+//var transport = new Thrift.Transport("http://kibitz.csail.mit.edu:9888/kibitz/");
+var transport = new Thrift.Transport("http://localhost:9889/kibitz/");
 var protocol = new Thrift.Protocol(transport);
-var client = new kibitz.RecommenderServiceClient(protocol);var title = 'blah';
-var client_key = 'wBroLswQKnijYo3Rt1SlFxPb4';
+var client = new kibitz.RecommenderServiceClient(protocol);
+
+var title = 'blah';
+var client_key = 'EOjN7TizJU93dF5ompunr5f2s';
 
 $(document).ready(function() {
     transport.open();
     client.createNewIndividualServer(client_key);
-    client.initiateModel('wBroLswQKnijYo3Rt1SlFxPb4', 'blah', 'quanquan', 'hof9924ne@!', 'demo2');
+    client.initiateModel('EOjN7TizJU93dF5ompunr5f2s', 'blah', 'quanquan', 'hof9924ne@!', 'demo2');
     document.getElementById("title").innerHTML = title + ' Recommender';
     $('#search').keyup(function(ev) {
         if (ev.which === 13) {
