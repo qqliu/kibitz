@@ -2,6 +2,8 @@
 Orginal Page: http://thecodeplayer.com/walkthrough/jquery-multi-step-form-with-progress-bar
 
 */
+var home_location = "http://localhost/kibitz-demo/home/";
+
 //jQuery time
 var current_fs, next_fs, previous_fs, last_info_page, option_1 = false, client_id = null; //fieldsets
 
@@ -78,7 +80,26 @@ function show_signup_form(){
 }
 
 function show_login_form() {
-    $("#login-form").show();
+    var popup = window.open('http://datahub.csail.mit.edu/account/login?redirect_url=http://localhost/kibitz-demo/home/','newwindow', config='height=600,width=600,' +
+			'toolbar=no, menubar=no, scrollbars=no, resizable=no,' + 'location=no, directories=no, status=no');
+
+    //Create a trigger for location changes
+    var intIntervalTime = 100;
+    var curPage = this;
+
+    // This will be the method that we use to check
+    // changes in the window location.
+    var fnCheckLocation = function(){
+	// Check to see if the location has changed.
+	if (popup.location.href.indexOf("auth_user") > -1) {
+	    var href = popup.location.href;
+	    sessionStorage.setItem("username", href.split("=")[1]);
+	    setCookie("username", href.split("=")[1]);
+	    popup.close();
+	    document.location.href = "account";
+	}
+    }
+    var id = setInterval( fnCheckLocation, intIntervalTime );
 }
 
 $(".previous").click(function() {
@@ -109,7 +130,7 @@ $(".previous-opt-info").click(function(){
 });
 
 $(".previous-opt-2").click(function(){
-    $("#progressbar li").eq(3).removeClass("active");
+    $("#progressbar li").eq(2).removeClass("active");
     animatePrevious(this, $("#customization-form"));
 });
 
@@ -124,8 +145,24 @@ $(".next-opt-1-1").click(function(){
 });
 
 $(".next-opt-1-2").click(function(){
-    if (validFields(['rating-column-2'])) {
-        animateNext(this, $("#submit-info"));
+    var verify_table_column = true, repo, table;
+    
+    username = sessionStorage.getItem("username");
+    
+    if (username === null || username === undefined || username === "" || username === "null" || username === "undefined")
+	username = getCookie("username")
+    
+    repo = $("#repo-name").val().trim();
+    table = $("#dh-table-name").val().trim();
+    
+    if ($("#rating-column-2").val().trim() !== null || $("#rating-column-2").val().trim() !== "") 
+	verify_table_column = client.checkRatingsColumn(username, repo, table, $("#rating-column-2").val().trim());
+	
+    if (verify_table_column) {
+	$("#rating_column_error").hide();
+	animateNext(this, $("#submit-info"));
+    } else {
+	$("#rating_column_error").show();
     }
 });
 
@@ -226,7 +263,7 @@ $(".previous-opt-2-info").click(function(){
 });
 
 $(".previous-page-before-submit").click(function(){
-    animatePrevious(this, $("#" + last_info_page));
+    animatePrevious(this, $("#ratings-based-recommender-option-1"));
 });
 
 $("#sign-up-form").click(function(){
@@ -247,6 +284,35 @@ $("#progressbar").click(function(e){
 
 $("#login-form").click(function(e){
    $("#login-form").hide();
+});
+
+$("#login-kibitz-account").click(function(e) {
+    if (validFields(["repo-name"])) {
+	var popup = window.open('http://datahub.csail.mit.edu/permissions/apps/allow_access/kibitz/' + $("#repo-name").val().trim() +
+			    '?redirect_url=http://localhost/kibitz-demo/home/','newwindow', config='height=600,width=600,' +
+			    'toolbar=no, menubar=no, scrollbars=no, resizable=no,' +
+			    'location=no, directories=no, status=no');
+    
+	//Create a trigger for location changes
+	var intIntervalTime = 100;
+	var curPage = this;
+    
+	// This will be the method that we use to check
+	// changes in the window location.
+	var fnCheckLocation = function(){
+	    // Check to see if the location has changed.
+	    if (popup.location.href.indexOf("auth_user") > -1) {
+		var href = popup.location.href;
+		sessionStorage.setItem("username", href.split("=")[1]);
+		setCookie("username", href.split("=")[1]);
+		popup.close();
+		window.clearInterval(id);
+		animateNext(curPage, $("#customization-form"));
+		$("#progressbar li").eq(1).addClass("active");
+	    }
+	}
+	var id = setInterval( fnCheckLocation, intIntervalTime );
+    }
 });
 
 function setColor(e) {
@@ -282,21 +348,21 @@ function validFieldsNext(cur, fields) {
     var missing_fields = {"email": false, "confirm_password": false};
     for (i in fields) {
         if (fields[i] === "email") {
-            if ($("#email").val() === null || $("#email").val() === undefined || $("#email").val() === "" || $("#email").val().indexOf("@") === -1) {
+            if ($("#email").val().trim() === null || $("#email").val().trim() === undefined || $("#email").val().trim() === "" || $("#email").val().trim().indexOf("@") === -1) {
                 $("#email").css("border", "2px solid red");
                 missing_fields["email"] = true;
             } else {
                 $("#email").css("border", "1px solid #ccc");
             }
         } else if (fields[i] === "confirm_password") {
-            if ($("#password").val() === null || $("#password").val() === undefined || $("#password").val() === "" || ($("#password").val() !== $("#confirm_password").val())) {
+            if ($("#password").val().trim() === null || $("#password").val().trim() === undefined || $("#password").val().trim() === "" || ($("#password").val().trim() !== $("#confirm_password").val().trim())) {
                 $("#confirm_password").css("border", "2px solid red");
                 missing_fields["confirm_password"] = true;
             } else {
                 $("#confirm_password").css("border", "1px solid #ccc");
             }
         } else {
-            if ($("#" + fields[i]).val() === null || $("#" + fields[i]).val() === undefined || $("#" + fields[i]).val() === "") {
+            if ($("#" + fields[i]).val().trim() === null || $("#" + fields[i]).val().trim() === undefined || $("#" + fields[i]).val().trim() === "") {
                 $("#" + fields[i]).css("border", "2px solid red");
                 missing_fields[fields[i]] = true;
             } else {
@@ -312,14 +378,38 @@ function validFieldsNext(cur, fields) {
         }
     }
     
-    var already_exists = client.checkUsername(null, $("#email").val(), true);
+    var username, repo, table, primary_key, title, description, image, correct_table_info;
+    username = sessionStorage.getItem("username");
     
-    if (already_exists) {
-	$("#username_already_exists").show();
+    if (username === null || username === undefined || username === "undefined" || username === "null")
+	username = getCookie("username");
+    
+    repo = $("#repo-name").val().trim();
+    table = $("#dh-table-name").val().trim();
+    primary_key = $("#primary-key").val().trim();
+    title = $("#title-column").val().trim();
+    description = $("#description-column").val().trim();
+    image = $("#image-column").val().trim();
+    
+    if (title === null || title === "") {
+	title = "no_kibitz_title";
+    }
+    
+    if (description === null || description === "") {
+	description = "no_kibitz_description";
+    }
+    
+    if (image === null || image === "") {
+	image = "no_kibitz_image";
+    }
+    
+    correct_table_info = client.checkCorrectDatahubLogin(username, repo, table, primary_key, title, description, image);
+        
+    if (!correct_table_info) {
+	$("#database_table_error").show();
 	return false;
     } else {
-	$("#username_already_exists").hide();
-	client.addKibitzUser($("#email").val(), $("#password").val());
+	$("#database_table_error").hide();
 	if (!resubmit) {
 	    next_fs = $(cur).parent().next();
 	    //activate next step on progressbar using the index of next_fs
@@ -335,21 +425,21 @@ function createNewRecommender(cur, fields) {
     var missing_fields = {"email": false, "confirm_password": false};
     for (i in fields) {
         if (fields[i] === "email") {
-            if ($("#email").val() === null || $("#email").val() === undefined || $("#email").val() === "" || $("#email").val().indexOf("@") === -1) {
+            if ($("#email").val().trim() === null || $("#email").val().trim() === undefined || $("#email").val().trim() === "" || $("#email").val().trim().indexOf("@") === -1) {
                 $("#email").css("border", "2px solid red");
                 missing_fields["email"] = true;
             } else {
                 $("#email").css("border", "1px solid #ccc");
             }
         } else if (fields[i] === "confirm_password") {
-            if ($("#password").val() === null || $("#password").val() === undefined || $("#password").val() === "" || ($("#password").val() !== $("#confirm_password").val())) {
+            if ($("#password").val().trim() === null || $("#password").val().trim() === undefined || $("#password").val().trim() === "" || ($("#password").val().trim() !== $("#confirm_password").val().trim())) {
                 $("#confirm_password").css("border", "2px solid red");
                 missing_fields["confirm_password"] = true;
             } else {
                 $("#confirm_password").css("border", "1px solid #ccc");
             }
         } else {
-            if ($("#" + fields[i]).val() === null || $("#" + fields[i]).val() === undefined || $("#" + fields[i]).val() === "") {
+            if ($("#" + fields[i]).val().trim() === null || $("#" + fields[i]).val().trim() === undefined || $("#" + fields[i]).val().trim() === "") {
                 $("#" + fields[i]).css("border", "2px solid red");
                 missing_fields[fields[i]] = true;
             } else {
@@ -365,7 +455,7 @@ function createNewRecommender(cur, fields) {
         }
     }
     
-    if (!client.checkCorrectDatahubLogin($('#dh-username').val(), $('#dh-password').val(), $('#dh-repository').val(), $('#dh-table-name').val())) {
+    if (!client.checkCorrectDatahubLogin($('#dh-username').val().trim(), $('#dh-password').val().trim(), $('#dh-repository').val().trim(), $('#dh-table-name').val().trim())) {
 	$("#incorrect-datahub-login").show();
 	return false;
     }
@@ -383,7 +473,7 @@ function validFields(fields) {
     var resubmit = false;
     var missing_fields = {};
     for (i in fields) {
-        if ($("#" + fields[i]).val() === null || $("#" + fields[i]).val() === undefined || $("#" + fields[i]).val() === "") {
+        if ($("#" + fields[i]).val().trim() === null || $("#" + fields[i]).val().trim() === undefined || $("#" + fields[i]).val().trim() === "") {
             $("#" + fields[i]).css("border", "2px solid red");
             missing_fields[fields[i]] = true;
         } else {
@@ -401,8 +491,14 @@ function validFields(fields) {
 }
 
 function submitLoginInfo(cur) {
-    $("#login-panel").hide();
-    $("#successful-login").show();
+    //Check password
+    if (validFields(['login_email', 'login_password'])) {
+	sessionStorage.setItem("username", $("#login_email").val().trim());
+	document.cookie="username=" + $("#login_email").val().trim();
+	setCookie("username", $("#login_email").val().trim());
+	document.location.href = "account";
+    }
+    //$("#successful-login").show();
 }
 
 function fadeOut() {
@@ -429,89 +525,41 @@ function printExtraOptions(url, zip) {
 }
 
 $(".submit").click(function(){
-    var email, password, dh_username, dh_password, dh_repo, dh_tablename, user_based,
-	item_based, ratings_based, random, primary_key, display_columns, item_based_col_1, item_based_col_2,
-	item_based_col_3, ratings_based_col;
+    var username, repo, table, primary_key, title, description, image, ratings_column;
 
-    email = $("#email").val();
-    password = $("#password").val();
-    dh_username = $("#dh-username").val();
-    dh_password = $("#dh-password").val()
-    dh_repo = $("#dh-repository").val();
-    dh_tablename = $("#dh-table-name").val();
-    if ($("#option-1").hasClass("button-active")) {
-	primary_key = "title";
-	display_columns = ["title", "description", "image"];
-        if ($("#user-based-button").hasClass("button-active")) {
-            user_based = true;
-        }
+    username = sessionStorage.getItem("username");
+    
+    if (username === null || username === undefined || username === "" || username === "null" || username === "undefined")
+	username = getCookie("username")
+    repo = $("#repo-name").val().trim();
+    table = $("#dh-table-name").val().trim();
+    ratings_column = $("#rating-column-2").val().trim();
+    title = $("#title-column").val().trim();
+    description = $("#description-column").val().trim();
+    image = $("#image-column").val().trim();
+    primary_key = $("#primary-key").val().trim();
+    
+    if (ratings_column === "" || ratings_column === null)
+	ratings_column = "no_kibitz_ratings_column";
 
-        if ($("#item-based-button").hasClass("button-active") && $("#ratings-based-button").hasClass("button-active")) {
-	    item_based_col_1 = $("#rating-column-1").val();
-            ratings_based_col = $("#item-based-col-name-1").val();
-            if ($("#item-based-col-name-2-1").val() !== "") {
-                item_based_col_2 = $("#item-based-col-name-2-1").val();
-            }
-            if ($("#item-based-col-name-3-1").val() !== "") {
-                item_based_col_3 = $("#item-based-col-name-3-1").val();
-            }
-        } else if ($("#item-based-button").hasClass("button-active")) {
-            item_based_col_1 = $("#item-based-col-name-2").val();
-            if ($("#item-based-col-name-2-2").val() !== "") {
-                item_based_col_2 = $("#item-based-col-name-2-2").val();
-            }
-            if ($("#item-based-col-name-3-2").val() !== "") {
-                item_based_col_3 = $("#item-based-col-name-3-2").val();
-            }
-        } else if ($("#ratings-based-button").hasClass("button-active")) {
-            ratings_based_col = $("#rating-column-2").val();
-        }
-
-        if ($("#random-button").hasClass("button-active")) {
-            random = true;
-        }
-    } else {
-        primary_key = $("#primary-key").val();
-        display_columns = $("#display-columns").val();
-        if ($("#user-based-button-2").hasClass("button-active")) {
-            user_based = true;
-        }
-
-        if ($("#item-based-button-2").hasClass("button-active") && $("#ratings-based-button-2").hasClass("button-active")) {
-            ratings_based_col = $("#rating-column-3").val();
-            item_based_col_1 = $("#item-based-col-name-3").val();
-            if ($("#item-based-col-name-2-3").val() !== "") {
-                item_based_col_2 = $("#item-based-col-name-2-3").val();
-            }
-            if ($("#item-based-col-name-3-3").val() !== "") {
-                item_based_col_3 = $("#item-based-col-name-3-3").val();
-            }
-        } else if ($("#item-based-button-2").hasClass("button-active")) {
-            item_based_col_1 = $("#item-based-col-name-4").val();
-            if ($("#item-based-col-name-2-4").val() !== "") {
-                item_based_col_2 = $("#item-based-col-name-2-4").val();
-            }
-            if ($("#item-based-col-name-3-4").val() !== "") {
-                item_based_col_3 = $("#item-based-col-name-3-4").val();
-            }
-        } else if ($("#ratings-based-button-2").hasClass("button-active")) {
-            ratings_based_col = $("#rating-column-4").val();
-        }
-
-        if ($("#random-button-2").hasClass("button-active")) {
-            random = true;
-        }
+    if (title === null || title === "") {
+	title = "no_kibitz_title";
+    }
+    
+    if (description === null || description === "") {
+	description = "no_kibitz_description";
+    }
+    
+    if (image === null || image === "") {
+	image = "no_kibitz_image";
     }
 
     client_id = printClientId();
-    
-    if ($("#option-1").hasClass("button-active")) {
-	printExtraOptions(window.location + dh_username + "/" + dh_repo, window.location + "/" + dh_username + "/" + dh_repo + "/homepage.zip");
-    }
-    
+
+    printExtraOptions(home_location + username + "/" + repo, window.location + "/" + username + "/" + repo + "/homepage.zip");
+	
     transport.open();
-    debugger;
-    client.createNewRecommender(dh_username, primary_key, dh_password, dh_repo, dh_tablename, item_based_col_1, item_based_col_2, item_based_col_3, "p", "p", "p", display_columns, client_id);
+    client.createNewRecommender(username, primary_key, repo, table, title, description, image, ratings_column, client_id);
 
     $("#submit-info").hide();
     $("#give-kibitz-key").show();
@@ -557,11 +605,12 @@ function deleteLoginInfo() {
     document.location.href="..";
 }
 
+var username, recommendersInfo, recommenders;
+
 $(function() {
     if (checkLogin()) {
 	document.location.href = "..";
     } else {
-	var username;
 	if (!(sessionStorage.getItem("username") === null || sessionStorage.getItem("username") === "null" ||
 	 sessionStorage.getItem("username") === "undefined" || sessionStorage.getItem("username") === undefined))
 	    username = sessionStorage.getItem("username")
@@ -569,5 +618,20 @@ $(function() {
 	    getCookie("username") === "undefined" || getCookie("username") === undefined))
 	    username = getCookie("username");
 	$("#username_display").html(username);
+	var pic = client.getProfilePicture(username);
+	$(".img-circle").attr("src", "//graph.facebook.com/" + pic + "/picture?type=large");
+	
+	recommendersInfo = client.getRecommenders(username);
+	recommenders = {};
+	var trash_button = '<button class="close" aria-hidden="true" data-dismiss="alert" type="button"><i class="fa fa-trash-o"></i></button>';
+	
+	$(".sub").empty();
+      
+	for (i in recommendersInfo) {
+	  recommenders[recommendersInfo[i].clientKey] = recommendersInfo[i];
+	  
+	  var entry_list = '<li><a href=\'javascript:process_recommender_info("' + recommendersInfo[i].clientKey + '");\'>' + recommendersInfo[i].recommenderName + '</a></li>';
+	  $(".sub").append(entry_list);
+	}
     }
 });

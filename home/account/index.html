@@ -80,9 +80,6 @@
                           <span>Recommenders</span>
                       </a>
                       <ul class="sub">
-                          <li><a  href="recommender_info.html">blah</a></li>
-                          <li><a  href="recommender_info.html">yo</a></li>
-                          <li><a  href="recommender_info.html">meh</a></li>
                       </ul>
                   </li>
 
@@ -97,141 +94,59 @@
       *********************************************************************************************************************************************************** -->
       <!--main content start-->
       <section id="main-content">
-        <div id="sign-up-form">
+       <div id="sign-up-form">
             <!-- multistep form -->
             <form class="msform">
                 <!-- progressbar -->
                 <ul id="progressbar">
                         <li class="active">Account Setup</li>
-                        <li>Import Datahub Table</li>
-                        <li>Customization Options</li>
-                        <li>Choose Recommender Types</li>
+                        <li>Customization</li>
+                        <li>Ranking Info (Optional)</li>
                 </ul>
                 <!-- fieldsets -->
                 <fieldset>
-                        <h2 class="fs-title">Import Datahub Table</h2>
-                        <h3 class="fs-subtitle">We will keep your credentials secure.</h3>
-                        <div id="incorrect-datahub-login" class="fs-subtitle error">Incorrect Datahub Information.</div>
-                        <div class="required"><input type="text" id="dh-repository" placeholder="Repository Name" /></div>
-                        <div class="required"><input type="text" id="dh-table-name" placeholder="Table Name" /></div>
-                        <input type="button" name="next" class="action-button btn btn-xl" value="Next" onclick="createNewRecommender(this, ['dh-username', 'dh-password', 'dh-repository', 'dh-table-name']);"/>
+                        <h2 class="fs-title">Datahub Account</h2>
+                        <div id="username_already_exists" class="fs-subtitle">To use Kibitz, please <b>sign-in</b> to your Datahub Account and <b>allow Kibitz access</b> to your repository containing your list of items.
+                            If you do not have a Datahub Account, you may create one via the Datahub <a href="http://datahub.csail.mit.edu/account/register">register page</a>.</div>
+                        <div class="required"><input type="text" id="repo-name" placeholder="Repository Name" /></div>
+                        <input type="button" class="selection-button button-active" id="login-kibitz-account" value="Allow Kibitz Access" />
                 </fieldset>
                 <fieldset id="customization-form">
-                        <h2 class="fs-title">Customization Options</h2>
-                        <h3 class="fs-subtitle">Ready-Built creates the recommender for you. For this option, your table must contain the following columns: <b>title (primary key),
-                        description, image</b>.</h3>
-                        <input type="button" class="selection-button button-inactive" id="option-1" value="Ready-Built" onclick='setUniqueColor(event);'/>
-                        <h3 class="fs-subtitle">Customize lets you customize your table columns, but you must code your own recommender using the <a href="">Kibitz API</a>.</h3>
-                        <input type="button" class="selection-button button-inactive" id="option-2" value="Customize" onclick='setUniqueColor(event);'/>
-                        <input type="button" name="previous" class="previous action-button btn btn-xl" value="Previous" />
-                </fieldset>
-                <fieldset id="option-1-form-1">
-                        <h2 class="fs-title">Additional Recommender Types</h2>
-                        <h3 class="fs-subtitle">User-based recommends based on individual user ratings (Included!).</h3>
-                        <h3 class="fs-subtitle">Item-based computes item similarity.</h3>
-                        <input type="button" id="item-based-button" class="selection-button button-inactive" value="Item-Based" onclick="setColor(event);"/>
-                        <h3 class="fs-subtitle">You must have a column in your table providing numerical ratings for each item to use overall ratings.</h3>
-                        <input type="button" id="ratings-based-button" class="selection-button button-inactive" value="Overall Ratings" onclick='setColor(event);' />
-                        <input type="button" class="selection-button button-inactive" id="random-button" value="Random" onclick="setColor(event);" />
-                        <input type="button" name="previous" class="previous action-button btn btn-xl" value="Previous" />
-                        <div class="tooltipContent first">You must choose at least one.</div>
-                        <input type="button" name="next" class="next-opt-2 action-button btn btn-xl" value="Next" />
-                </fieldset>
-                <fieldset id="item-rating-based-recommender-option-1">
-                        <h2 class="fs-title">Item-Based/Rating Info</h2>
-                        <h3 class="fs-subtitle">To use overall ratings and item-based, provide the following info.</h3>
-                        <div class="required"><input type="text" id="rating-column-1" placeholder="Ratings column name" /></div>
-                        <h3 class="fs-subtitle">For item-based, provide column names for at least one comparison column. Ranked by importance.</h3>
-                        <div class="required"><input type="text" id="item-based-col-name-1" placeholder="1st Similarity" /></div>
-                        <div class="not-required"><input type="text" id="item-based-col-name-2-1" placeholder="2nd Similarity (Optional)" /></div>
-                        <div class="not-required"><input type="text" id="item-based-col-name-3-1" placeholder="3rd Similarity (Optional)" /></div>
-                        <input type="button" name="previous" class="previous-opt-1 action-button btn btn-xl" value="Previous" />
-                        <input type="button" name="next" class="next-opt-1-1 action-button btn btn-xl" value="Next" />
+                        <h2 class="fs-title">Customize</h2>
+                        <div class="fs-subtitle">We are almost ready to deploy your recommender! We just need a few more things from you.</div>
+                        <div id="database_table_error" class="fs-subtitle error">Incorrect Datahub table info. Please correct.</div>
+                        <div class="required"><input type="text" id="dh-table-name" placeholder="Item Table Name" /></div>
+                        <div class="required"><input type="text" id="primary-key" placeholder="Primary Key" /></div>
+                        <div class="fs-subtitle">The following fields are optional but helps us build a working sample recommender for you.</div>
+                        <input type="text" id="title-column" placeholder="Title Column Name" />
+                        <input type="text" id="description-column" placeholder="Description Column Name" />
+                        <input type="text" id="image-column" placeholder="Image Column Name" />
+                        <input type="button" name="next" class="action-button btn btn-xl" value="Next" onclick="validFieldsNext(this, ['dh-table-name', 'primary-key']);"/>
                 </fieldset>
                 <fieldset id="ratings-based-recommender-option-1">
-                        <h2 class="fs-title">Rating Info</h2>
-                        <h3 class="fs-subtitle">To use overall ratings, provide the column name containing numerical ratings for each item.</h3>
-                        <div class="required"><input type="text" id="rating-column-2" placeholder="Ratings column name" /></div>
-                        <input type="button" name="previous" class="previous-opt-1 action-button btn btn-xl" value="Previous" />
+                        <h2 class="fs-title">Ranking Info</h2>
+                        <div class="fs-subtitle">The default recommender allows your users to rate items and provides recommendations based on these
+                            ratings. You may also choose to provide a default ranking for each item and recommendations will include the highest ranked items (e.g. a ranking of 10 is higher than a ranking of 1).
+                            If you choose to use this option, provide the column name containing numerical rankings for each item.</div>
+                        <div id="rating_column_error" class="fs-subtitle error">Wrong info. Please enter a correct column name with numerical ratings.</div>
+                        <input type="text" id="rating-column-2" placeholder="Ratings Column Name" />
+                        <input type="button" name="previous" class="previous-opt-2 action-button btn btn-xl" value="Previous" />
                         <input type="button" name="next" class="next-opt-1-2 action-button btn btn-xl" value="Next" />
-                </fieldset>
-                <fieldset id="item-based-recommender-option-1">
-                        <h2 class="fs-title">Item-Based Info</h2>
-                        <h3 class="fs-subtitle">To use item-based, provide column names for at least one comparison columnn used to compute similarity. Ranked by importance.</h3>
-                        <div class="required"><input type="text" id="item-based-col-name-2" placeholder="1st Similarity" /></div>
-                        <div class="not-required"><input type="text" id="item-based-col-name-2-2" placeholder="2nd Similarity (Optional)" /></div>
-                        <div class="not-required"><input type="text" id="item-based-col-name-3-2" placeholder="3rd Similarity (Optional)" /></div>
-                        <input type="button" name="previous" class="previous-opt-1 action-button btn btn-xl" value="Previous" />
-                        <input type="button" name="next" class="next-opt-1-3 action-button btn btn-xl" value="Next" />
-                </fieldset>
-                <fieldset id="option-1-form-3">
-                        <h2 class="fs-title">Export Recommender</h2>
-                        <h3 class="fs-subtitle">Choose how to host your recommender.</h3>
-                        <input type="button" class="next form-button" value="Export as ZIP file" />
-                        <input type="button" class="next form-button" value="Create Kibitz subdomain" />
-                </fieldset>
-                <fieldset id="option-2-form">
-                        <h2 class="fs-title">Customize</h2>
-                        <h3 class="fs-subtitle">Enter the primary key column name of your Datahub items table.</h3>
-                        <div class="required"><input type="text" id="primary-key" placeholder="Primary Key" /></div>
-                        <h3 class="fs-subtitle">Enter the column names of info you want to display in your recommender. Comma separated.</h3>
-                        <div class="required"><input type="text" id="display-columns" placeholder="Display Columns" /></div>
-                        <input type="button" name="previous-opt-2" class="previous-opt-2 action-button btn btn-xl" value="Previous" />
-                        <input type="button" name="next" class="next-recommender-types-opt-2 action-button btn btn-xl" value="Next" />
-                </fieldset>
-                <fieldset id="option-2-form-1">
-                        <h2 class="fs-title">Additional Recommender Types</h2>
-                        <h3 class="fs-subtitle">User-based recommends based on individual user ratings (Included!).</h3>
-                        <h3 class="fs-subtitle">Item-based computes item similarity.</h3>
-                        <input type="button" id="item-based-button-2" class="selection-button button-inactive" value="Item-Based" onclick="setColor(event);"/>
-                        <h3 class="fs-subtitle">You must have a column in your table providing numerical ratings for each item to use overall ratings.</h3>
-                        <input type="button" id="ratings-based-button-2" class="selection-button button-inactive" value="Overall Ratings" onclick="setColor(event);" />
-                        <input type="button" class="selection-button button-inactive" id="random-button-2" value="Random" onclick="setColor(event);" />
-                        <input type="button" name="previous" class="previous-opt-2-info action-button btn btn-xl" value="Previous" />
-                        <div class="tooltipContent second">You must choose at least one.</div>
-                        <input type="button" name="next" class="next-opt-2-info action-button btn btn-xl" value="Next" />
-                </fieldset>
-                <fieldset id="item-rating-based-recommender-option-2">
-                        <h2 class="fs-title">Item-Based/Rating Info</h2>
-                        <h3 class="fs-subtitle">To use overall ratings and item-based, provide the following info.</h3>
-                        <div class="required"><input type="text" id="rating-column-3" placeholder="Ratings column name" /></div>
-                        <h3 class="fs-subtitle">For item-based, provide column names for at least one comparison column. Ranked by importance.</h3>
-                        <div class="required"><input type="text" id="item-based-col-name-3" placeholder="1st Similarity" /></div>
-                        <div class="not-required"><input type="text" id="item-based-col-name-2-3" placeholder="2nd Similarity (Optional)" /></div>
-                        <div class="not-required"><input type="text" id="item-based-col-name-3-3" placeholder="3rd Similarity (Optional)" /></div>
-                        <input type="button" name="previous" class="previous-opt-2-form action-button btn btn-xl" value="Previous" />
-                        <input type="button" name="next" class="next-opt-2-1 action-button btn btn-xl" value="Next" />
-                </fieldset>
-                <fieldset id="ratings-based-recommender-option-2">
-                        <h2 class="fs-title">Rating Info</h2>
-                        <h3 class="fs-subtitle">To use overall ratings, provide the column name containing numerical ratings for each item.</h3>
-                        <div class="required"><input type="text" id="rating-column-4" placeholder="Ratings column name" /></div>
-                        <input type="button" name="previous" class="previous-opt-2-form action-button btn btn-xl" value="Previous" />
-                        <input type="button" name="next" class="next-opt-2-2 action-button btn btn-xl" value="Next" />
-                </fieldset>
-                <fieldset id="item-based-recommender-option-2">
-                        <h2 class="fs-title">Item-Based Info</h2>
-                        <h3 class="fs-subtitle">To use item-based, provide column names for at least one comparison columnn used to compute similarity. Ranked by importance.</h3>
-                        <div class="required"><input type="text" id="item-based-col-name-4" placeholder="1st Similarity" /></div>
-                        <div class="not-required"><input type="text" id="item-based-col-name-2-4" placeholder="2nd Similarity (Optional)" /></div>
-                        <div class="not-required"><input type="text" id="item-based-col-name-3-4" placeholder="3rd Similarity (Optional)" /></div>
-                        <input type="button" name="previous" class="previous-opt-2-form action-button btn btn-xl" value="Previous" />
-                        <input type="button" name="next" class="next-opt-2-3 action-button btn btn-xl" value="Next" />
                 </fieldset>
                 <fieldset id="submit-info">
                         <h2 class="fs-title">Submit</h2>
-                        <h3 class="fs-subtitle">You have completed all fields. <br /><br />Submit to <b>create your recommender</b> or <b>go back to change your inputs.</b><br /><br />
-                        You may <b>not change</b> your inputs after you submit. <br /><br />It takes approx. an hour for the recommender to be configured. Login to the website
-                        to see if it is ready to use.</h3>
+                        <div class="fs-subtitle">You have completed all fields. <br /><br />Submit to <b>create your recommender</b> or <b>go back to change your inputs.</b><br /><br />
+                        You may <b>not change</b> your inputs after you submit. <br /><br />It takes approx. an hour for the recommender to be configured. During the time it is configuring,
+                        recommendations may not be accurate.</div>
                         <input type="button" name="previous" class="previous-page-before-submit action-button btn btn-xl" value="Previous" />
                         <input type="button" name="submit" class="submit action-button btn btn-xl" value="Submit" />
                 </fieldset>
                 <fieldset id="give-kibitz-key">
                     <h2 class="fs-title">Recommender Created!</h2>
-                    <h3 class="fs-subtitle">Congrats! You have created your first recommender! Your unique identification key is<br /><br />
+                    <div class="fs-subtitle">Congrats! You have created your first recommender! Your unique recommender client key is<br /><br />
                     <span id="client_id" style="color: red;"></span>
                     <br /><br /> Remember this key. It will be used in all communications with Kibitz.
-                    <span id="additional_messages"></span>
+                    <span id="additional_messages"></span></div>
                 </fieldset>
             </form>
         </div>
@@ -247,24 +162,6 @@
                         <div class="custom-check goleft mt">
                           <table id="todo" class="table table-hover custom-check">
                                 <tbody>
-                                  <tr>
-                                      <td>
-                                          <a href="recommender_info.html">blah</a></span>
-                                          <button class="close" aria-hidden="true" data-dismiss="alert" type="button"><i class="fa fa-trash-o"></i></button>
-                                      </td>
-                                  </tr>
-                                  <tr>
-                                    <td>
-                                          <a href="recommender_info.html">yo</a></span>
-                                          <button class="close" aria-hidden="true" data-dismiss="alert" type="button"><i class="fa fa-trash-o"></i></button>
-                                    </td>
-                                  </tr>
-                                  <tr>
-                                    <td>
-                                          <a href="recommender_info.html">meh</a></span>
-                                          <button class="close" aria-hidden="true" data-dismiss="alert" type="button"><i class="fa fa-trash-o"></i></button>
-                                    </td>
-                                  </tr>
                                 </tbody>
                           </table>
                       </div><!-- /table-responsive -->
@@ -305,6 +202,8 @@
     <script type="text/javascript" src="assets/js/thrift.js"></script>
     <script type="text/javascript" src="assets/js/RecommenderService.js"></script>
     <script type="text/javascript" src="assets/js/form.js"></script>
+    <script type="text/javascript" src="assets/js/index.js"></script>
+    <script type="text/javascript" src="assets/js/required_functions.js"></script>
     
     <script type="text/javascript" src="assets/js/gritter/js/jquery.gritter.js"></script>
     <script type="text/javascript" src="assets/js/gritter-conf.js"></script>

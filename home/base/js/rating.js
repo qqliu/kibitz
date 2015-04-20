@@ -48,7 +48,7 @@ jQuery.fn.rating = function(url, options) {
 			}
         } 
 		else {
-             var div = '<div class="star"><a href="#'+i+'" title="Give it '+i+'/'+size+'">'+i+'</a></div>';
+             var div = '<div class="star"><a href="#'+i+'" title="Give it '+i+'/'+ maxRatingVal +'">'+i+'</a></div>';
 			 container.append(div);
 
         }

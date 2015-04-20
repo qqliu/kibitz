@@ -9,15 +9,18 @@
     <link href='http://fonts.googleapis.com/css?family=Carrois+Gothic|Alegreya+Sans&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
 
     <!--Bootshape-->
-    <link href="snippet.css" rel="stylesheet">
+    <link href="css/snippet.css" rel="stylesheet">
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script type="text/javascript" src="js/initiate.js"></script>
     <script type="text/javascript" src="js/rating.js"></script>
     <script type="text/javascript" src="js/thrift.js"></script>
     <script type="text/javascript" src="js/kibitz_types.js"></script>
     <script type="text/javascript" src="js/RecommenderService.js"></script>
     <script type="text/javascript" src="js/rating.js"></script>
-    <script type="text/javascript" src="required_functions.js"></script>
-    <link rel="stylesheet" type="text/css" href="rating.css" />
+    <script type="text/javascript" src="js/required_functions.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/rating.css" />
+    <link rel="stylesheet" type="text/css" href="css/general.css" />
+    <link rel="stylesheet" type="text/css" href="css/like_dislike.css" />
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -32,18 +35,9 @@
     <section class="bootshape">
       <div class="center-block main">
         <div class="head">
-	    <form id="login_panel" style="
-		  color: white;
-		  align-content: right;
-		  margin-left: 70%;
-		  display: inline-block;">
-	      <p>Username: </p> <input style="color:black" id = "username" name="username" type="text" />
-	      <p>Password: </p><input style="color:black" id = "password" name="password" type="password" /><br>
-	      <button style="color:black" type="button" onclick="process_login();" value="Login">Login</button><br />
-	      <a href="register.html">Register New User</a>
-	  </form>
-	  <div id="login_message" style="display:none; color:white">
-	  </div>
+	    <div id="login_panel"><h3><a class="page_links" href="javascript:show_signup_form();">Log In with Datahub</a></h3></div>
+	    <div id="login_message" style="display:none; color:white">
+	    </div>
           <div class="person" id="title">
           </div>
         </div>
@@ -56,7 +50,6 @@
             </tr>
           </table>
         </div>
-
         <form class="search-form">
           <div class="form-group has-feedback">
             <input type="text" class="form-control" id="">
@@ -67,66 +60,6 @@
         </table>
       </div>
     </section>
-    <script>
-        $(document).ready(function() {
-	    username = getCookie("username");
-	    userId = parseInt(getCookie("userId"));
-        debugger;
-        console.log(username);
-        console.log(userId);
-	    if (username !== "" && userId !== "" && username !== undefined && userId !== undefined && username !== null && userId != null) {
-		swap("login_message", "login_panel");
-		document.getElementById('login_message').innerHTML = "<p>You are now logged in as " + username + ". <a href='javascript:logout();'>Logout</a></p>";
-
-		if (userId != null) {
-		var items = client.makeRecommendation(client_key, userId, 10, ['title', 'description', 'image', 'id']);
-		var itemslist ="";
-		    for (var i =0; i < items.length; i++) {
-		      var item = items[i];
-		      if (item.id != null && item.title != null) {
-			currItem = '<tr><tr><div class="relative">';
-			if (item.image.indexOf("http") > -1) {
-			  currItem += '<img src = "' + item.image + '" />';
-			}
-			currItem += '<div class="inline-block user-info"><h2>' + item.title + '</h2>';
-			if (item.description != null){
-			  currItem += '<div class="icons"><ul class="list-inline"><li>' + item.description + '</li>';
-			}
-			currItem += '<div id="rate' + item.id + '" class="rating">&nbsp;</div><div class="implementation"></div>';
-			if (item.description != null) {
-			  currItem += '</ul></div>';
-			}
-			currItem += '</div></div></td></tr>';
-			itemslist += currItem;
-		      }
-		    }
-		    document.getElementById('listofitems').innerHTML = itemslist;
-		}
-
-		if(userId != null) {
-		  var my_rated_items = client.getUserRatedItems(client_key, userId, ['title', 'description', 'image', 'id']);
-		  for (i = 0; i < my_rated_items.length; i++) {
-		    item = my_rated_items[i];
-		    var r = document.getElementById("rate" + item.id);
-		    if (r != null) {
-			r.setAttribute("value", item.rating ? item.rating: -1);
-		    }
-		  }
-		}
-
-		var ratings = $(".rating");
-		ratings.each(function (i, el) {
-		    var rating = parseInt($(el).attr('value'));
-		    if (rating > -1) {
-		      $(el).rating('http://localhost:9800/kibitz/rate', {maxvalue: 10, curvalue: rating});
-		    } else {
-		      $(el).rating('http://localhost:9800/kibitz/rate', {maxvalue: 10});
-		    }
-		});
-	    } else {
-		document.getElementById('listofitems').innerHTML = "<p>Please login or <a href='register.html'>signup</a> to see recommendations.</p>";
-	    }
-        });
-      </script>
+    <script type="text/javascript" src="js/recommendations.js"></script>
   </body>
 </html>

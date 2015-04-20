@@ -16,7 +16,7 @@ import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommender;
 //import org.apache.mahout.cf.taste.impl.recommender.CachingRecommender;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
-import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
+import org.apache.mahout.cf.taste.impl.similarity.LogLikelihoodSimilarity;
 import org.apache.mahout.cf.taste.impl.similarity.file.FileItemSimilarity;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
@@ -39,7 +39,6 @@ public class IndividualRecommender {
 	
 	private String items_table;
 	private String username;
-	private String password;
 	private String ratings_table;
 	private String users_table;
 	private String databaseName;
@@ -48,19 +47,20 @@ public class IndividualRecommender {
 		this.dataModel = null;
 		this.dataSource = dataSource;
 		this.username = "quanquan";
-		this.password = "hof9924ne@!";
 		this.ratings_table = "data";
 		this.items_table = "data";
 		this.databaseName = this.dataSource.getDatabaseName();
 	}
 	
-	public List<Item> makeRecommendation(long userId, long numRecs, List<String> displayColumns) {
+	public List<Item> makeRecommendation(long userId, long numRecs, boolean isBoolean, List<String> displayColumns) {
 		try {
 			if (this.dataModel != null) {
 				List<Boolean> recommenderTypes = this.dataModel.getRecommenderTypes();
-				
 				long startTime = System.nanoTime();
-				List<RecommendedItem> recommendations = this.recommender.recommend((int) userId, (int) numRecs);
+				List<RecommendedItem> recommendations;
+
+				recommendations = this.recommender.recommend((int) userId, (int) numRecs);
+				
 				if (recommendations.size() == 0 && recommenderTypes.get(0)) {
 					recommendations = this.itemRecommender.recommend((int) userId, (int) numRecs);
 				}
@@ -69,13 +69,15 @@ public class IndividualRecommender {
 				for (int i = 0; i < recommendations.size(); i++) {
 					recommendationNames.add(recommendations.get(i).getItemID());
 				}
+				
 				List<Item> recs = this.dataModel.getItemsFromIds(recommendationNames, this.databaseName + "." + this.items_table, 
 						this.databaseName + "." + this.ratings_table, userId, displayColumns);
+				
 				long endTime = System.nanoTime();
 				System.out.println("Time it takes to get recommendation: " + (endTime - startTime));
 				
 				if (recs.size() == 0 && recommenderTypes.get(2)) {
-					recs = this.dataModel.makeOverallRatingsBasedRecommendation(this.databaseName + "." + this.items_table, numRecs, displayColumns);
+					recs = this.dataModel.makeOverallRatingsBasedRecommendation(this.databaseName + "." + this.items_table, this.databaseName + "." + this.ratings_table, numRecs, displayColumns);
 				}
 				
 				if (recs.size() == 0 && recommenderTypes.get(1)) {
@@ -96,8 +98,8 @@ public class IndividualRecommender {
 		return results;
 	}*/
 	
-	public List<Item> getSearchItems(String query, List<String> displayColumns) {
-		List<Item> results = this.dataModel.getSearchItems(this.databaseName + "." + this.items_table, query, displayColumns);
+	public List<Item> getSearchItems(String query, List<String> columnsToSearch, List<String> displayColumns) {
+		List<Item> results = this.dataModel.getSearchItems(this.databaseName + "." + this.items_table, query, columnsToSearch, displayColumns);
 		return results;
 	}
 	
@@ -118,8 +120,8 @@ public class IndividualRecommender {
 		this.dataModel.deleteRatings(userId, itemId, this.databaseName + "." + this.ratings_table);
 	}
 	
-	public long retrieveUserId(String username, String password) {
-		return this.dataModel.retrieveUserId(username, password, this.databaseName + "." + this.users_table);
+	public long retrieveUserId(String username) {
+		return this.dataModel.retrieveUserId(username, this.databaseName + "." + this.users_table);
 	}
 	
 	public List<Item> makeItemBasedRecommendations(long userId, long numRecs, List<String> displayColumns) {
@@ -141,42 +143,34 @@ public class IndividualRecommender {
 	}
 	
 	public List<Item> makeOverallRatingBasedRecommendation(String ratingColumnName, long numRecs, List<String> displayColumns) {
-		return this.dataModel.makeOverallRatingsBasedRecommendation(this.databaseName + "." + this.items_table, numRecs, displayColumns);
+		return this.dataModel.makeOverallRatingsBasedRecommendation(this.databaseName + "." + this.items_table, this.databaseName + "." + this.ratings_table, numRecs, displayColumns);
 	}
 	
 	public List<Item> makeRandomRecommendation(long numRecs, List<String> displayColumns) {
 		return this.dataModel.makeRandomRecommmendation(numRecs, this.databaseName + "." + this.items_table, displayColumns);
 	}
  	
-	public String createNewUser(String username, String email, String password, boolean isKibitzUser) {
+	public String createNewUser(String username, boolean isKibitzUser) {
 		if (this.checkUsername(username, isKibitzUser)) {
 			return "User already exists, please pick another username.";
 		}
 		List<String> columns = new ArrayList<String>();
 		columns.add("'" + username + "'");
-		columns.add("'" + email + "'");
+
 		List<String> columnNames = new ArrayList<String>();
 		columnNames.add("username");
-		columnNames.add("email");
-		columnNames.add("password");
-		String passwordHash;
-		try {
-			passwordHash = generatePasswordHash(password);
-			columns.add("'" + passwordHash + "'");
-			if (isKibitzUser) {
-				this.dataModel.createNewUser(columns, null, columnNames, null, true);
-			} else {
-				this.dataModel.createNewUser(columns, null, columnNames, this.databaseName + "." + this.users_table, false);
-			}
+		
+		boolean created;
+		if (isKibitzUser) {
+			created = this.dataModel.createNewUser(columns, null, columnNames, null, true);
+		} else {
+			created = this.dataModel.createNewUser(columns, null, columnNames, this.databaseName + "." + this.users_table, false);
+		}
+		
+		if (created)
 			return "New user created";
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvalidKeySpecException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		return "Cannot create user";
+		else
+			return "Cannot create user";
 	}
 	
 	public boolean checkUsername(String username, boolean isKibitzUser) {
@@ -271,15 +265,14 @@ public class IndividualRecommender {
 		return items;
     }
 	
-	public void initiateModel(String table, String username, String password, String database) {
+	public void initiateModel(String key, String table, String username, String database) {
 		try {
 			if (table != null) {
 				this.items_table = table;
 			}
 			
-			if (username != null && password != null) {
+			if (username != null) {
 				this.username = username;
-				this.password = password;
 			}
 			
 			if (database != null) {
@@ -290,32 +283,30 @@ public class IndividualRecommender {
 			this.users_table = table + "_users";
 			
 			
-			this.dataModel = new DatahubDataModel(this.dataSource.getServerName(), this.databaseName, this.username,
-						this.password,
-						this.ratings_table);
+			this.dataModel = new DatahubDataModel(this.dataSource.getServerName(), this.databaseName, this.username, this.ratings_table);
 			
 			List<Boolean> recs = this.dataModel.getRecommenderTypes();
 			
-			if (KibitzServer.RECOMMENDERS.get(table + username + password + database) != null) {
-				this.recommender = (GenericUserBasedRecommender) KibitzServer.RECOMMENDERS.get(table + username + password + database);
+			if (KibitzServer.RECOMMENDERS.get(key) != null) {
+				this.recommender = (GenericUserBasedRecommender) KibitzServer.RECOMMENDERS.get(key);
 			} else {
-				this.userSimilarity = new PearsonCorrelationSimilarity(this.dataModel);
+				this.userSimilarity = new LogLikelihoodSimilarity(this.dataModel);
 				this.neighborhood =
-					      new NearestNUserNeighborhood(30, userSimilarity, this.dataModel);
-				this.recommender = new GenericUserBasedRecommender(this.dataModel, neighborhood, userSimilarity);
+					      new NearestNUserNeighborhood(30, this.userSimilarity, this.dataModel);
+				this.recommender = new GenericUserBasedRecommender(this.dataModel, this.neighborhood, this.userSimilarity);
 				//this.cachingRecommender = new CachingRecommender(recommender);
-				KibitzServer.RECOMMENDERS.put(table + username + password + database, this.recommender);
+				KibitzServer.RECOMMENDERS.put(key, this.recommender);
 			}
 			
 			if (recs != null) {
 				if (recs.get(0)) {
-					if (KibitzServer.RECOMMENDERS.get(table + username + password + database + "items") != null) {
-						this.itemRecommender = (GenericItemBasedRecommender) KibitzServer.RECOMMENDERS.get(table + username + password + database + "items");
+					if (KibitzServer.RECOMMENDERS.get(key) != null) {
+						this.itemRecommender = (GenericItemBasedRecommender) KibitzServer.RECOMMENDERS.get(key + "items");
 					} else {
 						this.itemUserSimilarity = new FileItemSimilarity(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + username + 
 						"/" + database + "/" + table + "_item_similarity.csv"));
 						this.itemRecommender = new GenericItemBasedRecommender(this.dataModel, this.itemUserSimilarity);
-						KibitzServer.RECOMMENDERS.put(table + username + password + database + "items", this.itemRecommender);
+						KibitzServer.RECOMMENDERS.put(key + "items", this.itemRecommender);
 					}
 				}
 			}
@@ -334,16 +325,26 @@ public class IndividualRecommender {
 		return new IndividualRecommender(dataSource);
 	}
 	
-	public void updateDataModel() {
-		this.dataModel.refresh(null);
+	public void updateDataModel(String key) {
+		try {
+			this.userSimilarity = new LogLikelihoodSimilarity(this.dataModel);
+			this.neighborhood =
+				      new NearestNUserNeighborhood(30, this.userSimilarity, this.dataModel);
+			this.recommender = new GenericUserBasedRecommender(this.dataModel, this.neighborhood, this.userSimilarity);
+			//this.cachingRecommender = new CachingRecommender(recommender);
+			KibitzServer.RECOMMENDERS.put(key, this.recommender);
+		} catch (TasteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public DatahubDataModel getDataModel() {
+		return this.dataModel;
 	}
 	
 	public String getUsername() {
 		return this.username;
-	}
-	
-	public String getPassword() {
-		return this.password;
 	}
 	
 	public String getTable() {

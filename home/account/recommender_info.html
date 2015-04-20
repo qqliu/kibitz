@@ -99,135 +99,53 @@
                 <!-- progressbar -->
                 <ul id="progressbar">
                         <li class="active">Account Setup</li>
-                        <li>Import Datahub Table</li>
-                        <li>Customization Options</li>
-                        <li>Choose Recommender Types</li>
+                        <li>Customization</li>
+                        <li>Ranking Info (Optional)</li>
                 </ul>
                 <!-- fieldsets -->
                 <fieldset>
-                        <h2 class="fs-title">Import Datahub Table</h2>
-                        <h3 class="fs-subtitle">We will keep your credentials secure.</h3>
-                        <div id="incorrect-datahub-login" class="fs-subtitle error">Incorrect Datahub Information.</div>
-                        <div class="required"><input type="text" id="dh-repository" placeholder="Repository Name" /></div>
-                        <div class="required"><input type="text" id="dh-table-name" placeholder="Table Name" /></div>
-                        <input type="button" name="next" class="action-button btn btn-xl" value="Next" onclick="createNewRecommender(this, ['dh-username', 'dh-password', 'dh-repository', 'dh-table-name']);"/>
+                        <h2 class="fs-title">Datahub Account</h2>
+                        <div id="username_already_exists" class="fs-subtitle">To use Kibitz, please <b>sign-in</b> to your Datahub Account and <b>allow Kibitz access</b> to your repository containing your list of items.
+                            If you do not have a Datahub Account, you may create one via the Datahub <a href="http://datahub.csail.mit.edu/account/register">register page</a>.</div>
+                        <div class="required"><input type="text" id="repo-name" placeholder="Repository Name" /></div>
+                        <input type="button" class="selection-button button-active" id="login-kibitz-account" value="Allow Kibitz Access" />
                 </fieldset>
                 <fieldset id="customization-form">
-                        <h2 class="fs-title">Customization Options</h2>
-                        <h3 class="fs-subtitle">Ready-Built creates the recommender for you. For this option, your table must contain the following columns: <b>title (primary key),
-                        description, image</b>.</h3>
-                        <input type="button" class="selection-button button-inactive" id="option-1" value="Ready-Built" onclick='setUniqueColor(event);'/>
-                        <h3 class="fs-subtitle">Customize lets you customize your table columns, but you must code your own recommender using the <a href="">Kibitz API</a>.</h3>
-                        <input type="button" class="selection-button button-inactive" id="option-2" value="Customize" onclick='setUniqueColor(event);'/>
-                        <input type="button" name="previous" class="previous action-button btn btn-xl" value="Previous" />
-                </fieldset>
-                <fieldset id="option-1-form-1">
-                        <h2 class="fs-title">Additional Recommender Types</h2>
-                        <h3 class="fs-subtitle">User-based recommends based on individual user ratings (Included!).</h3>
-                        <h3 class="fs-subtitle">Item-based computes item similarity.</h3>
-                        <input type="button" id="item-based-button" class="selection-button button-inactive" value="Item-Based" onclick="setColor(event);"/>
-                        <h3 class="fs-subtitle">You must have a column in your table providing numerical ratings for each item to use overall ratings.</h3>
-                        <input type="button" id="ratings-based-button" class="selection-button button-inactive" value="Overall Ratings" onclick='setColor(event);' />
-                        <input type="button" class="selection-button button-inactive" id="random-button" value="Random" onclick="setColor(event);" />
-                        <input type="button" name="previous" class="previous action-button btn btn-xl" value="Previous" />
-                        <div class="tooltipContent first">You must choose at least one.</div>
-                        <input type="button" name="next" class="next-opt-2 action-button btn btn-xl" value="Next" />
-                </fieldset>
-                <fieldset id="item-rating-based-recommender-option-1">
-                        <h2 class="fs-title">Item-Based/Rating Info</h2>
-                        <h3 class="fs-subtitle">To use overall ratings and item-based, provide the following info.</h3>
-                        <div class="required"><input type="text" id="rating-column-1" placeholder="Ratings column name" /></div>
-                        <h3 class="fs-subtitle">For item-based, provide column names for at least one comparison column. Ranked by importance.</h3>
-                        <div class="required"><input type="text" id="item-based-col-name-1" placeholder="1st Similarity" /></div>
-                        <div class="not-required"><input type="text" id="item-based-col-name-2-1" placeholder="2nd Similarity (Optional)" /></div>
-                        <div class="not-required"><input type="text" id="item-based-col-name-3-1" placeholder="3rd Similarity (Optional)" /></div>
-                        <input type="button" name="previous" class="previous-opt-1 action-button btn btn-xl" value="Previous" />
-                        <input type="button" name="next" class="next-opt-1-1 action-button btn btn-xl" value="Next" />
+                        <h2 class="fs-title">Customize</h2>
+                        <div class="fs-subtitle">We are almost ready to deploy your recommender! We just need a few more things from you.</div>
+                        <div id="database_table_error" class="fs-subtitle error">Incorrect Datahub table info. Please correct.</div>
+                        <div class="required"><input type="text" id="dh-table-name" placeholder="Item Table Name" /></div>
+                        <div class="required"><input type="text" id="primary-key" placeholder="Primary Key" /></div>
+                        <div class="fs-subtitle">The following fields are optional but helps us build a working sample recommender for you.</div>
+                        <input type="text" id="title-column" placeholder="Title Column Name" />
+                        <input type="text" id="description-column" placeholder="Description Column Name" />
+                        <input type="text" id="image-column" placeholder="Image Column Name" />
+                        <input type="button" name="next" class="action-button btn btn-xl" value="Next" onclick="validFieldsNext(this, ['dh-table-name', 'primary-key']);"/>
                 </fieldset>
                 <fieldset id="ratings-based-recommender-option-1">
-                        <h2 class="fs-title">Rating Info</h2>
-                        <h3 class="fs-subtitle">To use overall ratings, provide the column name containing numerical ratings for each item.</h3>
-                        <div class="required"><input type="text" id="rating-column-2" placeholder="Ratings column name" /></div>
-                        <input type="button" name="previous" class="previous-opt-1 action-button btn btn-xl" value="Previous" />
+                        <h2 class="fs-title">Ranking Info</h2>
+                        <div class="fs-subtitle">The default recommender allows your users to rate items and provides recommendations based on these
+                            ratings. You may also choose to provide a default ranking for each item and recommendations will include the highest ranked items (e.g. a ranking of 10 is higher than a ranking of 1).
+                            If you choose to use this option, provide the column name containing numerical rankings for each item.</div>
+                        <div id="rating_column_error" class="fs-subtitle error">Wrong info. Please enter a correct column name with numerical ratings.</div>
+                        <input type="text" id="rating-column-2" placeholder="Ratings Column Name" />
+                        <input type="button" name="previous" class="previous-opt-2 action-button btn btn-xl" value="Previous" />
                         <input type="button" name="next" class="next-opt-1-2 action-button btn btn-xl" value="Next" />
-                </fieldset>
-                <fieldset id="item-based-recommender-option-1">
-                        <h2 class="fs-title">Item-Based Info</h2>
-                        <h3 class="fs-subtitle">To use item-based, provide column names for at least one comparison columnn used to compute similarity. Ranked by importance.</h3>
-                        <div class="required"><input type="text" id="item-based-col-name-2" placeholder="1st Similarity" /></div>
-                        <div class="not-required"><input type="text" id="item-based-col-name-2-2" placeholder="2nd Similarity (Optional)" /></div>
-                        <div class="not-required"><input type="text" id="item-based-col-name-3-2" placeholder="3rd Similarity (Optional)" /></div>
-                        <input type="button" name="previous" class="previous-opt-1 action-button btn btn-xl" value="Previous" />
-                        <input type="button" name="next" class="next-opt-1-3 action-button btn btn-xl" value="Next" />
-                </fieldset>
-                <fieldset id="option-1-form-3">
-                        <h2 class="fs-title">Export Recommender</h2>
-                        <h3 class="fs-subtitle">Choose how to host your recommender.</h3>
-                        <input type="button" class="next form-button" value="Export as ZIP file" />
-                        <input type="button" class="next form-button" value="Create Kibitz subdomain" />
-                </fieldset>
-                <fieldset id="option-2-form">
-                        <h2 class="fs-title">Customize</h2>
-                        <h3 class="fs-subtitle">Enter the primary key column name of your Datahub items table.</h3>
-                        <div class="required"><input type="text" id="primary-key" placeholder="Primary Key" /></div>
-                        <h3 class="fs-subtitle">Enter the column names of info you want to display in your recommender. Comma separated.</h3>
-                        <div class="required"><input type="text" id="display-columns" placeholder="Display Columns" /></div>
-                        <input type="button" name="previous-opt-2" class="previous-opt-2 action-button btn btn-xl" value="Previous" />
-                        <input type="button" name="next" class="next-recommender-types-opt-2 action-button btn btn-xl" value="Next" />
-                </fieldset>
-                <fieldset id="option-2-form-1">
-                        <h2 class="fs-title">Additional Recommender Types</h2>
-                        <h3 class="fs-subtitle">User-based recommends based on individual user ratings (Included!).</h3>
-                        <h3 class="fs-subtitle">Item-based computes item similarity.</h3>
-                        <input type="button" id="item-based-button-2" class="selection-button button-inactive" value="Item-Based" onclick="setColor(event);"/>
-                        <h3 class="fs-subtitle">You must have a column in your table providing numerical ratings for each item to use overall ratings.</h3>
-                        <input type="button" id="ratings-based-button-2" class="selection-button button-inactive" value="Overall Ratings" onclick="setColor(event);" />
-                        <input type="button" class="selection-button button-inactive" id="random-button-2" value="Random" onclick="setColor(event);" />
-                        <input type="button" name="previous" class="previous-opt-2-info action-button btn btn-xl" value="Previous" />
-                        <div class="tooltipContent second">You must choose at least one.</div>
-                        <input type="button" name="next" class="next-opt-2-info action-button btn btn-xl" value="Next" />
-                </fieldset>
-                <fieldset id="item-rating-based-recommender-option-2">
-                        <h2 class="fs-title">Item-Based/Rating Info</h2>
-                        <h3 class="fs-subtitle">To use overall ratings and item-based, provide the following info.</h3>
-                        <div class="required"><input type="text" id="rating-column-3" placeholder="Ratings column name" /></div>
-                        <h3 class="fs-subtitle">For item-based, provide column names for at least one comparison column. Ranked by importance.</h3>
-                        <div class="required"><input type="text" id="item-based-col-name-3" placeholder="1st Similarity" /></div>
-                        <div class="not-required"><input type="text" id="item-based-col-name-2-3" placeholder="2nd Similarity (Optional)" /></div>
-                        <div class="not-required"><input type="text" id="item-based-col-name-3-3" placeholder="3rd Similarity (Optional)" /></div>
-                        <input type="button" name="previous" class="previous-opt-2-form action-button btn btn-xl" value="Previous" />
-                        <input type="button" name="next" class="next-opt-2-1 action-button btn btn-xl" value="Next" />
-                </fieldset>
-                <fieldset id="ratings-based-recommender-option-2">
-                        <h2 class="fs-title">Rating Info</h2>
-                        <h3 class="fs-subtitle">To use overall ratings, provide the column name containing numerical ratings for each item.</h3>
-                        <div class="required"><input type="text" id="rating-column-4" placeholder="Ratings column name" /></div>
-                        <input type="button" name="previous" class="previous-opt-2-form action-button btn btn-xl" value="Previous" />
-                        <input type="button" name="next" class="next-opt-2-2 action-button btn btn-xl" value="Next" />
-                </fieldset>
-                <fieldset id="item-based-recommender-option-2">
-                        <h2 class="fs-title">Item-Based Info</h2>
-                        <h3 class="fs-subtitle">To use item-based, provide column names for at least one comparison columnn used to compute similarity. Ranked by importance.</h3>
-                        <div class="required"><input type="text" id="item-based-col-name-4" placeholder="1st Similarity" /></div>
-                        <div class="not-required"><input type="text" id="item-based-col-name-2-4" placeholder="2nd Similarity (Optional)" /></div>
-                        <div class="not-required"><input type="text" id="item-based-col-name-3-4" placeholder="3rd Similarity (Optional)" /></div>
-                        <input type="button" name="previous" class="previous-opt-2-form action-button btn btn-xl" value="Previous" />
-                        <input type="button" name="next" class="next-opt-2-3 action-button btn btn-xl" value="Next" />
                 </fieldset>
                 <fieldset id="submit-info">
                         <h2 class="fs-title">Submit</h2>
-                        <h3 class="fs-subtitle">You have completed all fields. <br /><br />Submit to <b>create your recommender</b> or <b>go back to change your inputs.</b><br /><br />
-                        You may <b>not change</b> your inputs after you submit. <br /><br />It takes approx. an hour for the recommender to be configured. Login to the website
-                        to see if it is ready to use.</h3>
+                        <div class="fs-subtitle">You have completed all fields. <br /><br />Submit to <b>create your recommender</b> or <b>go back to change your inputs.</b><br /><br />
+                        You may <b>not change</b> your inputs after you submit. <br /><br />It takes approx. an hour for the recommender to be configured. During the time it is configuring,
+                        recommendations may not be accurate.</div>
                         <input type="button" name="previous" class="previous-page-before-submit action-button btn btn-xl" value="Previous" />
                         <input type="button" name="submit" class="submit action-button btn btn-xl" value="Submit" />
                 </fieldset>
                 <fieldset id="give-kibitz-key">
                     <h2 class="fs-title">Recommender Created!</h2>
-                    <h3 class="fs-subtitle">Congrats! You have created your first recommender! Your unique identification key is<br /><br />
+                    <div class="fs-subtitle">Congrats! You have created your first recommender! Your unique recommender client key is<br /><br />
                     <span id="client_id" style="color: red;"></span>
                     <br /><br /> Remember this key. It will be used in all communications with Kibitz.
-                    <span id="additional_messages"></span>
+                    <span id="additional_messages"></span></div>
                 </fieldset>
             </form>
         </div>
@@ -238,21 +156,34 @@
           	<div class="row mt">
           		<div class="col-lg-12">
                   <div class="form-panel">
+                      <h4>Basic Options</h4>
                       <form class="form-horizontal style-form" method="get">
                           <div class="form-group">
-                              <label class="col-sm-2 col-sm-2 control-label">Recommender ID:</label>
+                              <label class="col-sm-2 col-sm-2 control-label">Recommender Client Key:</label>
                               <div class="col-sm-10">
-                                  <input class="form-control" id="disabledInput" type="text" placeholder="Filler ID" disabled>
+                                  <span class="set_fields" id="client_key" ></span>
                                   <span class="help-block">Use this ID when using the API to communicate with the recommender.</span>
                               </div>
                           </div>
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">Recommender Name:</label>
                               <div class="col-sm-10">
-                                <input class="form-control" id="disabledInput" type="text" placeholder="Filler Name" disabled>
+                                <input class="form-control" id="recommender_name" type="text" placeholder="e.g. Quanquan's Demo Page">
                               </div>
                           </div>
                           <div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">Repository:</label>
+                              <div class="col-sm-10">
+                                <span class="set_fields" id="repo" ></span>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">Table:</label>
+                              <div class="col-sm-10">
+                                <span class="set_fields" id="table" ></span>
+                              </div>
+                          </div>
+                          <!--<div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">Recommender Types:</label>
                               <div class="col-sm-10">                           
                                 <p class="form-control-static">User-Based</p>
@@ -277,35 +208,164 @@
                               <div class="col-sm-10">                           
                                 <input class="form-control" id="disabledInput" type="text" placeholder="Filler" disabled>
                               </div>
-                          </div>
+                          </div>-->
                           <div class="form-group">
-                              <label class="col-sm-2 col-sm-2 control-label">Ratings Column Name:</label>
+                              <label class="col-sm-2 col-sm-2 control-label">Homepage address:</label>
                               <div class="col-sm-10">                           
-                                <input class="form-control" id="disabledInput" type="text" placeholder="Filler" disabled>
-                              </div>
-                          </div>
-                          <div class="form-group">
-                              <label class="col-sm-2 col-sm-2 control-label">Item Similarity File (Optional):</label>
-                              <div class="col-sm-10">      
-                                  <input type="file" name="pic" accept="image/*">
-                                  <span class="help-block">Upload an item-similarity file to use with your Item-Based recommender. See <a href="here.html">here</a> for format requirements.</span>
+                                <input class="form-control" id="homepage" type="text" placeholder="e.g. http://kibitz.csail.mit.edu/quanquan/demo/">
                               </div>
                           </div>
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">Primary Key Column Name:</label>
                               <div class="col-sm-10">                           
-                                <input class="form-control" type="text" placeholder="Eg. title" />
+                                <input class="form-control" id="primary_key" type="text" placeholder="Eg. title" />
                               </div>
                           </div>
                           <div class="form-group">
-                              <label class="col-sm-2 col-sm-2 control-label">Display Columns:</label>
+                              <label class="col-sm-2 col-sm-2 control-label">Title Column Name:</label>
                               <div class="col-sm-10">                           
-                                <input class="form-control" id="disabledInput" type="text" placeholder="List of display column names." />
+                                <input class="form-control" id="title" id="disabledInput" type="text">
                               </div>
                           </div>
+                          <div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">Description Column Name:</label>
+                              <div class="col-sm-10">                           
+                                <input class="form-control" id="description" type="text">
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">Image Column Name:</label>
+                              <div class="col-sm-10">                           
+                                <input class="form-control" id="image" type="text">
+                                <span class="help-block">Either use a image or video but not both for best visual results.</span>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">Video Column Name:</label>
+                              <div class="col-sm-10">                           
+                                <input class="form-control" id="video" type="text">
+                                <span class="help-block">Either use a image or video but not both for best visual results.</span>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">Overall Rankings Column Name:</label>
+                              <div class="col-sm-10">                           
+                                <input class="form-control" id="overall_rating" type="text">
+                                <span class="help-block">Optional: Provide a column containing numbers representing overall rankings for items.</span>
+                              </div>
+                          </div>
+                          <!--<div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">Item Similarity File (Optional):</label>
+                              <div class="col-sm-10">      
+                                  <input type="file" name="pic" accept="image/*">
+                                  <span class="help-block">Upload an item-similarity file to use with your Item-Based recommender. See <a href="here.html">here</a> for format requirements.</span>
+                              </div>
+                          </div>-->
+                          <div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">Description Display Columns:</label>
+                              <div class="col-sm-10">                           
+                                <input class="form-control" id="display_columns" type="text" />
+                                <span class="help-block">List the columns you wish to display the contents in the description for each item.</span>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">Display Item Types:</label>
+                              <div class="col-sm-10">                           
+                                <input class="form-control" id="display_item_types" type="text" placeholder="Eg. name: text, author: text, picture: image'"/>
+                                <span class="help-block">Comma separated list of [Column Name]:[Item Type] of your display columns. List of possible item types: image, video, text, html, and number.</span>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">Number Recommendations:</label>
+                              <div class="col-sm-10">                           
+                                <input class="form-control" id="num_recs" type="number" placeholder="10"/>
+                                <span class="help-block">Number of recommendations you want to give.</span>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">Maximum Rating Value:</label>
+                              <div class="col-sm-10">                           
+                                <input class="form-control" id="max_rating_value" type="number" placeholder="10"/>
+                                <span class="help-block">Maximum number of stars you want to display.</span>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label id="zip-file" class="col-sm-2 col-sm-2 control-label"></label>
+                          </div>
+                          <h3><button onclick="save_recommender_info();">Save</button></h3>
                       </form>
                   </div>
-          		</div><!-- col-lg-12-->      	
+          	  </div><!-- col-lg-12-->      	
+          	</div><!-- /row -->
+                
+                <div class="row mt">
+          		<div class="col-lg-12">
+                  <div class="form-panel">
+                      <h4>Advanced Options</h4>
+                      <form class="form-horizontal style-form" method="get">
+                          <div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">Individual User Ratings Table:</label>
+                              <div class="col-sm-10">                           
+                                <input class="form-control" id="user_rating_table" type="text" placeholder="e.g. demo_user_ratings"/>
+                                <span class="help-block">Table containing individual user ratings. Please refer to <a href='example'>example</a> table format. Your table must contain a column
+                                  for user ids, a column for item ids that must be the same as your primary key column, and a column for ratings.</span>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">UserId Column Name:</label>
+                              <div class="col-sm-10">                           
+                                <input class="form-control" id="user_id" type="text" placeholder="e.g. userId"/>
+                                <span class="help-block">Column containing user Id's.</span>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">Primary Key Column Name:</label>
+                              <div class="col-sm-10">                           
+                                <input class="form-control" id="item_id" type="text" placeholder="e.g. itemId"/>
+                                <span class="help-block">Column containing the column names of items rated.</span>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">User Rating Column Name:</label>
+                              <div class="col-sm-10">                           
+                                <input class="form-control" id="user_rating_column" type="text" placeholder="e.g. ratings"/>
+                                <span class="help-block">Column containing numerical user ratings for each item/user pair.</span>
+                              </div>
+                          </div>
+                          <h3><button onclick="configure_prefilled_user_ratings_table();">Configure User Ratings</button></h3>
+                          
+                          <!--<div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">Item Similarity Table:</label>
+                              <div class="col-sm-10">                           
+                                <input class="form-control" id="item_similarity_table" type="text" placeholder="e.g. demo_item_similarity"/>
+                                <span class="help-block">Table containing item similarity. Please refer to <a href='example'>example</a> for the correct format.</span>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">First Item Id Column:</label>
+                              <div class="col-sm-10">                           
+                                <input class="form-control" id="item_id_one" type="text" placeholder="e.g. id1"/>
+                                <span class="help-block">Column containing one item id.</span>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">Second Item Id Column:</label>
+                              <div class="col-sm-10">                           
+                                <input class="form-control" id="item_id_two" type="text" placeholder="e.g. id2"/>
+                                <span class="help-block">Column containing another item id.</span>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">Item Similarity Column:</label>
+                              <div class="col-sm-10">                           
+                                <input class="form-control" id="similarity_column" type="text" placeholder="e.g. similarity"/>
+                                <span class="help-block">Column containing numerical item similarity between each pair of items.</span>
+                              </div>
+                          </div>
+                          <h3><button onclick="configure_item_similarity();">Configure Item Similarity</button></h3>-->
+                      </form>
+                  </div>
+          	  </div><!-- col-lg-12-->      	
           	</div><!-- /row -->
 	  </section><! --/wrapper -->
       </section><!-- /MAIN CONTENT -->
@@ -355,6 +415,8 @@
         <script type="text/javascript" src="assets/js/thrift.js"></script>
         <script type="text/javascript" src="assets/js/RecommenderService.js"></script>
         <script type="text/javascript" src="assets/js/form.js"></script>
+        <script type="text/javascript" src="assets/js/required_functions.js"></script>
+        <script type="text/javascript" src="assets/js/recommender_info.js"></script>
   <script>
       //custom select box
 

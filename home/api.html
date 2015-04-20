@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <title>Kibitz</title>
+        <link href="css/stylish-portfolio.css" rel="stylesheet">
+
+        <!-- Bootstrap Core CSS -->
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="css/index.css" rel="stylesheet">
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+
+        <!-- Custom Fonts -->
+        <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href="//fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+        <link href='//fonts.googleapis.com/css?family=Kaushan+Script' rel='stylesheet' type='text/css'>
+        <link href='//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+        <link href='//fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700' rel='stylesheet' type='text/css'>
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="//oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="//oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <body>
+        <!-- Navigation -->
+        <nav class="navbar navbar-default navbar-fixed-top navbar-shrink">
+            <div class="container">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header page-scroll">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand page-scroll" href="index.html#page-top">Kibitz</a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="hidden">
+                            <a href="index.html#page-top"></a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="index.html#recommenders">Recommenders</a>
+                        </li>                    
+                        <li>
+                            <a class="page-scroll" href="index.html#about">About</a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="api.html">API</a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="index.html#team">Credits</a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="index.html#contact">Contact</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- /.navbar-collapse -->
+            </div>
+            <!-- /.container-fluid -->
+        </nav>
+        <!-- API Section -->
+        <section id="api" class="bg-light-gray">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12 text-center">
+                        <h2 class="section-heading">Kibitz API</h2>
+                        <h3 class="section-subheading text-muted">Code your recommender using our API! Create a frontend and connect it to our recommendation engine.</h3>
+                    </div>
+                    <h3 class="service-heading">Getting Started</h3>
+                    <p>Sign up in the Kibitz homepage and create a recommender.
+                    Then, download the supporting files from the <a href="https://github.com/qqliu/kibitz">Kibitz Github Repo</a> before using the following API. To see example applications in a variety
+                    of different languages, see our <a href="https://github.com/qqliu/kibitz">examples on Github.</a> You must import the following Javascript files:
+                    
+                    <pre>
+                        &lt;script type="text/javascript" src="kibitz/js/thrift.js"&gt;&lt;/script&gt;
+                        &lt;script type="text/javascript" src="kibitz/js/kibitz_types.js"&gt;&lt;/script&gt;
+                        &lt;script type="text/javascript" src="kibitz/js/RecommenderService.js"&gt;&lt;/script&gt;
+                        &lt;script type="text/javascript" src="kibitz/js/required_functions.js"&gt;&lt;/script&gt;
+                    </pre>
+                    
+                    In the <code>required_functions.js</code> file, please input the following information:
+                    
+                    <pre>
+                        var client_key = YOUR_RECOMMENDER_CLIENT_KEY;
+                        var datahub_username = YOUR_DATAHUB_USERNAME;
+                    </pre>
+                    
+                    Now you are ready to begin customizing your recommender.
+                    </p>
+                    
+                    <h3 class="service-heading">Required Functions</h3>
+                    <p>You must include the following function before the you call any other Kibitz methods. The following snippet is presented in Javascript. To see other languages, view our
+                    <a href="https://github.com/qqliu/kibitz">example recommenders</a>.</p>
+                    <pre>
+                        client.initiateModel(YOUR_DATAHUB_USERNAME, YOUR_RECOMMENDER_CLIENT_KEY);
+                    </pre>
+                    
+                    <p>After you call this function, you may call any of the following functions. For example, if you want to get a list of recommended items based on user ratings, you may provide the user ID of the user and
+                    number of recommendations you want in the following API call:</p>
+                    <pre>
+                        client.makeUserBasedRecommendation(YOUR_RECOMMENDER_CLIENT_KEY, USER_ID, NUM_RECS, DISPLAY_COLUMNS);
+                    </pre>
+                    
+                    <p>If you want to make recommendations based on item similarity, you may instead make the following API call. In order to use item based recommendations, you must provide an item similarity file in the same repository as
+                    your recommender. Then, provide the table name of your item similarity file by <a href="http://localhost/kibitz-demo/home/index.html#page-top">logging into</a> your Kibitz account:</p>
+                    <pre>
+                        client.makeItemBasedRecommendations(YOUR_RECOMMENDER_CLIENT_KEY, USER_ID, NUM_RECS, DISPLAY_COLUMNS);
+                    </pre>
+                    <h3 class="service-heading">Kibitz Data Structs</h3>
+                    <p>The <code>Item</code> data struct is used to return information about an item. Each <code>Item</code> contains the following information:</p>
+                    <pre>
+                        struct Item {
+                            map&lt;string, string&gt; attributes
+                            int item_id
+                        }
+                    </pre>
+                    
+                    <p>The <code>Item</code> object contains the <code>item_id</code> of the item and a hash table of display column names to the values contained in each column for the item. The <code>item_id</code> is
+                    the primary key of the item.</p>
+                    <h3 class="service-heading">Other Functions</h3>
+                    <p>The API functions given below give you greater flexibility when creating your recommendation service.</p>
+                    
+                    <p><code>list&lt;Item&gt;makeUserBasedRecommendation(CLIENT_KEY, long userId, long numRecs, list&lt;string&gt; displayColumns)</code>: Takes your client key, the user id of the user you want to make recommendations for,
+                    the number of recommendations you want to make, and a list of strings of columns you want to display on your website. Outputs a list of <code>Item</code> objects as recommended items. If you provided a ranking column,
+                    the recommendations will also include the highest ranked items.</p>
+                    
+                    <p><code>list&lt;Item&gt; makeItemBasedRecommendations(CLIENT_KEY, long userId, long numRecs, list&lt;string&gt; displayColumns)</code>: Takes the client key, the user id of the user you want to make item-based recommendations
+                    for, the number of recommendations you want to make, and a list of strings of columns you want to display on your website. Outputs a list of <code>Item</code> objects as recommended items.</p>
+                    <p><code>list&lt;Item&gt; getPageItems(CLIENT_KEY, long page, long numPerPage, list&lt;string&gt; displayColumns)</code>:  Takes client key, the page number, the number of items per page, and the names
+                    of the columns that you want to display. Returns a list of <code>Item</code> objects to be displayed.</p>
+                    
+                    <p><code>long getItemCount(CLIENT_KEY)</code>: Takes the client key and returns the total number of items in your items table.</p>
+                    <p><code>void recordRatings(CLIENT_KEY, long userId, long itemId, long rating)</code>: Takes the client key, the user id of the user you want to record ratings for, the item id (primary key) of the item that
+                    the user rated, and the rating and records it into the corresponding ratings table in Datahub.</p>
+                    <p><code>void deleteRatings(CLIENT_KEY, long userId, long itemId)</code>: Takes client key, the user id of the user you want to delete ratings from, and the item id (primary key) that you want
+                    to delete the rating for.</p>
+                    <p><code>string createNewUser(CLIENT_KEY, string username, False)</code>: Takes the client key, the desired username of the new user to your website, and <code>False</code>.
+                    Returns whether the username already exists. We recommend that you use the Datahub API for logging in to track user activity across multiple recommenders.</p>
+                    <p><code>long retrieveUserId(CLIENT_KEY, string username)</code>: Takes the client key and the username of the user you want to retrieve the id of.
+                    Returns the id of the user or <code>-1</code> if the user does not exist.</p>
+                    <p><code>list&lt;Item&gt; getUserRatedItems(CLIENT_KEY, long userId, list&lt;string&gt; displayColumns)</code>: Takes the client key, the user id of the user you want to retrieve
+                    rated items for, and a list of column names you want to display information about the item. Returns a list of <code>Item</code> objects that represent items the user has rated.</p>
+                    <p><code>list&lt;Item&gt; getSearchItems(CLIENT_KEY, string query, list&lt;string&gt; columnsToSearch, list&lt;string&gt; displayColumns)</code>: Takes your client key, the search query your user searched,
+                    a list of columns to perform the search, and the list of names of columns you want to display for each item. Returns a list of <code>Item</code> objects that match your search query.</p>
+                    <p><code>list&lt;Item&gt; makeOverallRankingRecommendation(CLIENT_KEY, string rankColumnName, long numRecs, list&lt;string&gt; displayColumns)</code>: Takes your client key,
+                    the column name of the column containing the ratings for each item, the number of recommendations you want to make, and a list of column names of info you want to display for each item.
+                    Return a list of <code>Item</code> objects that were chosen using provided numerical rankings.</p>
+                    <p><code>list&lt;Item&gt; getItemsFromPrimaryKeys(CLIENT_KEY, string primaryKey, list&lt;string&gt; itemKeys, 4:list&lt;string&gt; displayColumns)</code>: Takes your client key, the
+                    the column name of the column that holds the primary keys in your table, a list of item ids (primary keys) of items you want to return, and a list of column names you want to use to display
+                    your items. Returns a list of <code>Item</code> objects for the primary keys you queried.</p>
+                    
+                    <h3 class="service-heading">Using Individual User Ratings and Similarity Files</h3>
+                    <p>If you <a href="http://localhost/kibitz-demo/home/index.html#page-top">login</a> to your Kibitz account, you will be giving the option of linking to a ratings table prepopulated with individual user ratings of
+                    item or a similarity table for item based recommendations. Your tables must reside in the same repository as your items table.
+                    Your ratings table should contain a column of primary keys of items, a column of user ids, and a column of user ratings. The following is an example of a valid
+                    table:
+                    <pre>
+                        item_id, user_id, rating
+                        12, 10, 5
+                        1 , 10, 7
+                        2,  10, 8
+                        4,  3 , 6
+                    </pre></p>
+                    
+                    <p>You may also choose to link an item similarity table for item-based recommendations. Your table must contain two columns of item ids (primary keys) and a column of the numerical similarity
+                    between the two items (the numbers can be arbitrarily large or small). The following is an example of a valid item similarity table:
+                    <pre>
+                        item_id_1, item_id_2, similarity
+                        1, 2, 0.9
+                        1, 3, 0.8
+                        1, 5, 1.0
+                        2, 4, 0.2
+                        3, 4, 0.5
+                    </pre></p>
+                </div>
+            </div>
+        </section>
+    </body>
+</html>

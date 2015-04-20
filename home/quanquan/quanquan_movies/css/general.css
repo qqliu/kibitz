@@ -1,0 +1,10 @@
+a.page_links:link { color: #e1753e; text-decoration: none }
+a.page_links:active { color: #e1753e; text-decoration: none }
+a.page_links:visited { color: #e1753e; text-decoration: none }
+a.page_links:hover { color: #B45D31; text-decoration: underline }
+
+.page_links {
+    align-content: right;
+    margin-left: 70%;
+    display: inline-block;
+}

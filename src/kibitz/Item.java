@@ -36,7 +36,7 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
   private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("Item");
 
   private static final org.apache.thrift.protocol.TField ATTRIBUTES_FIELD_DESC = new org.apache.thrift.protocol.TField("attributes", org.apache.thrift.protocol.TType.MAP, (short)1);
-  private static final org.apache.thrift.protocol.TField ID_FIELD_DESC = new org.apache.thrift.protocol.TField("id", org.apache.thrift.protocol.TType.I64, (short)2);
+  private static final org.apache.thrift.protocol.TField KIBITZ_GENERATED_ID_FIELD_DESC = new org.apache.thrift.protocol.TField("kibitz_generated_id", org.apache.thrift.protocol.TType.I64, (short)2);
 
   private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
   static {
@@ -45,12 +45,12 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
   }
 
   public Map<String,String> attributes; // required
-  public long id; // required
+  public long kibitz_generated_id; // required
 
   /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
   public enum _Fields implements org.apache.thrift.TFieldIdEnum {
     ATTRIBUTES((short)1, "attributes"),
-    ID((short)2, "id");
+    KIBITZ_GENERATED_ID((short)2, "kibitz_generated_id");
 
     private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -67,8 +67,8 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
       switch(fieldId) {
         case 1: // ATTRIBUTES
           return ATTRIBUTES;
-        case 2: // ID
-          return ID;
+        case 2: // KIBITZ_GENERATED_ID
+          return KIBITZ_GENERATED_ID;
         default:
           return null;
       }
@@ -109,7 +109,7 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
   }
 
   // isset id assignments
-  private static final int __ID_ISSET_ID = 0;
+  private static final int __KIBITZ_GENERATED_ID_ISSET_ID = 0;
   private byte __isset_bitfield = 0;
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
@@ -118,7 +118,7 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
         new org.apache.thrift.meta_data.MapMetaData(org.apache.thrift.protocol.TType.MAP, 
             new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING), 
             new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING))));
-    tmpMap.put(_Fields.ID, new org.apache.thrift.meta_data.FieldMetaData("id", org.apache.thrift.TFieldRequirementType.REQUIRED, 
+    tmpMap.put(_Fields.KIBITZ_GENERATED_ID, new org.apache.thrift.meta_data.FieldMetaData("kibitz_generated_id", org.apache.thrift.TFieldRequirementType.REQUIRED, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I64)));
     metaDataMap = Collections.unmodifiableMap(tmpMap);
     org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(Item.class, metaDataMap);
@@ -129,12 +129,12 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
 
   public Item(
     Map<String,String> attributes,
-    long id)
+    long kibitz_generated_id)
   {
     this();
     this.attributes = attributes;
-    this.id = id;
-    setIdIsSet(true);
+    this.kibitz_generated_id = kibitz_generated_id;
+    setKibitz_generated_idIsSet(true);
   }
 
   /**
@@ -146,7 +146,7 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
       Map<String,String> __this__attributes = new HashMap<String,String>(other.attributes);
       this.attributes = __this__attributes;
     }
-    this.id = other.id;
+    this.kibitz_generated_id = other.kibitz_generated_id;
   }
 
   public Item deepCopy() {
@@ -156,8 +156,8 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
   @Override
   public void clear() {
     this.attributes = null;
-    setIdIsSet(false);
-    this.id = 0;
+    setKibitz_generated_idIsSet(false);
+    this.kibitz_generated_id = 0;
   }
 
   public int getAttributesSize() {
@@ -195,27 +195,27 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
     }
   }
 
-  public long getId() {
-    return this.id;
+  public long getKibitz_generated_id() {
+    return this.kibitz_generated_id;
   }
 
-  public Item setId(long id) {
-    this.id = id;
-    setIdIsSet(true);
+  public Item setKibitz_generated_id(long kibitz_generated_id) {
+    this.kibitz_generated_id = kibitz_generated_id;
+    setKibitz_generated_idIsSet(true);
     return this;
   }
 
-  public void unsetId() {
-    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __ID_ISSET_ID);
+  public void unsetKibitz_generated_id() {
+    __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __KIBITZ_GENERATED_ID_ISSET_ID);
   }
 
-  /** Returns true if field id is set (has been assigned a value) and false otherwise */
-  public boolean isSetId() {
-    return EncodingUtils.testBit(__isset_bitfield, __ID_ISSET_ID);
+  /** Returns true if field kibitz_generated_id is set (has been assigned a value) and false otherwise */
+  public boolean isSetKibitz_generated_id() {
+    return EncodingUtils.testBit(__isset_bitfield, __KIBITZ_GENERATED_ID_ISSET_ID);
   }
 
-  public void setIdIsSet(boolean value) {
-    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __ID_ISSET_ID, value);
+  public void setKibitz_generated_idIsSet(boolean value) {
+    __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __KIBITZ_GENERATED_ID_ISSET_ID, value);
   }
 
   public void setFieldValue(_Fields field, Object value) {
@@ -228,11 +228,11 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
       }
       break;
 
-    case ID:
+    case KIBITZ_GENERATED_ID:
       if (value == null) {
-        unsetId();
+        unsetKibitz_generated_id();
       } else {
-        setId((Long)value);
+        setKibitz_generated_id((Long)value);
       }
       break;
 
@@ -244,8 +244,8 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
     case ATTRIBUTES:
       return getAttributes();
 
-    case ID:
-      return Long.valueOf(getId());
+    case KIBITZ_GENERATED_ID:
+      return Long.valueOf(getKibitz_generated_id());
 
     }
     throw new IllegalStateException();
@@ -260,8 +260,8 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
     switch (field) {
     case ATTRIBUTES:
       return isSetAttributes();
-    case ID:
-      return isSetId();
+    case KIBITZ_GENERATED_ID:
+      return isSetKibitz_generated_id();
     }
     throw new IllegalStateException();
   }
@@ -288,12 +288,12 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
         return false;
     }
 
-    boolean this_present_id = true;
-    boolean that_present_id = true;
-    if (this_present_id || that_present_id) {
-      if (!(this_present_id && that_present_id))
+    boolean this_present_kibitz_generated_id = true;
+    boolean that_present_kibitz_generated_id = true;
+    if (this_present_kibitz_generated_id || that_present_kibitz_generated_id) {
+      if (!(this_present_kibitz_generated_id && that_present_kibitz_generated_id))
         return false;
-      if (this.id != that.id)
+      if (this.kibitz_generated_id != that.kibitz_generated_id)
         return false;
     }
 
@@ -323,12 +323,12 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
         return lastComparison;
       }
     }
-    lastComparison = Boolean.valueOf(isSetId()).compareTo(other.isSetId());
+    lastComparison = Boolean.valueOf(isSetKibitz_generated_id()).compareTo(other.isSetKibitz_generated_id());
     if (lastComparison != 0) {
       return lastComparison;
     }
-    if (isSetId()) {
-      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.id, other.id);
+    if (isSetKibitz_generated_id()) {
+      lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.kibitz_generated_id, other.kibitz_generated_id);
       if (lastComparison != 0) {
         return lastComparison;
       }
@@ -361,8 +361,8 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
     }
     first = false;
     if (!first) sb.append(", ");
-    sb.append("id:");
-    sb.append(this.id);
+    sb.append("kibitz_generated_id:");
+    sb.append(this.kibitz_generated_id);
     first = false;
     sb.append(")");
     return sb.toString();
@@ -373,7 +373,7 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
     if (attributes == null) {
       throw new org.apache.thrift.protocol.TProtocolException("Required field 'attributes' was not present! Struct: " + toString());
     }
-    // alas, we cannot check 'id' because it's a primitive and you chose the non-beans generator.
+    // alas, we cannot check 'kibitz_generated_id' because it's a primitive and you chose the non-beans generator.
     // check for sub-struct validity
   }
 
@@ -433,10 +433,10 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
             break;
-          case 2: // ID
+          case 2: // KIBITZ_GENERATED_ID
             if (schemeField.type == org.apache.thrift.protocol.TType.I64) {
-              struct.id = iprot.readI64();
-              struct.setIdIsSet(true);
+              struct.kibitz_generated_id = iprot.readI64();
+              struct.setKibitz_generated_idIsSet(true);
             } else { 
               org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
             }
@@ -449,8 +449,8 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
       iprot.readStructEnd();
 
       // check for required fields of primitive type, which can't be checked in the validate method
-      if (!struct.isSetId()) {
-        throw new org.apache.thrift.protocol.TProtocolException("Required field 'id' was not found in serialized data! Struct: " + toString());
+      if (!struct.isSetKibitz_generated_id()) {
+        throw new org.apache.thrift.protocol.TProtocolException("Required field 'kibitz_generated_id' was not found in serialized data! Struct: " + toString());
       }
       struct.validate();
     }
@@ -472,8 +472,8 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
         }
         oprot.writeFieldEnd();
       }
-      oprot.writeFieldBegin(ID_FIELD_DESC);
-      oprot.writeI64(struct.id);
+      oprot.writeFieldBegin(KIBITZ_GENERATED_ID_FIELD_DESC);
+      oprot.writeI64(struct.kibitz_generated_id);
       oprot.writeFieldEnd();
       oprot.writeFieldStop();
       oprot.writeStructEnd();
@@ -500,7 +500,7 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
           oprot.writeString(_iter5.getValue());
         }
       }
-      oprot.writeI64(struct.id);
+      oprot.writeI64(struct.kibitz_generated_id);
     }
 
     @Override
@@ -519,8 +519,8 @@ public class Item implements org.apache.thrift.TBase<Item, Item._Fields>, java.i
         }
       }
       struct.setAttributesIsSet(true);
-      struct.id = iprot.readI64();
-      struct.setIdIsSet(true);
+      struct.kibitz_generated_id = iprot.readI64();
+      struct.setKibitz_generated_idIsSet(true);
     }
   }
 

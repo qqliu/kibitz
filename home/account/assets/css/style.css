@@ -1107,6 +1107,7 @@ PANELS CONFIGURATIONS
 	text-align: center;
 	background: #ffffff;
 	color: #ccd1d9;
+	height: auto;
 }
 
 .white-panel p {
@@ -1668,6 +1669,7 @@ PANELS CONFIGURATIONS
 	padding: 15px;
 	margin-bottom: 15px;
 	box-shadow: 0px 3px 2px #aab2bd;
+	height: auto;
 }
 
 
@@ -2266,4 +2268,11 @@ label {
     min-height: 900px;
 }
 
+.set_fields {
+    color: #0000B2;
+}
 
+.error {
+    color: red;
+    display: none;
+}
