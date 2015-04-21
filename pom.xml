@@ -13,10 +13,15 @@
           <source>1.7</source>
           <target>1.7</target>
         </configuration>
-      </plugin>
+       </plugin>
     </plugins>
   </build>
   <dependencies>
+    <dependency>
+        <groupId>rhino</groupId>
+        <artifactId>js</artifactId>
+        <version>1.7R1</version>
+    </dependency>
     <dependency>
         <groupId>com.googlecode.ws4j</groupId>
         <artifactId>ws4j</artifactId>

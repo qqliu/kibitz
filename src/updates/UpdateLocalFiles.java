@@ -20,14 +20,14 @@ import datahub.ResultSet;
 import datahub.Tuple;
 
 public class UpdateLocalFiles {
-	private static final String KIBITZ_LOCAL_STORAGE_ADDR = "/Users/qliu/Documents/kibitz/BX-CSV-Dump/";
-	
+	private static final String KIBITZ_LOCAL_STORAGE_ADDR = "/home/ubuntu/";
+
 	public static void main(String[] args) {
 		try {
 			THttpClient transport = new THttpClient(DatahubDataModel.getDefaultDatahubHost());
 			TBinaryProtocol protocol = new  TBinaryProtocol(transport);
 			DataHub.Client clnt = new DataHub.Client(protocol);
-	
+
 			ConnectionParams params = new ConnectionParams();
 			params.setApp_id(DatahubDataModel.getKibitzAppName());
 			params.setApp_token(DatahubDataModel.getKibitzAppId());
@@ -35,46 +35,46 @@ public class UpdateLocalFiles {
 			Connection connection = clnt.open_connection(params);
 			while (true) {
 				ResultSet result = clnt.execute_sql(connection, "SELECT * FROM kibitz_users.recommenders", null);
-				
+
 				if (result != null) {
 					for (Tuple t : result.getTuples()) {
 						List<ByteBuffer> cells = t.getCells();
-						
+
 						String database = new String(cells.get(0).array());
 						String username = new String(cells.get(1).array());
 						String ratings_table = new String(cells.get(3).array());
 						boolean wroteRatings = Boolean.parseBoolean(new String (cells.get(9).array()));
-						
+
 						THttpClient transport_user = new THttpClient(DatahubDataModel.getDefaultDatahubHost());
 						TBinaryProtocol protocol_user = new  TBinaryProtocol(transport_user);
 						DataHub.Client client = new DataHub.Client(protocol_user);
-						
+
 						ConnectionParams kibitzUserParams = new ConnectionParams();
 						kibitzUserParams.setApp_id(DatahubDataModel.getKibitzAppName());
 						kibitzUserParams.setApp_token(DatahubDataModel.getKibitzAppId());
 						kibitzUserParams.setRepo_base(username);
 						Connection client_con = client.open_connection(kibitzUserParams);
-						
+
 						if (!wroteRatings) {
 							String tableName = ratings_table.split("\\.")[1];
 							System.out.println(tableName);
 							System.out.println(getKibitzLocalStorageAddr() + username + "/" + database + "/" + tableName + "_ratings.csv");
-							BufferedWriter writer = new BufferedWriter(new FileWriter(getKibitzLocalStorageAddr() + username + "/" + database + "/" + tableName + "_ratings.csv")); 
-							
+							BufferedWriter writer = new BufferedWriter(new FileWriter(getKibitzLocalStorageAddr() + username + "/" + database + "/" + tableName + "_ratings.csv"));
+
 							ResultSet count = client.execute_sql(client_con, "select count(*) from " + ratings_table + "_ratings", null);;
 							int numItems = Integer.parseInt(new String(count.getTuples().get(0).getCells().get(0).array()));
-									
+
 							for (int i = 0; i < numItems; i += 10000) {
 								ResultSet res = client.execute_sql(client_con, "SELECT * FROM " + ratings_table + "_ratings" +
 										" LIMIT " + 10000 + " OFFSET " + i, null);
 								for (Tuple tt : res.getTuples()) {
 									List<ByteBuffer> c = tt.getCells();
-									if (Long.parseLong(new String(c.get(0).array())) >= 0 && Long.parseLong(new String(c.get(1).array())) >= 0 && Long.parseLong(new String(c.get(2).array())) >= 0) 
+									if (Long.parseLong(new String(c.get(0).array())) >= 0 && Long.parseLong(new String(c.get(1).array())) >= 0 && Long.parseLong(new String(c.get(2).array())) >= 0)
 										writer.write(new String(c.get(0).array()) + "," + new String(c.get(1).array()) + "," + new String(c.get(2).array()) + "\n");
 								}
 							}
 							writer.close();
-							clnt.execute_sql(client_con, "update kibitz_users.recommenders set wrote_ratings=true where username = '" 
+							clnt.execute_sql(client_con, "update kibitz_users.recommenders set wrote_ratings=true where username = '"
 									+ username + "' and database = '" + database + "' and ratings_table = '" + tableName + "';", null);
 						}
 					}
@@ -89,9 +89,9 @@ public class UpdateLocalFiles {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} 
+		}
 	}
-	
+
 	public static String getKibitzLocalStorageAddr() {
 		return KIBITZ_LOCAL_STORAGE_ADDR;
 	}

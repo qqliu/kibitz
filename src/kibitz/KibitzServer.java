@@ -29,8 +29,6 @@ import org.apache.thrift.transport.TTransportException;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
-import sun.org.mozilla.javascript.internal.NativeArray;
-import sun.org.mozilla.javascript.internal.NativeObject;
 import datahub.Connection;
 import datahub.ConnectionParams;
 import datahub.DBException;
@@ -40,20 +38,20 @@ import datahub.Tuple;
 import static java.util.concurrent.TimeUnit.*;
 
 public class KibitzServer implements Iface {
-	
+
 	public static Map<String, IndividualRecommender> SESSIONS = new HashMap<String, IndividualRecommender>();
 	public static Map<String, AbstractRecommender> RECOMMENDERS = new HashMap<String, AbstractRecommender>();
 	public static String HOMEPAGE_URL = "localhost/kibitz-demo/home/";
 	public static boolean RUNNING = true;
-	
+
 	private MysqlDataSource dataSource;
 	private DatahubDataModel dataModel = null;
 	private Thread loop = null;
 	private Thread terminateModelRecs = null;
-	
+
 	public KibitzServer(MysqlDataSource dataSource) {
 		this.dataSource = dataSource;
-		
+
 		// Start thread to continuously train recommenders and terminate recommenders
 		if (this.loop == null) {
 			Thread training = new Thread(new RecommenderRunnable());
@@ -66,7 +64,7 @@ public class KibitzServer implements Iface {
 			this.terminateModelRecs.start();
 		}
 	}
-	
+
 	@Override
 	public void createNewIndividualServer(String key) {
 		if (key != null) {
@@ -75,7 +73,7 @@ public class KibitzServer implements Iface {
 			}
 		}
 	}
-	
+
 	@Override
 	public List<Item> makeRecommendation(String key, long userId, long numRecs, boolean isBoolean, List<String> displayColumns) {
 		if(!this.loop.isAlive()) {
@@ -84,23 +82,23 @@ public class KibitzServer implements Iface {
 			this.loop = training;
 			this.loop.start();
 		}
-		
+
 		if(!this.terminateModelRecs.isAlive()) {
 			Thread terminateModel = new Thread(new TerminateModels());
-			terminateModel.setName("Terminate Model Thread");			
+			terminateModel.setName("Terminate Model Thread");
 			this.terminateModelRecs = terminateModel;
 			this.terminateModelRecs.start();
 		}
-		
+
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
 				return SESSIONS.get(key).makeRecommendation(userId, numRecs, isBoolean, displayColumns);
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	@Override
 	public List<Item> makeItemBasedRecommendations(String key, long userId, long numRecs, List<String> displayColumns) {
 		if (key != null) {
@@ -108,25 +106,25 @@ public class KibitzServer implements Iface {
 				return SESSIONS.get(key).makeItemBasedRecommendations(userId, numRecs, displayColumns);
 			}
 		}
-		
+
 		if(!this.loop.isAlive()) {
 			Thread training = new Thread(new RecommenderRunnable());
 			training.setName("Training Thread");
 			this.loop = training;
 			this.loop.start();
 		}
-		
+
 		if(!this.terminateModelRecs.isAlive()) {
 			Thread terminateModel = new Thread(new TerminateModels());
-			terminateModel.setName("Terminate Model Thread");			
+			terminateModel.setName("Terminate Model Thread");
 			this.terminateModelRecs = terminateModel;
 			this.terminateModelRecs.start();
 		}
 		return null;
 	}
-	
+
 	@Override
-	public List<Item> makeOverallRatingBasedOrRandomRecommendation(String key, String ratingColumnName, 
+	public List<Item> makeOverallRatingBasedOrRandomRecommendation(String key, String ratingColumnName,
 			long numRecs, List<String> displayColumns) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
@@ -139,25 +137,25 @@ public class KibitzServer implements Iface {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public List<Recommender> getRecommenders(String username) {
 		try {
 			THttpClient transport = new THttpClient("http://datahub.csail.mit.edu/service");
 			TBinaryProtocol protocol = new  TBinaryProtocol(transport);
 			DataHub.Client client = new DataHub.Client(protocol);
-		
+
 			ConnectionParams params = new ConnectionParams();
 			params.setApp_id(DatahubDataModel.getKibitzAppName());
 			params.setApp_token(DatahubDataModel.getKibitzAppId());
 			params.setRepo_base(DatahubDataModel.getDefaultDatahubUsername());
 			Connection connection = client.open_connection(params);
-			
+
 			List<Recommender> recommenders = new ArrayList<Recommender>();
-		
-		
+
+            System.out.println("here?");
 			ResultSet res = client.execute_sql(connection, "SELECT database,username,ratings_table,overall_ratings,ratings_column FROM kibitz_users.recommenders WHERE username = '" + username + "';", null);
-			HashMap<String, Integer> colToIndex = DatahubDataModel.getFieldNames(res);			
+			HashMap<String, Integer> colToIndex = DatahubDataModel.getFieldNames(res);
 			for (Tuple t : res.getTuples()) {
 				List<ByteBuffer> cells = t.getCells();
 				Recommender recommender = new Recommender();
@@ -167,44 +165,54 @@ public class KibitzServer implements Iface {
 				recommender.setRecommenderName(new String(cells.get(colToIndex.get("ratings_table")).array()).split("\\.")[1]);
 				if (Boolean.parseBoolean(new String(cells.get(colToIndex.get("overall_ratings")).array())))
 					recommender.setRatingsColumn(new String(cells.get(colToIndex.get("ratings_column")).array()));
-				
+                System.out.println("before script manager");
 				ScriptEngineManager mgr = new ScriptEngineManager();
 				ScriptEngine jsEngine = mgr.getEngineByName("JavaScript");
-				
+
+                System.out.println(DatahubDataModel.WEBSERVER_DIR + username + "/" + database + "/js/initiate.js");
 				File file = new File(DatahubDataModel.WEBSERVER_DIR + username + "/" + database + "/js/initiate.js");
 				Reader reader = new FileReader(file);
 				jsEngine.eval(reader);
-				
+
+                System.out.println("after script manager");
 				recommender.setClientKey(jsEngine.get("client_key").toString());
-				recommender.setHomepage(jsEngine.get("homepage").toString());
+				System.out.println(jsEngine.get("client_key").toString());
+                recommender.setHomepage(jsEngine.get("homepage").toString());
+				System.out.println(jsEngine.get("homepage").toString());
 				recommender.setTitle(jsEngine.get("title").toString());
+				System.out.println(jsEngine.get("title").toString());
+                System.out.println(jsEngine.get("description").toString());
+                System.out.println(jsEngine.get("video").toString());
+                System.out.println(jsEngine.get("image").toString());
 				recommender.setDescription(jsEngine.get("description").toString());
 				recommender.setVideo(jsEngine.get("video").toString());
 				recommender.setImage(jsEngine.get("image").toString());
 				recommender.setPrimaryKey(jsEngine.get("primary_key").toString());
-				NativeArray nativeArray = (NativeArray) jsEngine.get("display_items");
-				List<String> displayItems = new ArrayList<String>();
-				
-				for (int i=0; i < (int) nativeArray.getLength(); i++) {
-					displayItems.add((String) nativeArray.get(i));
-				}
-				
-				recommender.setDisplayItems(displayItems);
-				System.out.println((NativeObject) jsEngine.get("item_types"));
-				NativeObject nativeObject = (NativeObject) jsEngine.get("item_types");
-				
-				HashMap<String, String> itemMap = new HashMap<String, String>();
-				
-				for (Object key: nativeObject.getAllIds()) {
-			        itemMap.put((String) key, (String) nativeObject.get(key));
-			    }
-				recommender.setItemTypes(itemMap);
+                System.out.println(jsEngine.get("primary_key").toString());
+                //recommender.setRecommenderName(jsEngine.get("recommender_name").toString());
+                System.out.println("Getting lists...");
+                List<String> displayItems = new ArrayList<String>();
+
+                System.out.println(jsEngine.eval("display_items.length;"));
+                int varsLength = Integer.parseInt(jsEngine.eval("display_items.length;").toString());
+                System.out.println(varsLength);
+                for(int i=0; i < varsLength; i++){
+                    System.out.println(jsEngine.eval("display_items["+ i + "];"));
+                    displayItems.add((String) jsEngine.eval("display_items["+i+"];"));
+                }
+
+                System.out.println(displayItems);
+                recommender.setDisplayItems(displayItems);
+
+                HashMap<String, String> itemMap = new HashMap<String, String>((Map<String,String>) jsEngine.get("item_types"));
+                System.out.println(itemMap);
+                recommender.setItemTypes(itemMap);
 				recommender.setNumRecs((int) Double.parseDouble(jsEngine.get("num_recs").toString()));
 				recommender.setMaxRatingVal((int) Double.parseDouble(jsEngine.get("maxRatingVal").toString()));
-				
+
 				recommenders.add(recommender);
 			}
-			
+
 			return recommenders;
 		} catch (ScriptException e) {
 			// TODO Auto-generated catch block
@@ -219,10 +227,10 @@ public class KibitzServer implements Iface {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return null;
 	}
-	
+
 	@Override
 	public void initiateModel(String key, String table, String username, String database) {
 		if (key != null) {
@@ -231,29 +239,29 @@ public class KibitzServer implements Iface {
 				SESSIONS.get(key).initiateModel(key, table, username, database);
 			}
 		}
-		
+
 		if(!this.loop.isAlive()) {
 			Thread training = new Thread(new RecommenderRunnable());
 			training.setName("Training Thread");
 			this.loop = training;
 			this.loop.start();
 		}
-		
+
 		if(!this.terminateModelRecs.isAlive()) {
 			Thread terminateModel = new Thread(new TerminateModels());
-			terminateModel.setName("Terminate Model Thread");			
+			terminateModel.setName("Terminate Model Thread");
 			this.terminateModelRecs = terminateModel;
 			this.terminateModelRecs.start();
 		}
 	}
-	
+
 	/*@Override
     public boolean createNewRecommender(String username, String primaryKey, String password, String database, String table,
     		String firstColumnName, String secondColumnName, String thirdColumnName,
     		String firstColumnType, String secondColumnType, String thirdColumnType,
     		List<String> displayColumns, String clientKey, String ratingsColumn, boolean random) {
 		try {
-			this.dataModel = new DatahubDataModel(this.dataSource.getServerName(), database, 
+			this.dataModel = new DatahubDataModel(this.dataSource.getServerName(), database,
 				username,
 				password,
 				table);
@@ -265,7 +273,7 @@ public class KibitzServer implements Iface {
 		}
 		return false;
 	}*/
-	
+
 	public boolean createNewRecommender(String username, String primaryKey, String database, String table,
     		String title, String description, String image, String ratings_column, String clientKey) {
 		try {
@@ -277,7 +285,7 @@ public class KibitzServer implements Iface {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public void addKibitzUser(String email, String password) {
 		try {
@@ -288,7 +296,7 @@ public class KibitzServer implements Iface {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void saveFBProfilePic(String username, String fbUsername) {
 		try {
@@ -299,7 +307,7 @@ public class KibitzServer implements Iface {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void deleteRecommender(String clientKey) {
 		try {
@@ -310,7 +318,7 @@ public class KibitzServer implements Iface {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void updateTemplate(String username, String primaryKey,
 			String title, String description, String image, String video,
@@ -321,15 +329,15 @@ public class KibitzServer implements Iface {
 			throws TException {
 		try {
 			DatahubDataModel model = new DatahubDataModel();
-			model.updateTemplate(username, primaryKey, title, description, image, video, itemTypes, 
-					displayItems, (int) maxRatingVal, (int) numRecs, recommenderName, clientKey, homepage, 
+			model.updateTemplate(username, primaryKey, title, description, image, video, itemTypes,
+					displayItems, (int) maxRatingVal, (int) numRecs, recommenderName, clientKey, homepage,
 					creatorName, repoName, tableName, ratingsColumn);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public List<Item> getUserRatedItems(String key, long userId, List<String> displayColumns) {
 		if (key != null) {
@@ -338,24 +346,24 @@ public class KibitzServer implements Iface {
 				return SESSIONS.get(key).getUserRatedItems(userId, displayColumns);
 			}
 		}
-		
+
 		if(!this.loop.isAlive()) {
 			Thread training = new Thread(new RecommenderRunnable());
 			training.setName("Training Thread");
 			this.loop = training;
 			this.loop.start();
 		}
-		
+
 		if(!this.terminateModelRecs.isAlive()) {
 			Thread terminateModel = new Thread(new TerminateModels());
-			terminateModel.setName("Terminate Model Thread");			
+			terminateModel.setName("Terminate Model Thread");
 			this.terminateModelRecs = terminateModel;
 			this.terminateModelRecs.start();
 		}
-		
+
 		return null;
     }
-	
+
 	@Override
 	public boolean checkLogin(String key, String username, String password, boolean isKibitzUser) {
 		if (key != null) {
@@ -365,13 +373,13 @@ public class KibitzServer implements Iface {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean checkUsername(String key, String username, boolean isKibitzUser) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
 				return SESSIONS.get(key).checkUsername(username, isKibitzUser);
-			} 
+			}
 		}
 		else if (isKibitzUser) {
 			DatahubDataModel model;
@@ -385,7 +393,7 @@ public class KibitzServer implements Iface {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public String createNewUser(String key, String username, boolean isKibitzUser) {
 		if (key != null) {
@@ -393,24 +401,24 @@ public class KibitzServer implements Iface {
 				return SESSIONS.get(key).createNewUser(username, isKibitzUser);
 			}
 		}
-		
+
 		if(!this.loop.isAlive()) {
 			Thread training = new Thread(new RecommenderRunnable());
 			training.setName("Training Thread");
 			this.loop = training;
 			this.loop.start();
 		}
-		
+
 		if(!this.terminateModelRecs.isAlive()) {
 			Thread terminateModel = new Thread(new TerminateModels());
-			terminateModel.setName("Terminate Model Thread");			
+			terminateModel.setName("Terminate Model Thread");
 			this.terminateModelRecs = terminateModel;
 			this.terminateModelRecs.start();
 		}
-		
+
 		return null;
 	}
-	
+
 	@Override
 	public long retrieveUserId(String key, String username) {
 		if (key != null) {
@@ -424,17 +432,17 @@ public class KibitzServer implements Iface {
 			this.loop = training;
 			this.loop.start();
 		}
-		
+
 		if(!this.terminateModelRecs.isAlive()) {
 			Thread terminateModel = new Thread(new TerminateModels());
-			terminateModel.setName("Terminate Model Thread");			
+			terminateModel.setName("Terminate Model Thread");
 			this.terminateModelRecs = terminateModel;
 			this.terminateModelRecs.start();
 		}
-		
+
 		return 0;
 	}
-	
+
 	/*public List<Item> getItems(String key) {
 		if (key != null) {
 			if (SESSIONS.get(key) != null) {
@@ -447,17 +455,17 @@ public class KibitzServer implements Iface {
 			this.loop = training;
 			this.loop.start();
 		}
-		
+
 		if(!this.terminateModelRecs.isAlive()) {
 			Thread terminateModel = new Thread(new TerminateModels());
-			terminateModel.setName("Terminate Model Thread");			
+			terminateModel.setName("Terminate Model Thread");
 			this.terminateModelRecs = terminateModel;
 			this.terminateModelRecs.start();
 		}
-		
+
 		return null;
 	}*/
-	
+
 	@Override
 	public void recordRatings(String key, long userId, long itemId, long rating) {
 		if (key != null) {
@@ -471,15 +479,15 @@ public class KibitzServer implements Iface {
 			this.loop = training;
 			this.loop.start();
 		}
-		
+
 		if(!this.terminateModelRecs.isAlive()) {
 			Thread terminateModel = new Thread(new TerminateModels());
-			terminateModel.setName("Terminate Model Thread");			
+			terminateModel.setName("Terminate Model Thread");
 			this.terminateModelRecs = terminateModel;
 			this.terminateModelRecs.start();
 		}
 	}
-	
+
 	@Override
 	public void deleteRatings(String key, long userId, long itemId) {
 		if (key != null) {
@@ -493,15 +501,15 @@ public class KibitzServer implements Iface {
 			this.loop = training;
 			this.loop.start();
 		}
-		
+
 		if(!this.terminateModelRecs.isAlive()) {
 			Thread terminateModel = new Thread(new TerminateModels());
-			terminateModel.setName("Terminate Model Thread");			
+			terminateModel.setName("Terminate Model Thread");
 			this.terminateModelRecs = terminateModel;
 			this.terminateModelRecs.start();
 		}
 	}
-	
+
 	@Override
 	public List<Item> getPageItems(String key, long page, long numPerPage, List<String> displayColumns) {
 		if (key != null) {
@@ -515,14 +523,14 @@ public class KibitzServer implements Iface {
 			this.loop = training;
 			this.loop.start();
 		}
-		
+
 		if(!this.terminateModelRecs.isAlive()) {
 			Thread terminateModel = new Thread(new TerminateModels());
-			terminateModel.setName("Terminate Model Thread");			
+			terminateModel.setName("Terminate Model Thread");
 			this.terminateModelRecs = terminateModel;
 			this.terminateModelRecs.start();
 		}
-		
+
 		return null;
 	}
 
@@ -535,7 +543,7 @@ public class KibitzServer implements Iface {
 		}
 		return 0;
 	}
-	
+
 	@Override
 	public void terminateSession(String key) {
 		if (key != null) {
@@ -544,7 +552,7 @@ public class KibitzServer implements Iface {
 			}
 		}
 	}
-	
+
 	@Override
 	public List<Item> getSearchItems(String key, String query, List<String> columnsToSearch, List<String> displayColumns) {
 		if (key != null) {
@@ -558,17 +566,17 @@ public class KibitzServer implements Iface {
 			this.loop = training;
 			this.loop.start();
 		}
-		
+
 		if(!this.terminateModelRecs.isAlive()) {
 			Thread terminateModel = new Thread(new TerminateModels());
-			terminateModel.setName("Terminate Model Thread");			
+			terminateModel.setName("Terminate Model Thread");
 			this.terminateModelRecs = terminateModel;
 			this.terminateModelRecs.start();
 		}
-		
+
 		return null;
 	}
-	
+
 	/*@Override
 	public List<Item> getItemsFromPrimaryKeys(String key, String primaryKey, List<String> itemKeys, List<String> displayColumns) {
 		if (key != null) {
@@ -582,18 +590,18 @@ public class KibitzServer implements Iface {
 			this.loop = training;
 			this.loop.start();
 		}
-		
+
 		if(!this.terminateModelRecs.isAlive()) {
 			Thread terminateModel = new Thread(new TerminateModels());
-			terminateModel.setName("Terminate Model Thread");			
+			terminateModel.setName("Terminate Model Thread");
 			this.terminateModelRecs = terminateModel;
 			this.terminateModelRecs.start();
 		}
-		
+
 		return null;
 	}*/
-	
-	public class RecommenderRunnable implements Runnable {	
+
+	public class RecommenderRunnable implements Runnable {
 		public void run() {
 			while (RUNNING) {
 				try {
@@ -611,21 +619,21 @@ public class KibitzServer implements Iface {
 				}
 			}
 		}
-		
+
 		private void updateRecommender(AbstractRecommender recommender) {
 			//recommender.clear();
 			recommender.refresh(null);
 		}
-		
+
 		private boolean updateDataModel(IndividualRecommender rec, String key) {
 			rec.updateDataModel(key);
 			return rec.getRefreshed();
 		}
 	}
-	
-	public class TerminateModels implements Runnable {	
+
+	public class TerminateModels implements Runnable {
 		public void run() {
-			while (RUNNING) {				
+			while (RUNNING) {
 				try {
 					Thread.sleep(400000000);
 				} catch (InterruptedException e) {
@@ -661,24 +669,24 @@ public class KibitzServer implements Iface {
 			THttpClient transport = new THttpClient("http://datahub.csail.mit.edu/service");
 			TBinaryProtocol protocol = new  TBinaryProtocol(transport);
 			DataHub.Client client = new DataHub.Client(protocol);
-		
+
 			ConnectionParams params = new ConnectionParams();
 			params.setApp_id(DatahubDataModel.getKibitzAppName());
 			params.setApp_token(DatahubDataModel.getKibitzAppId());
 			params.setRepo_base(username);
 			Connection connection = client.open_connection(params);
-			
+
 			client.execute_sql(connection, "Select * from " + repository + "." + table + " limit 0;", null);
 			client.execute_sql(connection, "select " + primary_key + " from " + repository + "." + table + " limit 0;", null);
-			
+
 			if (!title.equals("no_kibitz_title")) {
 				client.execute_sql(connection, "select " + title + " from " + repository + "." + table + " limit 0;", null);
 			}
-			
+
 			if (!description.equals("no_kibitz_description")) {
 				client.execute_sql(connection, "select " + description + " from " + repository + "." + table + " limit 0;", null);
 			}
-			
+
 			if (!image.equals("no_kibitz_image")) {
 				client.execute_sql(connection, "select " + image + " from " + repository + "." + table + " limit 0;", null);
 			}
@@ -703,13 +711,13 @@ public class KibitzServer implements Iface {
 			THttpClient transport = new THttpClient("http://datahub.csail.mit.edu/service");
 			TBinaryProtocol protocol = new  TBinaryProtocol(transport);
 			DataHub.Client client = new DataHub.Client(protocol);
-		
+
 			ConnectionParams params = new ConnectionParams();
 			params.setApp_id(DatahubDataModel.getKibitzAppName());
 			params.setApp_token(DatahubDataModel.getKibitzAppId());
 			params.setRepo_base(username);
 			Connection connection = client.open_connection(params);
-			
+
 			if (!ratings_column.equals(""))
 				client.execute_sql(connection, "select distinct pg_typeof(" + ratings_column + ") from " + repository + "." + table + " limit 1;", null);
 
@@ -752,6 +760,6 @@ public class KibitzServer implements Iface {
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}	
+		}
 	}
 }

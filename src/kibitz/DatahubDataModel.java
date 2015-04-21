@@ -69,13 +69,13 @@ public class DatahubDataModel implements DataModel{
 	private static final String DEFAULT_DATAHUB_TABLENAME = "users";
 
 	/** Default Webserver Location*/
-	public static final String WEBSERVER_DIR = "/Applications/XAMPP/htdocs/kibitz-demo/home/";
+	public static final String WEBSERVER_DIR = "/var/www/";
 
 	/** Kibitz Homepage */
-	public static final String HOMEPAGE = "http://localhost/kibitz-demo/home/";
+	public static final String HOMEPAGE = "http://kibitz.csail.mit.edu/";
 
 	/** Kibitz Datahub App ID */
-	private static final String KIBITZ_APP_ID = "XXXXXXXXXXXXXXXXXXXX";
+	private static final String KIBITZ_APP_ID = "9ce63ac3-47a9-4922-b674-d710b1467641";
 
 	/** Kibitz App Name */
 	private static final String KIBITZ_APP_NAME = "kibitz";
@@ -713,19 +713,19 @@ public class DatahubDataModel implements DataModel{
 			if (description != null)
 				input += ", description = '" + description + "'";
 			else
-				input += ", description = undefined";
+				input += ", description = 'no_kibitz_description'";
 			if (image != null)
 				input += ", image = '" + image + "'";
 			else
-				input += ", image = undefined";
+				input += ", image = 'no_kibitz_image'";
 			if (video != null)
 				input += ", video = '" + video + "'";
 			else
-				input += ", video = undefined";
+				input += ", video = 'no_kibitz_video'";
 			if (primaryKey != null)
 				input += ", primary_key = '" + primaryKey + "'";
 			else
-				input += ", primary_key = undefined";
+				input += ", primary_key = 'no_kibitz_primary_key'";
 			input += "; \n";
 
 			List<String> itemsTypes = new ArrayList<String>();
