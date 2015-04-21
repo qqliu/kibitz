@@ -14,4 +14,6 @@ http://kibitz.csail.mit.edu/quanquan/quanquan_cities_demo/
 
 http://kibitz.csail.mit.edu/quanquanl/quotes/
 
+This is only the preliminary stage of the project. It is still in development and we look forward to adding more cool things along the way.
+
 Sources for API are forthcoming. In the meantime, email quanquan@mit.edu with any questions.
