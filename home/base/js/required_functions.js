@@ -46,7 +46,7 @@ var logout = function() {
 };
 
 var imageExists = function testImage(url, callback, id, prefix) {
-    var timeout = 800;
+    var timeout = 2000;
     var timedOut = false, timer;
     var img = new Image();
     img.onerror = img.onabort = function() {
@@ -60,7 +60,7 @@ var imageExists = function testImage(url, callback, id, prefix) {
         if (!timedOut) {
             clearTimeout(timer);
         } else {
-	    return;   
+	    return;
 	}
     };
     img.src = url;
@@ -68,13 +68,13 @@ var imageExists = function testImage(url, callback, id, prefix) {
         timedOut = true;
         callback(id, prefix);
 	return;
-    }, timeout); 
+    }, timeout);
 };
 
 var processPage = function(page) {
     window.location.hash = page;
     document.getElementById('listofitems').innerHTML = "";
-    
+
     var items = client.getPageItems(client_key, page, 10, display_items);
     display_database_items(items);
 };
@@ -83,7 +83,7 @@ var processNextPages = function(start) {
    var lastPages;
    var pages;
    var numPages = parseInt(client.getItemCount(client_key));
-   
+
    if (start > 0) {
         lastPages = start - 90;
         pages = "<li><a href='#" + lastPages/10 + "' onclick = 'processNextPages(" + lastPages + ")'>&#10094;</a></li>";
@@ -98,7 +98,7 @@ var processNextPages = function(start) {
    var nextPages = i - 10;
    pages += "<li><a href='#" + nextPages/10 + "' onclick='processNextPages(" + nextPages + ")'>&#10095;</a></li>";
    processPage(start/10);
-   
+
    $("#pages").empty();
    $("#pages").append(pages);
 };
@@ -110,7 +110,7 @@ var protocol = new Thrift.Protocol(transport);
 var client = new kibitz.RecommenderServiceClient(protocol)
 
 var show_signup_form = function() {
-    var popup = window.open('http://datahub.csail.mit.edu/account/login?redirect_url=http://localhost/kibitz-demo/home/' + homepage,'newwindow', config='height=600,width=600,' +
+    var popup = window.open('http://datahub.csail.mit.edu/account/login?redirect_url=' + homepage,'newwindow', config='height=600,width=600,' +
 			'toolbar=no, menubar=no, scrollbars=no, resizable=no,' + 'location=no, directories=no, status=no');
 
     //Create a trigger for location changes
@@ -141,23 +141,23 @@ var display_database_items = function(items) {
 	if (item.attributes[image] !== null && item.attributes[image] !== undefined && item.attributes[image].indexOf("http") > -1) {
 		currItem += '<object id="profile_image' + item.kibitz_generated_id + '" data="' + item.attributes[image] + '"></object>';
 		var imageUrl = item.attributes[image];
-      
+
 		imageExists(imageUrl, function(id, prefix) {
 			//Delete the object
 			$("#" + prefix + id).remove();
 		}, item.kibitz_generated_id, "profile_image");
 	}
-	
+
 	if (video && item.attributes[video] !== null && item.attributes[video] !== undefined) {
 		currItem += '<object id="profile_image' + item.kibitz_generated_id + '" width="300px" height="300px" data="' + item.attributes[video] + '"></object>';
 	}
-	
+
 	if (item.attributes[title] !== null && item.attributes[title] !== undefined) {
-	    currItem += '<div class="inline-block user-info"><h2>' + item.attributes[title] + '</h2>';
+	    currItem += '<div class="inline-block user-info"><h2 class="title">' + item.attributes[title] + '</h2>';
 	}
-	
+
 	if (item.attributes[description] !== null && item.attributes[description] !== undefined){
-	  currItem += '<div class="icons"><ul class="list-inline"><li>' + item.attributes[description] + '</li>';
+	  currItem += '<div class="icons"><ul class="list-inline"><li class="description">' + item.attributes[description] + '</li>';
 	}
 
 	var object_keys = Object.keys(item_types);
@@ -166,20 +166,20 @@ var display_database_items = function(items) {
 		var type = item_types[object_keys[j]];
 		if (item.attributes[object_keys[j]] !== undefined && item.attributes[object_keys[j]] !== null && item.attributes[object_keys[j]] !== "undefined" && item.attributes[object_keys[j]] !== "null") {
 			if (type === "text") {
-			    currItem += "<div>" + item.attributes[object_keys[j]] + "</div>";
+			    currItem += "<div class='" + object_keys[j] + "'>" + item.attributes[object_keys[j]] + "</div>";
 			} else if (type === "image") {
-			    currItem += "<div><object id='"+ object_keys[j] + item.kibitz_generated_id + "' data='" + item.attributes[object_keys[j]] + "'></object></div>";
+			    currItem += "<div><object class = '" + object_keys[j] + "' id='"+ object_keys[j] + item.kibitz_generated_id + "' data='" + item.attributes[object_keys[j]] + "'></object></div>";
 			    var extra_imageUrl = item.attributes[object_keys[j]];
 			    imageExists(extra_imageUrl, function(id, prefix) {
 				    //Delete the object
 				    $("#" + prefix + id).remove();
 			    }, item.kibitz_generated_id, object_keys[j]);
 			} else if (type === "video") {
-			    currItem += "<div><object id='"+ object_keys[j] + item.kibitz_generated_id + "' width='300px' height='300px' data='" + item.attributes[object_keys[j]] + "'></object></div>";
+			    currItem += "<div><object class = '" + object_keys[j] + "' id='"+ object_keys[j] + item.kibitz_generated_id + "' width='300px' height='300px' data='" + item.attributes[object_keys[j]] + "'></object></div>";
 			} else if (type === "html") {
-			    currItem += "<div>" + item.attributes[object_keys[j]] + "</div>";
+			    currItem += "<div class = '" + object_keys[j] + "'>" + item.attributes[object_keys[j]] + "</div>";
 			} else if (type === "number") {
-			    currItem += "<div>" + item.attributes[object_keys[j]] + "</div>";
+			    currItem += "<div class = '" + object_keys[j] + "'>" + item.attributes[object_keys[j]] + "</div>";
 			}
 		}
 	    }
@@ -217,12 +217,12 @@ var display_database_items = function(items) {
 }
 
 $(document).ready(function() {
-    
+
     transport.open();
     client.createNewIndividualServer(client_key);
     client.initiateModel(client_key, recommender_name, creator_name, repo_name);
     document.getElementById("title").innerHTML = recommender_name + ' Recommender';
-    
+
     var new_display_items = [];
     var keys = Object.keys(item_types);
     for (var i in keys) {
@@ -230,13 +230,13 @@ $(document).ready(function() {
 	    && keys[i] !== "no_kibitz_description" && keys[i] !== "no_kibitz_image")
             new_display_items.push(keys[i]);
     }
-    
+
     if (title != "no_kibitz_title")
 	new_display_items.push(title.toString());
-    
+
     if (description != "no_kibitz_description" )
 	new_display_items.push(description.toString());
-    
+
     $('#search').keyup(function(ev) {
         if (ev.which === 13) {
             var items = client.getSearchItems(client_key, $('#search').val(), new_display_items, display_items);

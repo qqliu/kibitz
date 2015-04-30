@@ -19,12 +19,22 @@ var save_recommender_info = function() {
   repoName = $("#repo").html().trim();
   tableName = $("#table").html().trim();
   homepage = $("#homepage").val().trim();
-  primaryKey = $("#primary_key").val().trim();
-  title = $("#title").val().trim();
-  description = $("#description").val().trim();
-  image = $("#image").val().trim();
-  video = $("#video").val().trim();
-  ratings_column = $("#overall_rating").val().trim();
+  primaryKey = $("#primary_key_chosen").find(".chosen-single").find("span").html().trim();
+  if (primaryKey === "ID Column")
+      primaryKey = "";
+  title = $("#title_chosen").find(".chosen-single").find("span").html().trim();
+  if (title === "Title Column")
+      title = "";
+  description = $("#description_chosen").find(".chosen-single").find("span").html().trim();
+  if (description === "Description Column")
+    description = "";
+  image = $("#image_chosen").find(".chosen-single").find("span").html().trim();
+  if (image === "Image Column")
+    image = "";
+  video = $("#video_chosen").find(".chosen-single").find("span").html().trim();
+  if (video === "Video Column")
+    video = "";
+  ratings_column = $("#overall_rating_chosen").find(".chosen-single").find("span").html().trim();
   display_items = [];
   
   var display = $("#display_columns").val().split(",");

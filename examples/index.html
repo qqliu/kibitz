@@ -1,0 +1,48 @@
+<html>
+<head>
+  <title>Sample Kibitz Recommendations Page</title>
+  <script type="text/javascript" src="kibitz/js/thrift.js"></script>
+  <script type="text/javascript" src="kibitz/js/kibitz_types.js"></script>
+  <script type="text/javascript" src="kibitz/js/RecommenderService.js"></script>
+  <script type="text/javascript" src="kibitz/js/required_functions.js"></script>
+
+</head>
+<body>
+<div id="results">
+</div>
+<h3>Recommendations!</h3>
+<div id="recs">
+</div>
+</body>
+</html>
+
+
+<script type="text/javascript">
+
+var transport = new Thrift.Transport("http://kibitz.csail.mit.edu:9889/kibitz/");
+var protocol = new Thrift.Protocol(transport);
+var client = new kibitz.RecommenderServiceClient(protocol);
+
+transport.open();
+
+var client_key = "IaS68IUq3yVJ9vm9B47qZFKlA";
+var datahub_username = "qliu";
+var datahub_repo = "food";
+var datahub_table = "foodporn";
+
+client.initiateModel(client_key, datahub_table, datahub_username, datahub_repo);
+var items = client.getPageItems(client_key, 0, 20, ["subreddit_id", "author"]);
+
+for (var i in items) {
+  var html = document.getElementById("results");
+  html.innerHTML = html.innerHTML + "<p>" + items[i].attributes.subreddit_id + ": " + items[i].attributes.author + "</p>";
+}
+
+var recs = client.makeOverallRatingBasedOrRandomRecommendation(client_key, "score", 10, ["subreddit_id", "author", "url"]);
+console.log(recs);
+for (i in recs) {
+  html = document.getElementById("recs");
+  html.innerHTML = html.innerHTML + "<p>" + recs[i].attributes.subreddit_id + ": " + recs[i].attributes.author + ": " + recs[i].attributes.url + "</p>";
+}
+
+</script>

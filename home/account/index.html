@@ -21,6 +21,7 @@
     <link href="assets/css/style.css" rel="stylesheet">
     <link href="assets/css/style-responsive.css" rel="stylesheet">
     <link href="assets/css/stylish-portfolio.css" rel="stylesheet">
+    <link href="assets/css/chosen.css" rel="stylesheet" type="text/css">
 
     <script src="assets/js/chart-master/Chart.js"></script>
     
@@ -113,23 +114,29 @@
                 </fieldset>
                 <fieldset id="customization-form">
                         <h2 class="fs-title">Customize</h2>
-                        <div class="fs-subtitle">We are almost ready to deploy your recommender! We just need a few more things from you.</div>
-                        <div id="database_table_error" class="fs-subtitle error">Incorrect Datahub table info. Please correct.</div>
-                        <div class="required"><input type="text" id="dh-table-name" placeholder="Item Table Name" /></div>
-                        <div class="required"><input type="text" id="primary-key" placeholder="Primary Key" /></div>
-                        <div class="fs-subtitle">The following fields are optional but helps us build a working sample recommender for you.</div>
-                        <input type="text" id="title-column" placeholder="Title Column Name" />
-                        <input type="text" id="description-column" placeholder="Description Column Name" />
-                        <input type="text" id="image-column" placeholder="Image Column Name" />
+                        <div class="fs-subtitle">Please choose a table first.</div>
+                        <div id="database_table_error" class="fs-subtitle error">Please fill in all required fields.</div>
+                        <div class="required"><select data-placeholder="Table Name" class="chosen-select tables" id = 'dh-table-name' style="width:350px;" tabindex="2">
+                        </select></div><br />
+                        <div class="required"><select data-placeholder="ID Column" class="chosen-select columns" id = 'primary-key' style="width:350px;" tabindex="2">
+                        </select></div><br />
+                        <div class="fs-subtitle">ID column is used to identify your items. May be any column.</div>
+                        <div class="fs-subtitle">Please provide as complete information as possible.</div>
+                        <select data-placeholder="Title Column" class="chosen-select columns" id = 'title-column' style="width:350px;" tabindex="2">
+                        </select><br /><br />
+                        <select data-placeholder="Description Column" class="chosen-select columns" id = 'description-column' style="width:350px;" tabindex="2">
+                        </select><br /><br />
+                        <select data-placeholder="Image Column" class="chosen-select columns" id = 'image-column' style="width:350px;" tabindex="2">
+                        </select><br /><br />
                         <input type="button" name="next" class="action-button btn btn-xl" value="Next" onclick="validFieldsNext(this, ['dh-table-name', 'primary-key']);"/>
                 </fieldset>
                 <fieldset id="ratings-based-recommender-option-1">
                         <h2 class="fs-title">Ranking Info</h2>
-                        <div class="fs-subtitle">The default recommender allows your users to rate items and provides recommendations based on these
-                            ratings. You may also choose to provide a default ranking for each item and recommendations will include the highest ranked items (e.g. a ranking of 10 is higher than a ranking of 1).
-                            If you choose to use this option, provide the column name containing numerical rankings for each item.</div>
+                        <div class="fs-subtitle">If you have a column of numerical ratings or rankings for each item. You may choose to use it. We will include the
+                            highest rated items in our recommendations.</div>
                         <div id="rating_column_error" class="fs-subtitle error">Wrong info. Please enter a correct column name with numerical ratings.</div>
-                        <input type="text" id="rating-column-2" placeholder="Ratings Column Name" />
+                        <select data-placeholder="Ratings Column" class="chosen-select columns" id="rating-column-2" style="width:350px;" tabindex="2">
+                        </select><br /><br />
                         <input type="button" name="previous" class="previous-opt-2 action-button btn btn-xl" value="Previous" />
                         <input type="button" name="next" class="next-opt-1-2 action-button btn btn-xl" value="Next" />
                 </fieldset>
@@ -142,14 +149,12 @@
                         <input type="button" name="submit" class="submit action-button btn btn-xl" value="Submit" />
                 </fieldset>
                 <fieldset id="give-kibitz-key">
-                    <h2 class="fs-title">Recommender Created!</h2>
-                    <div class="fs-subtitle">Congrats! You have created your first recommender! Your unique recommender client key is<br /><br />
-                    <span id="client_id" style="color: red;"></span>
-                    <br /><br /> Remember this key. It will be used in all communications with Kibitz.
+                    <h2 class="fs-title">Recommender Created! Congrats!</h2>
                     <span id="additional_messages"></span></div>
                 </fieldset>
             </form>
         </div>
+        
           <section class="wrapper">
             <section class="wrapper site-min-height">
             <div class="showback">
@@ -207,6 +212,7 @@
     
     <script type="text/javascript" src="assets/js/gritter/js/jquery.gritter.js"></script>
     <script type="text/javascript" src="assets/js/gritter-conf.js"></script>
+    <script src="assets/js/chosen.jquery.js" type="text/javascript"></script>
 
   </body>
 </html>

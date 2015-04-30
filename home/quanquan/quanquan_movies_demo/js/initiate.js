@@ -1,15 +1,15 @@
-// Display Options
-var title = 'col1', description = 'col10', image = 'no_kibitz_image', video = undefined, primary_key = 'col1';
-var item_types = {'col1': 'text','col10': 'text'};
-var display_items = ['col1','col10'];
+// Display Options 
+var title = 'name', description = '', image = '', video = '', primary_key = 'name'; 
+var item_types = {'link': 'html','name': 'text'}; 
+var display_items = ['link','name']; 
 
-// Recommender Info
-var recommender_name = 'dogsbreedreferencesheet1';
- var client_key = 'T31PQyiF7tm5pHEjsf0QOGYEc';
- var homepage = 'quanquan/dogs';
- var creator_name = 'quanquan';
- var repo_name = 'dogs';
+// Recommender Info 
+var recommender_name = 'moviesdemo';
+ var client_key = 'R6MlrWXGYH21Uwu3ocXKxtiFQ';
+ var homepage = 'http://localhost/kibitz-demo/home/quanquan/quanquan_movies_demo';
+ var creator_name = 'quanquan'; 
+ var repo_name = 'quanquan_movies_demo'; 
 
-// Rating Customization
-var num_recs = 10;
-var maxRatingVal = 10;
+// Rating Customization 
+var num_recs = 10; 
+var maxRatingVal = 10; 

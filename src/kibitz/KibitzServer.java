@@ -29,8 +29,6 @@ import org.apache.thrift.transport.TTransportException;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
-import sun.org.mozilla.javascript.internal.NativeArray;
-import sun.org.mozilla.javascript.internal.NativeObject;
 import datahub.Connection;
 import datahub.ConnectionParams;
 import datahub.DBException;
@@ -182,22 +180,19 @@ public class KibitzServer implements Iface {
 				recommender.setVideo(jsEngine.get("video").toString());
 				recommender.setImage(jsEngine.get("image").toString());
 				recommender.setPrimaryKey(jsEngine.get("primary_key").toString());
-				NativeArray nativeArray = (NativeArray) jsEngine.get("display_items");
+				recommender.setRecommenderName(jsEngine.get("recommender_name").toString());
+
 				List<String> displayItems = new ArrayList<String>();
 				
-				for (int i=0; i < (int) nativeArray.getLength(); i++) {
-					displayItems.add((String) nativeArray.get(i));
+				int varsLength = ((Double) jsEngine.eval("display_items.length;")).intValue();
+				for(int i=0; i < varsLength; i++){
+				    displayItems.add((String) jsEngine.eval("display_items["+i+"];"));
 				}
 				
 				recommender.setDisplayItems(displayItems);
-				System.out.println((NativeObject) jsEngine.get("item_types"));
-				NativeObject nativeObject = (NativeObject) jsEngine.get("item_types");
 				
-				HashMap<String, String> itemMap = new HashMap<String, String>();
+				HashMap<String, String> itemMap = new HashMap<String, String>((Map<String,String>) jsEngine.get("item_types"));
 				
-				for (Object key: nativeObject.getAllIds()) {
-			        itemMap.put((String) key, (String) nativeObject.get(key));
-			    }
 				recommender.setItemTypes(itemMap);
 				recommender.setNumRecs((int) Double.parseDouble(jsEngine.get("num_recs").toString()));
 				recommender.setMaxRatingVal((int) Double.parseDouble(jsEngine.get("maxRatingVal").toString()));
@@ -754,4 +749,72 @@ public class KibitzServer implements Iface {
 			e.printStackTrace();
 		}	
 	}
+	
+	@Override
+	public List<String> getTables(String username, String repo) {
+		try {
+			THttpClient transport = new THttpClient("http://datahub.csail.mit.edu/service");
+			TBinaryProtocol protocol = new  TBinaryProtocol(transport);
+			DataHub.Client client = new DataHub.Client(protocol);
+		
+			ConnectionParams params = new ConnectionParams();
+			params.setApp_id(DatahubDataModel.getKibitzAppName());
+			params.setApp_token(DatahubDataModel.getKibitzAppId());
+			params.setRepo_base(username);
+			Connection connection = client.open_connection(params);
+			
+			List<String> tables = new ArrayList<String>();
+		
+		
+			ResultSet res = client.execute_sql(connection, "select * from pg_tables where schemaname = '" + repo + "' and tableowner = '" + username + "';", null);
+			HashMap<String, Integer> colToIndex = DatahubDataModel.getFieldNames(res);	
+		
+			for (Tuple t : res.getTuples()) {
+				List<ByteBuffer> cells = t.getCells();
+				tables.add(new String(cells.get(colToIndex.get("tablename")).array()));
+			}
+			return tables;
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	};
+	
+	@Override
+	public List<String> getColumns(String username, String repo, String table) {
+		try {
+			THttpClient transport = new THttpClient("http://datahub.csail.mit.edu/service");
+			TBinaryProtocol protocol = new  TBinaryProtocol(transport);
+			DataHub.Client client = new DataHub.Client(protocol);
+		
+			ConnectionParams params = new ConnectionParams();
+			params.setApp_id(DatahubDataModel.getKibitzAppName());
+			params.setApp_token(DatahubDataModel.getKibitzAppId());
+			params.setRepo_base(username);
+			Connection connection = client.open_connection(params);
+			
+			List<String> columns = new ArrayList<String>();
+		
+		
+			ResultSet res = client.execute_sql(connection, "select * from information_schema.columns where table_schema='" + repo + "' and table_name='" + table + "';", null);
+			HashMap<String, Integer> colToIndex = DatahubDataModel.getFieldNames(res);	
+		
+			for (Tuple t : res.getTuples()) {
+				List<ByteBuffer> cells = t.getCells();
+				columns.add(new String(cells.get(colToIndex.get("column_name")).array()));
+			}
+			return columns;
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	};
 }

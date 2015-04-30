@@ -93,8 +93,9 @@ function show_login_form() {
 	// Check to see if the location has changed.
 	if (popup.location.href.indexOf("auth_user") > -1) {
 	    var href = popup.location.href;
-	    sessionStorage.setItem("username", href.split("=")[1]);
-	    setCookie("username", href.split("=")[1]);
+	    var splits = href.split("=");
+	    sessionStorage.setItem("username", href.split("=")[splits.length - 1]);
+	    setCookie("username", href.split("=")[splits.length - 1]);
 	    popup.close();
 	    document.location.href = "account";
 	}
@@ -153,10 +154,10 @@ $(".next-opt-1-2").click(function(){
 	username = getCookie("username")
     
     repo = $("#repo-name").val().trim();
-    table = $("#dh-table-name").val().trim();
+    table = $("#dh_table_name_chosen").find(".chosen-single").find("span").html().trim();
     
-    if ($("#rating-column-2").val().trim() !== null || $("#rating-column-2").val().trim() !== "") 
-	verify_table_column = client.checkRatingsColumn(username, repo, table, $("#rating-column-2").val().trim());
+    if ($("#rating_column_2_chosen").find(".chosen-single").find("span").html().trim() !== "Ratings Column") 
+	verify_table_column = client.checkRatingsColumn(username, repo, table, $("#rating_column_2_chosen").find(".chosen-single").find("span").html().trim());
 	
     if (verify_table_column) {
 	$("#rating_column_error").hide();
@@ -294,7 +295,7 @@ $("#login-kibitz-account").click(function(e) {
 			    'location=no, directories=no, status=no');
     
 	//Create a trigger for location changes
-	var intIntervalTime = 100;
+	var intIntervalTime = 1000;
 	var curPage = this;
     
 	// This will be the method that we use to check
@@ -303,10 +304,30 @@ $("#login-kibitz-account").click(function(e) {
 	    // Check to see if the location has changed.
 	    if (popup.location.href.indexOf("auth_user") > -1) {
 		var href = popup.location.href;
-		sessionStorage.setItem("username", href.split("=")[1]);
-		setCookie("username", href.split("=")[1]);
-		popup.close();
+		var splits = href.split("=");
+		username = href.split("=")[splits.length - 1];
+		sessionStorage.setItem("username", username);
+		setCookie("username", username);
 		window.clearInterval(id);
+		popup.close();
+		var tables = client.getTables(username, $("#repo-name").val());
+		$(".tables").empty();
+		$(".tables").append('<option value=""></option>');
+		for (var i in tables) {
+		    $(".tables").append('<option value="' + tables[i] + '">' + tables[i] + '</option>');
+		}
+		
+		$(".chosen-select").chosen({width: "95%", allow_single_deselect:true});
+		$(".tables").chosen({width: "95%", allow_single_deselect:true}).change(function(evt, params) {
+		    var columns = client.getColumns(username, $("#repo-name").val(), params.selected);
+		    $(".columns").empty();
+		    $(".columns").append('<option value=""></option>');
+		    for (var j in columns) {
+			$(".columns").append('<option value="' + columns[j] + '">' + columns[j] + '</option>');
+		    }
+		    $(".chosen-select").trigger("chosen:updated");
+		});
+		
 		animateNext(curPage, $("#customization-form"));
 		$("#progressbar li").eq(1).addClass("active");
 	    }
@@ -361,7 +382,15 @@ function validFieldsNext(cur, fields) {
             } else {
                 $("#confirm_password").css("border", "1px solid #ccc");
             }
-        } else {
+	} else if (fields[i] === "dh-table-name") {
+	    if ($("#dh_table_name_chosen").find(".chosen-single").find("span").html().trim() == "Table Name") {
+		missing_fields["dh_table_name_chosen"] = true;
+	    }
+	} else if(fields[i] === "primary-key") {
+	    if ($("#primary_key_chosen").find(".chosen-single").find("span").html().trim() == "ID Column") {
+		missing_fields["primary_key_chosen"] = true;
+	    }
+	} else {
             if ($("#" + fields[i]).val().trim() === null || $("#" + fields[i]).val().trim() === undefined || $("#" + fields[i]).val().trim() === "") {
                 $("#" + fields[i]).css("border", "2px solid red");
                 missing_fields[fields[i]] = true;
@@ -385,21 +414,21 @@ function validFieldsNext(cur, fields) {
 	username = getCookie("username");
     
     repo = $("#repo-name").val().trim();
-    table = $("#dh-table-name").val().trim();
-    primary_key = $("#primary-key").val().trim();
-    title = $("#title-column").val().trim();
-    description = $("#description-column").val().trim();
-    image = $("#image-column").val().trim();
+    table = $("#dh_table_name_chosen").find(".chosen-single").find("span").html().trim();
+    primary_key = $("#primary_key_chosen").find(".chosen-single").find("span").html().trim();
+    title = $("#title_column_chosen").find(".chosen-single").find("span").html().trim();
+    description = $("#description_column_chosen").find(".chosen-single").find("span").html().trim();
+    image = $("#image_column_chosen").find(".chosen-single").find("span").html().trim();
     
-    if (title === null || title === "") {
+    if (title === "Title Column") {
 	title = "no_kibitz_title";
     }
     
-    if (description === null || description === "") {
+    if (description === "Description Column") {
 	description = "no_kibitz_description";
     }
     
-    if (image === null || image === "") {
+    if (image === "Image Column") {
 	image = "no_kibitz_image";
     }
     
@@ -455,7 +484,7 @@ function createNewRecommender(cur, fields) {
         }
     }
     
-    if (!client.checkCorrectDatahubLogin($('#dh-username').val().trim(), $('#dh-password').val().trim(), $('#dh-repository').val().trim(), $('#dh-table-name').val().trim())) {
+    if (!client.checkCorrectDatahubLogin($('#dh-username').val().trim(), $('#dh-password').val().trim(), $('#dh-repository').val().trim(), $("#dh_table_name_chosen").find(".chosen-single").find("span").html().trim())) {
 	$("#incorrect-datahub-login").show();
 	return false;
     }
@@ -528,29 +557,28 @@ $(".submit").click(function(){
     var username, repo, table, primary_key, title, description, image, ratings_column;
 
     username = sessionStorage.getItem("username");
-    
     if (username === null || username === undefined || username === "" || username === "null" || username === "undefined")
 	username = getCookie("username")
     repo = $("#repo-name").val().trim();
-    table = $("#dh-table-name").val().trim();
-    ratings_column = $("#rating-column-2").val().trim();
-    title = $("#title-column").val().trim();
-    description = $("#description-column").val().trim();
-    image = $("#image-column").val().trim();
-    primary_key = $("#primary-key").val().trim();
+    table = $("#dh_table_name_chosen").find(".chosen-single").find("span").html().trim();
+    ratings_column = $("#rating_column_2_chosen").find(".chosen-single").find("span").html().trim();
+    title = $("#title_column_chosen").find(".chosen-single").find("span").html().trim();
+    description = $("#description_column_chosen").find(".chosen-single").find("span").html().trim();
+    image = $("#image_column_chosen").find(".chosen-single").find("span").html().trim();
+    primary_key = $("#primary_key_chosen").find(".chosen-single").find("span").html().trim();
     
-    if (ratings_column === "" || ratings_column === null)
+    if (ratings_column === "Ratings Column")
 	ratings_column = "no_kibitz_ratings_column";
 
-    if (title === null || title === "") {
+    if (title === "Title Column") {
 	title = "no_kibitz_title";
     }
     
-    if (description === null || description === "") {
+    if (description === "Description Column") {
 	description = "no_kibitz_description";
     }
     
-    if (image === null || image === "") {
+    if (image === "Image Column") {
 	image = "no_kibitz_image";
     }
 
@@ -565,17 +593,6 @@ $(".submit").click(function(){
     $("#give-kibitz-key").show();
     return false;
 });
-
-var checkLogin = function() {
-    if ((sessionStorage.getItem("username") === null || sessionStorage.getItem("username") === "null" ||
-	 sessionStorage.getItem("username") === "undefined" || sessionStorage.getItem("username") === undefined)
-	    && (getCookie("username") === null || getCookie("username") === "null" ||
-	    getCookie("username") === "undefined" || getCookie("username") === undefined)) {
-	return true;
-    } else {
-	return false;
-    }
-};
 
 function setCookie(cname, cvalue, exdays) {
     if (exdays !== null) {
@@ -604,6 +621,17 @@ function deleteLoginInfo() {
     sessionStorage.setItem("username", null);
     document.location.href="..";
 }
+
+var checkLogin = function() {
+    if ((sessionStorage.getItem("username") === null || sessionStorage.getItem("username") === "null" ||
+	 sessionStorage.getItem("username") === "undefined" || sessionStorage.getItem("username") === undefined)
+	    && (getCookie("username") === null || getCookie("username") === "null" ||
+	    getCookie("username") === "undefined" || getCookie("username") === undefined)) {
+	return true;
+    } else {
+	return false;
+    }
+};
 
 var username, recommendersInfo, recommenders;
 

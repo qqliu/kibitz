@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(document).ready(function() {    
     var client_id = sessionStorage.getItem("cur_client_key");
     
     if (client_id === null || client_id === undefined)
@@ -15,32 +15,59 @@ $(document).ready(function() {
     $("#table").empty();
     $("#table").append(recommenders[client_id].repoName + "." + recommenders[client_id].recommenderName);
     
-    console.log(recommenders);
     $("#homepage").val(recommenders[client_id].homepage);
-    $("#primary_key").val(recommenders[client_id].primaryKey);
     
-    if (recommenders[client_id].title && recommenders[client_id].title !== "no_kibitz_title" && recommenders[client_id].title !== undefined && recommenders[client_id].title !== null
-        && recommenders[client_id].title !== "undefined" && recommenders[client_id].title !== "null")
-        $("#title").val(recommenders[client_id].title);
-        
-    if (recommenders[client_id].description && recommenders[client_id].description !== "no_kibitz_description" && recommenders[client_id].description !== undefined && recommenders[client_id].description !== null
-        && recommenders[client_id].description !== "undefined" && recommenders[client_id].description !== "null")
-        $("#description").val(recommenders[client_id].description);
+    console.log(recommenders[client_id].repoName);
+    console.log(recommenders[client_id].recommenderName);
+    console.log(username);
+    var columns = client.getColumns(username, recommenders[client_id].repoName, recommenders[client_id].recommenderName);
+    console.log(columns);
+    console.log(recommenders[client_id]);
+    console.log(recommenders[client_id].primaryKey);
     
-    if (recommenders[client_id].image && recommenders[client_id].image !== "no_kibitz_image" && recommenders[client_id].image !== undefined && recommenders[client_id].image !== null
-        && recommenders[client_id].image !== "undefined" && recommenders[client_id].image !== "null" && recommenders[client_id].image.indexOf("Undefined") === -1
-        && recommenders[client_id].image.indexOf("undefined") === -1)
-        $("#image").val(recommenders[client_id].image);
+    $(".columns").empty();
+    $(".columns").append('<option value=""></option>');
+    for (var i in columns) {
+        if (columns[i] === recommenders[client_id].primaryKey)
+            $("#primary_key").append('<option value="' + columns[i] + '" selected>' + columns[i] + '</option>');
+        else
+            $("#primary_key").append('<option value="' + columns[i] + '">' + columns[i] + '</option>');
+    }
+
+    for (var i in columns) {
+        if (columns[i] === recommenders[client_id].title)
+            $("#title").append('<option value="' + columns[i] + '" selected>' + columns[i] + '</option>');
+        else
+            $("#title").append('<option value="' + columns[i] + '">' + columns[i] + '</option>');
+    }
+  
+        for (var i in columns) {
+            if (columns[i] === recommenders[client_id].description)
+                $("#description").append('<option value="' + columns[i] + '" selected>' + columns[i] + '</option>');
+            else
+                $("#description").append('<option value="' + columns[i] + '">' + columns[i] + '</option>');
+	}
+ 
+    for (var i in columns) {
+        if (columns[i] === recommenders[client_id].image)
+            $("#image").append('<option value="' + columns[i] + '" selected>' + columns[i] + '</option>');
+        else
+            $("#image").append('<option value="' + columns[i] + '">' + columns[i] + '</option>');
+    }
     
-    if (recommenders[client_id].video && recommenders[client_id].video !== "no_kibitz_video" && recommenders[client_id].video !== undefined && recommenders[client_id].video !== null
-        && recommenders[client_id].video !== "undefined" && recommenders[client_id].video !== "null" && recommenders[client_id].video.indexOf("Undefined") === -1
-        && recommenders[client_id].video.indexOf("undefined") === -1)
-        $("#video").val(recommenders[client_id].video);
-        
-    if (recommenders[client_id].ratingsColumn && recommenders[client_id].ratingsColumn.indexOf("no_kibitz") === -1 && recommenders[client_id].ratingsColumn !== undefined && recommenders[client_id].ratingsColumn !== null
-        && recommenders[client_id].ratingsColumn !== "undefined" && recommenders[client_id].ratingsColumn !== "null" && recommenders[client_id].ratingsColumn.indexOf("Undefined") === -1
-        && recommenders[client_id].ratingsColumn.indexOf("undefined") === -1)
-        $("#overall_rating").val(recommenders[client_id].ratingsColumn);
+    for (var i in columns) {
+        if (columns[i] === recommenders[client_id].video)
+            $("#video").append('<option value="' + columns[i] + '" selected>' + columns[i] + '</option>');
+        else
+            $("#video").append('<option value="' + columns[i] + '">' + columns[i] + '</option>');
+    }
+                
+    for (var i in columns) {
+        if (columns[i] === recommenders[client_id].ratingsColumn)
+            $("#overall_rating").append('<option value="' + columns[i] + '" selected>' + columns[i] + '</option>');
+        else
+            $("#overall_rating").append('<option value="' + columns[i] + '">' + columns[i] + '</option>');
+    }
         
     var onDisplay = "";
     for (var i = 0; i < recommenders[client_id].displayItems.length - 1; i++) {
@@ -76,4 +103,6 @@ $(document).ready(function() {
     $("#max_rating_value").val(recommenders[client_id].maxRatingVal);
     
     $("#zip-file").html("Download zip file <a href='" + homepageURL + "/" + username + "/" + recommenders[client_id].repoName + "/homepage.zip'>here</a>.");
+    
+    $(".rec-select").chosen({allow_single_deselect:true});
 });
