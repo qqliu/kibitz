@@ -36,13 +36,13 @@ public class IndividualRecommender {
 	private GenericItemBasedRecommender itemRecommender;
 	private FileItemSimilarity itemUserSimilarity;
 	//private CachingRecommender cachingRecommender;
-	
+
 	private String items_table;
 	private String username;
 	private String ratings_table;
 	private String users_table;
 	private String databaseName;
-	
+
 	public IndividualRecommender(MysqlDataSource dataSource) {
 		this.dataModel = null;
 		this.dataSource = dataSource;
@@ -51,7 +51,7 @@ public class IndividualRecommender {
 		this.items_table = "data";
 		this.databaseName = this.dataSource.getDatabaseName();
 	}
-	
+
 	public List<Item> makeRecommendation(long userId, long numRecs, boolean isBoolean, List<String> displayColumns) {
 		try {
 			if (this.dataModel != null) {
@@ -60,26 +60,27 @@ public class IndividualRecommender {
 				List<RecommendedItem> recommendations;
 
 				recommendations = this.recommender.recommend((int) userId, (int) numRecs);
-				
+                //System.out.println(this.recommender.estimatePreference(5, 98));
+                //System.out.println(this.recommender.recommend(5, 10));
 				if (recommendations.size() == 0 && recommenderTypes.get(0)) {
 					recommendations = this.itemRecommender.recommend((int) userId, (int) numRecs);
 				}
-				
+
 				ArrayList<Long> recommendationNames = new ArrayList<Long>();
 				for (int i = 0; i < recommendations.size(); i++) {
 					recommendationNames.add(recommendations.get(i).getItemID());
 				}
-				
-				List<Item> recs = this.dataModel.getItemsFromIds(recommendationNames, this.databaseName + "." + this.items_table, 
+
+				List<Item> recs = this.dataModel.getItemsFromIds(recommendationNames, this.databaseName + "." + this.items_table,
 						this.databaseName + "." + this.ratings_table, userId, displayColumns);
-				
+
 				long endTime = System.nanoTime();
 				System.out.println("Time it takes to get recommendation: " + (endTime - startTime));
-				
+
 				if (recs.size() == 0 && recommenderTypes.get(2)) {
 					recs = this.dataModel.makeOverallRatingsBasedRecommendation(this.databaseName + "." + this.items_table, this.databaseName + "." + this.ratings_table, numRecs, displayColumns);
 				}
-				
+
 				if (recs.size() == 0 && recommenderTypes.get(1)) {
 					return this.dataModel.makeRandomRecommmendation(numRecs, this.databaseName + "." + this.items_table, displayColumns);
 				} else {
@@ -91,39 +92,39 @@ public class IndividualRecommender {
 		}
 		return null;
 	}
-	
-	
+
+
 	/*public List<Item> getItems() {
 		List<Item> results = this.dataModel.getItems(this.items_table);
 		return results;
 	}*/
-	
+
 	public List<Item> getSearchItems(String query, List<String> columnsToSearch, List<String> displayColumns) {
 		List<Item> results = this.dataModel.getSearchItems(this.databaseName + "." + this.items_table, query, columnsToSearch, displayColumns);
 		return results;
 	}
-	
+
 	public List<Item> getPageItems(long page, long numPerPage, List<String> displayColumns) {
 		List<Item> results = this.dataModel.getPageItems(this.items_table, page, numPerPage, displayColumns);
 		return results;
 	}
-	
+
 	public int getItemCount() {
 		return this.dataModel.getItemCount(this.items_table);
 	}
-	
+
 	public void recordRatings(long userId, long itemId, long rating) {
 		this.dataModel.recordRatings(userId, itemId, rating, this.databaseName + "." + this.ratings_table);
 	}
-	
+
 	public void deleteRatings(long userId, long itemId) {
 		this.dataModel.deleteRatings(userId, itemId, this.databaseName + "." + this.ratings_table);
 	}
-	
+
 	public long retrieveUserId(String username) {
 		return this.dataModel.retrieveUserId(username, this.databaseName + "." + this.users_table);
 	}
-	
+
 	public List<Item> makeItemBasedRecommendations(long userId, long numRecs, List<String> displayColumns) {
 		long[] itemIds = this.dataModel.getUserRatedItemsIds(userId, this.databaseName + "." + this.ratings_table);
 		try {
@@ -132,7 +133,7 @@ public class IndividualRecommender {
 			for (int i = 0; i < recs.size(); i++) {
 				recommendationNames.add(recs.get(i).getItemID());
 			}
-			List<Item> recommendations = this.dataModel.getItemsFromIds(recommendationNames, this.databaseName + "." + this.items_table, 
+			List<Item> recommendations = this.dataModel.getItemsFromIds(recommendationNames, this.databaseName + "." + this.items_table,
 					this.databaseName + "." + this.ratings_table, userId, displayColumns);
 			return recommendations;
 		} catch (TasteException e) {
@@ -141,15 +142,15 @@ public class IndividualRecommender {
 		}
 		return new ArrayList<Item>();
 	}
-	
+
 	public List<Item> makeOverallRatingBasedRecommendation(String ratingColumnName, long numRecs, List<String> displayColumns) {
 		return this.dataModel.makeOverallRatingsBasedRecommendation(this.databaseName + "." + this.items_table, this.databaseName + "." + this.ratings_table, numRecs, displayColumns);
 	}
-	
+
 	public List<Item> makeRandomRecommendation(long numRecs, List<String> displayColumns) {
 		return this.dataModel.makeRandomRecommmendation(numRecs, this.databaseName + "." + this.items_table, displayColumns);
 	}
- 	
+
 	public String createNewUser(String username, boolean isKibitzUser) {
 		if (this.checkUsername(username, isKibitzUser)) {
 			return "User already exists, please pick another username.";
@@ -159,20 +160,20 @@ public class IndividualRecommender {
 
 		List<String> columnNames = new ArrayList<String>();
 		columnNames.add("username");
-		
+
 		boolean created;
 		if (isKibitzUser) {
 			created = this.dataModel.createNewUser(columns, null, columnNames, null, true);
 		} else {
 			created = this.dataModel.createNewUser(columns, null, columnNames, this.databaseName + "." + this.users_table, false);
 		}
-		
+
 		if (created)
 			return "New user created";
 		else
 			return "Cannot create user";
 	}
-	
+
 	public boolean checkUsername(String username, boolean isKibitzUser) {
 		if (isKibitzUser) {
 			return this.dataModel.checkUsername(username, null, true);
@@ -180,13 +181,13 @@ public class IndividualRecommender {
 			return this.dataModel.checkUsername(username, this.databaseName + "." + this.users_table, false);
 		}
 	}
-	
+
 	public boolean checkLogin(String username, String password, boolean isKibitzUser) {
 		String hash;
 		if (isKibitzUser) {
-			hash = this.dataModel.checkLogin(username, password, null, true); 
+			hash = this.dataModel.checkLogin(username, password, null, true);
 		} else {
-			hash = this.dataModel.checkLogin(username, password, this.databaseName + "." + this.users_table, false); 
+			hash = this.dataModel.checkLogin(username, password, this.databaseName + "." + this.users_table, false);
 		}
 		try {
 			if (hash != null) {
@@ -201,25 +202,25 @@ public class IndividualRecommender {
 		}
 		return false;
 	}
-	
+
     public static String generatePasswordHash(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
         int iterations = 1000;
         char[] chars = password.toCharArray();
         byte[] salt = getSalt().getBytes();
-         
+
         PBEKeySpec spec = new PBEKeySpec(chars, salt, iterations, 64 * 8);
         SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
         byte[] hash = skf.generateSecret(spec).getEncoded();
         return iterations + ":" + toHex(salt) + ":" + toHex(hash);
     }
-     
+
     private static String getSalt() throws NoSuchAlgorithmException {
         SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
         byte[] salt = new byte[16];
         sr.nextBytes(salt);
         return salt.toString();
     }
-     
+
     private static String toHex(byte[] array) throws NoSuchAlgorithmException {
         BigInteger bi = new BigInteger(1, array);
         String hex = bi.toString(16);
@@ -231,17 +232,17 @@ public class IndividualRecommender {
             return hex;
         }
     }
-    
+
     public static boolean validatePassword(String originalPassword, String storedPassword) throws NoSuchAlgorithmException, InvalidKeySpecException {
         String[] parts = storedPassword.split(":");
         int iterations = Integer.parseInt(parts[0]);
         byte[] salt = fromHex(parts[1]);
         byte[] hash = fromHex(parts[2]);
-         
+
         PBEKeySpec spec = new PBEKeySpec(originalPassword.toCharArray(), salt, iterations, hash.length * 8);
         SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
         byte[] testHash = skf.generateSecret(spec).getEncoded();
-         
+
         int diff = hash.length ^ testHash.length;
         for(int i = 0; i < hash.length && i < testHash.length; i++)
         {
@@ -249,7 +250,7 @@ public class IndividualRecommender {
         }
         return diff == 0;
     }
-    
+
     private static byte[] fromHex(String hex) throws NoSuchAlgorithmException {
         byte[] bytes = new byte[hex.length() / 2];
         for(int i = 0; i<bytes.length ;i++)
@@ -258,35 +259,35 @@ public class IndividualRecommender {
         }
         return bytes;
     }
-    
+
     public List<Item> getUserRatedItems(long userId, List<String> displayColumns) {
-		List<Item> items = this.dataModel.getUserRatedItems(userId, 
+		List<Item> items = this.dataModel.getUserRatedItems(userId,
 				this.databaseName + "." + this.ratings_table, this.databaseName + "." + this.items_table, displayColumns);
 		return items;
     }
-	
+
 	public void initiateModel(String key, String table, String username, String database) {
 		try {
 			if (table != null) {
 				this.items_table = table;
 			}
-			
+
 			if (username != null) {
 				this.username = username;
 			}
-			
+
 			if (database != null) {
 				this.databaseName = database;
 			}
-			
+
 			this.ratings_table = table + "_ratings";
 			this.users_table = table + "_users";
-			
-			
+
+
 			this.dataModel = new DatahubDataModel(this.dataSource.getServerName(), this.databaseName, this.username, this.ratings_table);
-			
+
 			List<Boolean> recs = this.dataModel.getRecommenderTypes();
-			
+
 			if (KibitzServer.RECOMMENDERS.get(key) != null) {
 				this.recommender = (GenericUserBasedRecommender) KibitzServer.RECOMMENDERS.get(key);
 			} else {
@@ -297,13 +298,13 @@ public class IndividualRecommender {
 				//this.cachingRecommender = new CachingRecommender(recommender);
 				KibitzServer.RECOMMENDERS.put(key, this.recommender);
 			}
-			
+
 			if (recs != null) {
 				if (recs.get(0)) {
 					if (KibitzServer.RECOMMENDERS.get(key) != null) {
 						this.itemRecommender = (GenericItemBasedRecommender) KibitzServer.RECOMMENDERS.get(key + "items");
 					} else {
-						this.itemUserSimilarity = new FileItemSimilarity(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + username + 
+						this.itemUserSimilarity = new FileItemSimilarity(new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + username +
 						"/" + database + "/" + table + "_item_similarity.csv"));
 						this.itemRecommender = new GenericItemBasedRecommender(this.dataModel, this.itemUserSimilarity);
 						KibitzServer.RECOMMENDERS.put(key + "items", this.itemRecommender);
@@ -316,15 +317,15 @@ public class IndividualRecommender {
 			System.err.println(e);
 		}
 	}
-	
+
 	public List<Item> getItemsFromPrimaryKeys(String primaryKey, List<String> itemKeys, List<String> displayColumns) {
 		return this.dataModel.getItemsFromPrimaryKeys(primaryKey, itemKeys, displayColumns, this.databaseName + "." + this.items_table);
 	}
-	
+
 	public static IndividualRecommender createNewIndividualServer(MysqlDataSource dataSource) {
 		return new IndividualRecommender(dataSource);
 	}
-	
+
 	public void updateDataModel(String key) {
 		try {
 			this.userSimilarity = new LogLikelihoodSimilarity(this.dataModel);
@@ -338,27 +339,27 @@ public class IndividualRecommender {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public DatahubDataModel getDataModel() {
 		return this.dataModel;
 	}
-	
+
 	public String getUsername() {
 		return this.username;
 	}
-	
+
 	public String getTable() {
 		return this.items_table;
 	}
-	
+
 	public String getDatabase() {
 		return this.databaseName;
 	}
-	
+
 	public boolean getRefreshed() {
 		return this.dataModel.getRefreshed();
 	}
-	
+
 	public String getTimestamp() {
 		return this.dataModel.getTimestamp();
 	}
