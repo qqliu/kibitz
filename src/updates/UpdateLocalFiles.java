@@ -20,7 +20,7 @@ import datahub.ResultSet;
 import datahub.Tuple;
 
 public class UpdateLocalFiles {
-	private static final String KIBITZ_LOCAL_STORAGE_ADDR = "/home/ubuntu/";
+	private static final String KIBITZ_LOCAL_STORAGE_ADDR = "/Users/quanquanliu/Sites/home/files/";
 
 	public static void main(String[] args) {
 		try {
@@ -57,8 +57,6 @@ public class UpdateLocalFiles {
 
 						if (!wroteRatings) {
 							String tableName = ratings_table.split("\\.")[1];
-							System.out.println(tableName);
-							System.out.println(getKibitzLocalStorageAddr() + username + "/" + database + "/" + tableName + "_ratings.csv");
 							BufferedWriter writer = new BufferedWriter(new FileWriter(getKibitzLocalStorageAddr() + username + "/" + database + "/" + tableName + "_ratings.csv"));
 
 							ResultSet count = client.execute_sql(client_con, "select count(*) from " + ratings_table + "_ratings", null);;

@@ -42,17 +42,10 @@ import org.zeroturnaround.zip.ZipUtil;
 
 import updates.UpdateLocalFiles;
 import datahub.*;
-import edu.cmu.lti.lexical_db.ILexicalDatabase;
-import edu.cmu.lti.lexical_db.NictWordNet;
-import edu.cmu.lti.ws4j.RelatednessCalculator;
-import edu.cmu.lti.ws4j.impl.Lin;
-import edu.cmu.lti.ws4j.impl.Path;
-import edu.cmu.lti.ws4j.impl.WuPalmer;
-import edu.cmu.lti.ws4j.util.WS4JConfiguration;
 
 public class DatahubDataModel implements DataModel{
 	/**
-	 *
+	 * DataModel for Kibitz
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -69,10 +62,10 @@ public class DatahubDataModel implements DataModel{
 	private static final String DEFAULT_DATAHUB_TABLENAME = "users";
 
 	/** Default Webserver Location*/
-	public static final String WEBSERVER_DIR = "/var/www/";
+	public static final String WEBSERVER_DIR = "/Users/quanquanliu/Sites/home/";
 
 	/** Kibitz Homepage */
-	public static final String HOMEPAGE = "http://kibitz.csail.mit.edu/";
+	public static final String HOMEPAGE = "localhost/~quanquanliu/home/";
 
 	/** Kibitz Datahub App ID */
 	private static final String KIBITZ_APP_ID = "9ce63ac3-47a9-4922-b674-d710b1467641";
@@ -107,10 +100,6 @@ public class DatahubDataModel implements DataModel{
 	private String datahubOriginalTable = DEFAULT_DATAHUB_TABLENAME;
 	private FileDataModel delegate = null;
 
-	private static ILexicalDatabase db = new NictWordNet();
-    private static RelatednessCalculator[] rcs = { new WuPalmer(db), new Lin(db), new Path(db) };
-
-
 	private String lastTimestamp;
 	private boolean refreshed;
 
@@ -120,7 +109,7 @@ public class DatahubDataModel implements DataModel{
 	private ConnectionParams con_params;
 	private Connection conn;
 
-	public HashMap<Integer, CreateItemSimilarityRunnable> activeThreads;
+	//public HashMap<Integer, CreateItemSimilarityRunnable> activeThreads;
 
 	private String ratingsColumn;
 
@@ -234,8 +223,7 @@ public class DatahubDataModel implements DataModel{
 			this.con_params.setRepo_base(this.datahubUsername);
 			this.conn = this.client.open_connection(this.con_params);
 
-			this.activeThreads = new HashMap<Integer, CreateItemSimilarityRunnable>();
-			System.out.println("SELECT relname FROM pg_class WHERE relname = '" + this.datahubDatabase + "_" + this.datahubOriginalTable + "_update_log'");
+			//this.activeThreads = new HashMap<Integer, CreateItemSimilarityRunnable>();
 			ResultSet updatelogExists =  this.client.execute_sql(this.conn, "SELECT relname FROM pg_class WHERE relname = '" + this.datahubDatabase + "_" + this.datahubOriginalTable + "_update_log'", null);
 			if (updatelogExists != null && updatelogExists.getTuples().size() > 0) {
 				ResultSet last = this.client.execute_sql(this.conn, "SELECT MAX(updated) FROM " + this.datahubDatabase + "." + this.datahubDatabase
@@ -248,7 +236,11 @@ public class DatahubDataModel implements DataModel{
 					}
 				}
 				long startTime = System.nanoTime();
-				File ratingFile = new File(UpdateLocalFiles.getKibitzLocalStorageAddr() +  this.datahubUsername + "/" + this.datahubDatabase + "/" + this.datahubTableName + ".csv");
+				File ratingFile;
+				if (!this.datahubTableName.contains("_ratings"))
+					ratingFile = new File(UpdateLocalFiles.getKibitzLocalStorageAddr() +  this.datahubUsername + "/" + this.datahubDatabase + "/" + this.datahubTableName + "_ratings.csv");
+				else
+					ratingFile = new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.datahubUsername + "/" + this.datahubDatabase + "/" + this.datahubTableName + ".csv");
 				this.delegate = new FileDataModel(ratingFile);
 				long endTime = System.nanoTime();
 				System.out.println("Time it takes to retrieve items from file: " + (endTime - startTime));
@@ -594,7 +586,7 @@ public class DatahubDataModel implements DataModel{
 				display_items.add(image);
 
 			this.createRecommenderFromTemplate(primaryKey, title, description, image, null, item_types, display_items,
-					10, 10, table, clientKey, DatahubDataModel.HOMEPAGE + this.datahubUsername + "/" + this.datahubDatabase, this.datahubUsername, this.datahubDatabase);
+					10, 10, table, clientKey, this.datahubUsername, this.datahubDatabase);
 
 			File zip =  new File(UpdateLocalFiles.getKibitzLocalStorageAddr()
 					 + this.datahubUsername + "/" + this.datahubDatabase + "/homepage.zip");
@@ -701,7 +693,7 @@ public class DatahubDataModel implements DataModel{
 	 */
 	public void createRecommenderFromTemplate(String primaryKey, String title, String description, String image, String video,
 			HashMap<String, String> item_types, List<String> display_items, int maxRatingVal, int num_recs,
-			String recommenderName, String clientKey, String homepage, String creatorName, String repoName) throws IncorrectTemplateFormatException {
+			String recommenderName, String clientKey, String creatorName, String repoName) throws IncorrectTemplateFormatException {
 		try {
 			File displayInfo = new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.datahubUsername + "/"
 					+ this.datahubDatabase + "/homepage/js/initiate.js");
@@ -733,15 +725,15 @@ public class DatahubDataModel implements DataModel{
 				itemsTypes.add("'" + key + "': '" + item_types.get(key) + "'");
 			}
 
-			if (!homepage.contains("http:")) {
+			/*if (!homepage.contains("http:")) {
 				homepage = DatahubDataModel.HOMEPAGE + homepage;
-			}
+			}*/
 
 			input += "var item_types = {" + StringUtils.join(itemsTypes, ',') + "}; \n";
 			input += "var display_items = ['" + StringUtils.join(display_items, "','") + "']; \n\n";
 			input += "// Recommender Info \n";
-			input += "var recommender_name = '" + recommenderName + "';\n var client_key = '" + clientKey + "';\n var homepage = '" + homepage
-					+ "';\n var creator_name = '" + creatorName + "'; \n var repo_name = '" + repoName + "'; \n\n";
+			input += "var recommender_name = '" + recommenderName + "';\n var client_key = '" + clientKey + 
+					 "';\n var creator_name = '" + creatorName + "'; \n var repo_name = '" + repoName + "'; \n\n";
 			input += "// Rating Customization \n";
 
 			input += "var num_recs = " + num_recs + "; \n";
@@ -777,6 +769,7 @@ public class DatahubDataModel implements DataModel{
 		return null;
 	}
 
+    /*
 	private double calculatePhraseSimilarity(String first, String second) throws IllegalStateException, IOException {
 		WS4JConfiguration.getInstance().setMFS(true);
 
@@ -803,7 +796,7 @@ public class DatahubDataModel implements DataModel{
 
 		//System.out.println(score / 4);
 		return score / 4;
-	}
+	}*/
 
 	/**
 	 * Configure with predefined rating table
@@ -1079,7 +1072,6 @@ public class DatahubDataModel implements DataModel{
 					params.setRepo_base(DatahubDataModel.getDefaultDatahubUsername());
 					Connection connection = client.open_connection(params);
 
-					System.out.println( "SELECT COUNT(*) FROM kibitz_users." + DatahubDataModel.getDefaultDatahubTablename() + " WHERE email='" + username + "'");
 					ResultSet res = client.execute_sql(connection, "SELECT COUNT(*) FROM kibitz_users." + DatahubDataModel.getDefaultDatahubTablename() + " WHERE email='" + username + "'", null);
 					for (Tuple t : res.getTuples()) {
 						List<ByteBuffer> cells = t.getCells();
@@ -1147,7 +1139,6 @@ public class DatahubDataModel implements DataModel{
 						query += ids.get(i) + "' OR kibitz_generated_id='";
 					}
 					query += ids.get(ids.size() - 1) + "')";
-					System.out.println(query);
 					return this.getListOfItems(query, displayColumns);
 				} else {
 					return new ArrayList<Item>();
@@ -1235,7 +1226,6 @@ public class DatahubDataModel implements DataModel{
 			}
 
 			q += StringUtils.join(displayQueries, " OR ");
-			System.out.println(q);
 			return this.getListOfItems(q, displayColumns);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
@@ -1467,14 +1457,13 @@ public class DatahubDataModel implements DataModel{
 	 * @param numRecs
 	 * @param recommenderName
 	 * @param clientKey
-	 * @param homepage
 	 * @param creatorName
 	 * @param repoName
 	 * @param tableName
 	 * @param ratingsColumn
 	 */
 	public void updateTemplate(String username, String primaryKey, String title, String description, String image, String video, Map<String, String> itemTypes,
-			List<String> displayItems, int maxRatingVal, int numRecs, String recommenderName, String clientKey, String homepage,
+			List<String> displayItems, int maxRatingVal, int numRecs, String recommenderName, String clientKey,
 			String creatorName, String repoName, String tableName, String ratingsColumn) {
 		this.datahubUsername = username;
 		this.datahubDatabase = repoName;
@@ -1500,7 +1489,7 @@ public class DatahubDataModel implements DataModel{
 			displayItems.add(video);
 
 		try {
-			this.createRecommenderFromTemplate(primaryKey, title, description, image, video, newItemTypes, displayItems, maxRatingVal, numRecs, recommenderName, clientKey, homepage, username, repoName);
+			this.createRecommenderFromTemplate(primaryKey, title, description, image, video, newItemTypes, displayItems, maxRatingVal, numRecs, recommenderName, clientKey, username, repoName);
 			File zip =  new File(UpdateLocalFiles.getKibitzLocalStorageAddr()
 					 + this.datahubUsername + "/" + this.datahubDatabase + "/homepage.zip");
 			if (zip.isFile()) {
@@ -1577,8 +1566,6 @@ public class DatahubDataModel implements DataModel{
 			params.setRepo_base(DatahubDataModel.getDefaultDatahubUsername());
 			Connection connection = clnt.open_connection(params);
 
-			System.out.println("SELECT item_sim, random, overall_ratings FROM kibitz_users.recommenders WHERE username = '" + this.datahubUsername
-					+ "' AND database = '" + this.datahubDatabase + "'");
 			ResultSet res = clnt.execute_sql(connection, "SELECT item_sim, random, overall_ratings FROM kibitz_users.recommenders WHERE username = '" + this.datahubUsername
 					+ "' AND database = '" + this.datahubDatabase + "'", null);
 			HashMap<String, Integer> colToIndex = DatahubDataModel.getFieldNames(res);
@@ -1636,7 +1623,6 @@ public class DatahubDataModel implements DataModel{
 		List<Item> items = new ArrayList<Item>();
 		HashMap<String, String> attributes = new HashMap<String, String>();
 		ResultSet res;
-		System.out.println(query);
 		synchronized(this.client) {
 			res = this.client.execute_sql(this.conn, query, null);
 		}
@@ -1814,10 +1800,6 @@ public class DatahubDataModel implements DataModel{
 				params.setRepo_base(this.username);
 				Connection connection = clnt.open_connection(params);
 
-				System.out.println("select " + this.tableName + "." + this.userIdCol + " as user_id, " + this.itemTable + "." + "kibitz_generated_id as item_id, " + this.tableName + "."
-						+ this.userRatingCol + " as rating from " + this.itemTable + " inner join " + this.tableName + " on " + this.tableName + "." + this.itemIdCol + " = "
-						+ this.itemTable + "." + this.primaryKey + ";");
-
 				ResultSet res = clnt.execute_sql(connection, "select " + this.tableName + "." + this.userIdCol + " as user_id, " + this.itemTable + "." + "kibitz_generated_id as item_id, " + this.tableName + "."
 						+ this.userRatingCol + " as rating from " + this.itemTable + " inner join " + this.tableName + " on " + this.tableName + "." + this.itemIdCol + " = "
 						+ this.itemTable + "." + this.primaryKey + ";", null);
@@ -1853,6 +1835,7 @@ public class DatahubDataModel implements DataModel{
 		}
 	}
 
+	/*
 	public class CreateItemSimilarityRunnable implements Runnable {
 		private int upperBound;
 		private String table;
@@ -1878,6 +1861,7 @@ public class DatahubDataModel implements DataModel{
 			this.writeToItemSimilarityFile();
 		}
 
+		
 		private void writeToItemSimilarityFile() {
 			try {
 				double firstColumnScore = 0;
@@ -1943,6 +1927,7 @@ public class DatahubDataModel implements DataModel{
 				e.printStackTrace();
 			}
 		}
+		
 
 		private void writeSimilarityScore(String table, String firstId, String secondId, float score) {
 			try {
@@ -1968,9 +1953,9 @@ public class DatahubDataModel implements DataModel{
 		private void completedThread() {
 			DatahubDataModel.this.activeThreads.remove(this.lowerBound);
 		}
-	}
+	}*/
 
-	public void checkCompletion(String table) {
+	/*public void checkCompletion(String table) {
 		if (this.activeThreads.size() <= 0 && this.item_count == 0) {
 			try {
 				THttpClient transport = new THttpClient(this.datahubHost);
@@ -2019,7 +2004,7 @@ public class DatahubDataModel implements DataModel{
 			}
 			System.out.println("THIS PROCESS HAS COMPLETED!");
 		}
-	}
+	}*/
 
 	class IncorrectTemplateFormatException extends Exception {
 	      /**

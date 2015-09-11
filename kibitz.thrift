@@ -61,4 +61,7 @@ service RecommenderService {
             5:string tableName, 6:string userIdCol, 7:string itemIdCol, 8:string userRatingCol)
     list<string> getTables(1:string username, 2:string repo)
     list<string> getColumns(1:string username, 2:string repo, 3:string table)
+    string getFirstRepo(1:string username)
+    i64 getNumRepos(1:string username)
+    list<string> getAllRepos(1:string username)
 }
