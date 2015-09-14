@@ -2,7 +2,6 @@ package updates;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -20,7 +19,7 @@ import datahub.ResultSet;
 import datahub.Tuple;
 
 public class UpdateLocalFiles {
-	private static final String KIBITZ_LOCAL_STORAGE_ADDR = "/home/ubuntu/";
+	private static final String KIBITZ_LOCAL_STORAGE_ADDR = "/Users/quanquanliu/Sites/home/files/";
 
 	public static void main(String[] args) {
 		try {
@@ -57,25 +56,28 @@ public class UpdateLocalFiles {
 
 						if (!wroteRatings) {
 							String tableName = ratings_table.split("\\.")[1];
-							System.out.println(tableName);
-							System.out.println(getKibitzLocalStorageAddr() + username + "/" + database + "/" + tableName + "_ratings.csv");
-							BufferedWriter writer = new BufferedWriter(new FileWriter(getKibitzLocalStorageAddr() + username + "/" + database + "/" + tableName + "_ratings.csv"));
+							try {
+								BufferedWriter writer = new BufferedWriter(new FileWriter(getKibitzLocalStorageAddr() + username + "/" + database + "/" + tableName + "_ratings.csv"));
+								writer.write("1,1,1\n");
+							
+								ResultSet count = client.execute_sql(client_con, "select count(*) from " + ratings_table + "_ratings", null);;
+								int numItems = Integer.parseInt(new String(count.getTuples().get(0).getCells().get(0).array()));
 
-							ResultSet count = client.execute_sql(client_con, "select count(*) from " + ratings_table + "_ratings", null);;
-							int numItems = Integer.parseInt(new String(count.getTuples().get(0).getCells().get(0).array()));
-
-							for (int i = 0; i < numItems; i += 10000) {
-								ResultSet res = client.execute_sql(client_con, "SELECT * FROM " + ratings_table + "_ratings" +
+								for (int i = 0; i < numItems; i += 10000) {
+									ResultSet res = client.execute_sql(client_con, "SELECT * FROM " + ratings_table + "_ratings" +
 										" LIMIT " + 10000 + " OFFSET " + i, null);
-								for (Tuple tt : res.getTuples()) {
-									List<ByteBuffer> c = tt.getCells();
-									if (Long.parseLong(new String(c.get(0).array())) >= 0 && Long.parseLong(new String(c.get(1).array())) >= 0 && Long.parseLong(new String(c.get(2).array())) >= 0)
-										writer.write(new String(c.get(0).array()) + "," + new String(c.get(1).array()) + "," + new String(c.get(2).array()) + "\n");
+									for (Tuple tt : res.getTuples()) {
+										List<ByteBuffer> c = tt.getCells();
+										if (Long.parseLong(new String(c.get(0).array())) >= 0 && Long.parseLong(new String(c.get(1).array())) >= 0 && Long.parseLong(new String(c.get(2).array())) >= 0)
+											writer.write(new String(c.get(0).array()) + "," + new String(c.get(1).array()) + "," + new String(c.get(2).array()) + "\n");
+									}
 								}
+								writer.close();
+								clnt.execute_sql(connection, "update kibitz_users.recommenders set wrote_ratings=true where username = '"
+										+ username + "' and database = '" + database + "' and ratings_table = '" + tableName + "';", null);
+							} catch (Exception e){
+								System.out.println(e);
 							}
-							writer.close();
-							clnt.execute_sql(client_con, "update kibitz_users.recommenders set wrote_ratings=true where username = '"
-									+ username + "' and database = '" + database + "' and ratings_table = '" + tableName + "';", null);
 						}
 					}
 				}
@@ -84,9 +86,6 @@ public class UpdateLocalFiles {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (TException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

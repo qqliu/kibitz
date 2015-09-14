@@ -1,0 +1,17 @@
+.like-btn, .dislike-btn{
+	width: auto; height: 30px; padding: 0 15px 0 30px; 
+	float: left; margin-left: 10px; margin-top: 15px;
+	cursor: pointer; color: #333333; font-size: 13px; line-height: 30px;
+	border:#fff 1px solid;
+	-webkit-border-radius: 2px;-moz-border-radius: 2px;border-radius: 2px; /* border radius */
+}
+.like-btn{background: url(../img/like-ico.png) 5px 50% no-repeat; }
+.like-btn:hover, .like-h{
+	background: url(../img/like-ico-h.png) 5px 50% no-repeat; color: #0c6502;
+	background-color: #f0f0f0;	border: #c6c6c6 1px solid; 
+}
+.dislike-btn{background: url(../img/dislike-ico.png) 50% 50% no-repeat; }
+.dislike-btn:hover, .dislike-h{
+	background: url(../img/dislike-ico-h.png) 50% 50% no-repeat;
+	background-color: #f0f0f0;	border: #c6c6c6 1px solid; 
+}

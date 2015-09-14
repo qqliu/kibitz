@@ -5,9 +5,8 @@
 * {margin: 0; padding: 0;}
 
 html {
-    height: 100%;
     /*Image only BG fallback*/
-    background: url('../img/forest.jpg');
+    background: url('../img/magic-books.jpeg');
     background-repeat: no-repeat, no-repeat;
     background-size: 100% auto;
 }
@@ -28,11 +27,11 @@ body {
     border-radius: 3px;
     box-shadow: 0 0 15px 1px rgba(0, 0, 0, 0.4);
     padding: 20px 30px;
-    
+
     box-sizing: border-box;
     width: 80%;
     margin: 0 10%;
-    
+
     /*stacking fieldsets above each other*/
     position: absolute;
 }
@@ -134,7 +133,7 @@ body {
 }
 
 .button-active {
-    background-color: #fed136;  
+    background-color: #ff9900;
 }
 
 .button-inactive {
@@ -200,7 +199,7 @@ body {
 
 #progressbar li:first-child:after {
     /*connector not needed before the first step*/
-    content: none; 
+    content: none;
 }
 /*marking active/completed steps green*/
 /*The number of the step and the connector before it = green*/

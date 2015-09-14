@@ -1,8 +1,11 @@
 package kibitz;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Reader;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -20,6 +23,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import kibitz.RecommenderService.Iface;
+import updates.UpdateLocalFiles;
 
 import org.apache.mahout.cf.taste.impl.recommender.AbstractRecommender;
 import org.apache.thrift.TException;
@@ -41,7 +45,7 @@ public class KibitzServer implements Iface {
 
 	public static Map<String, IndividualRecommender> SESSIONS = new HashMap<String, IndividualRecommender>();
 	public static Map<String, AbstractRecommender> RECOMMENDERS = new HashMap<String, AbstractRecommender>();
-	public static String HOMEPAGE_URL = "localhost/kibitz-demo/home/";
+	public static String HOMEPAGE_URL = "localhost/~quanquanliu/home/";
 	public static boolean RUNNING = true;
 
 	private MysqlDataSource dataSource;
@@ -153,7 +157,6 @@ public class KibitzServer implements Iface {
 
 			List<Recommender> recommenders = new ArrayList<Recommender>();
 
-            System.out.println("here?");
 			ResultSet res = client.execute_sql(connection, "SELECT database,username,ratings_table,overall_ratings,ratings_column FROM kibitz_users.recommenders WHERE username = '" + username + "';", null);
 			HashMap<String, Integer> colToIndex = DatahubDataModel.getFieldNames(res);
 			for (Tuple t : res.getTuples()) {
@@ -162,28 +165,19 @@ public class KibitzServer implements Iface {
 				String database = new String(cells.get(colToIndex.get("database")).array());
 				recommender.setUsername(new String(cells.get(colToIndex.get("username")).array()));
 				recommender.setRepoName(database);
+				recommender.setHomepage("default");
 				recommender.setRecommenderName(new String(cells.get(colToIndex.get("ratings_table")).array()).split("\\.")[1]);
 				if (Boolean.parseBoolean(new String(cells.get(colToIndex.get("overall_ratings")).array())))
 					recommender.setRatingsColumn(new String(cells.get(colToIndex.get("ratings_column")).array()));
-                System.out.println("before script manager");
 				ScriptEngineManager mgr = new ScriptEngineManager();
 				ScriptEngine jsEngine = mgr.getEngineByName("JavaScript");
 
-                System.out.println(DatahubDataModel.WEBSERVER_DIR + username + "/" + database + "/js/initiate.js");
 				File file = new File(DatahubDataModel.WEBSERVER_DIR + username + "/" + database + "/js/initiate.js");
 				Reader reader = new FileReader(file);
 				jsEngine.eval(reader);
 
-                System.out.println("after script manager");
 				recommender.setClientKey(jsEngine.get("client_key").toString());
-				System.out.println(jsEngine.get("client_key").toString());
-                recommender.setHomepage(jsEngine.get("homepage").toString());
-				System.out.println(jsEngine.get("homepage").toString());
 				recommender.setTitle(jsEngine.get("title").toString());
-				System.out.println(jsEngine.get("title").toString());
-                System.out.println(jsEngine.get("description").toString());
-                System.out.println(jsEngine.get("video").toString());
-                System.out.println(jsEngine.get("image").toString());
 				recommender.setDescription(jsEngine.get("description").toString());
 				recommender.setVideo(jsEngine.get("video").toString());
 				recommender.setImage(jsEngine.get("image").toString());
@@ -191,19 +185,14 @@ public class KibitzServer implements Iface {
 
                 List<String> displayItems = new ArrayList<String>();
 
-                System.out.println(jsEngine.eval("display_items.length;"));
                 int varsLength = Integer.parseInt(jsEngine.eval("display_items.length;").toString());
-                System.out.println(varsLength);
                 for(int i=0; i < varsLength; i++){
-                    System.out.println(jsEngine.eval("display_items["+ i + "];"));
                     displayItems.add((String) jsEngine.eval("display_items["+i+"];"));
                 }
 
-                System.out.println(displayItems);
                 recommender.setDisplayItems(displayItems);
 
                 HashMap<String, String> itemMap = new HashMap<String, String>((Map<String,String>) jsEngine.get("item_types"));
-                System.out.println(itemMap);
                 recommender.setItemTypes(itemMap);
 				recommender.setNumRecs((int) Double.parseDouble(jsEngine.get("num_recs").toString()));
 				recommender.setMaxRatingVal((int) Double.parseDouble(jsEngine.get("maxRatingVal").toString()));
@@ -328,7 +317,7 @@ public class KibitzServer implements Iface {
 		try {
 			DatahubDataModel model = new DatahubDataModel();
 			model.updateTemplate(username, primaryKey, title, description, image, video, itemTypes,
-					displayItems, (int) maxRatingVal, (int) numRecs, recommenderName, clientKey, homepage,
+					displayItems, (int) maxRatingVal, (int) numRecs, recommenderName, clientKey,
 					creatorName, repoName, tableName, ratingsColumn);
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -760,6 +749,23 @@ public class KibitzServer implements Iface {
 			e.printStackTrace();
 		}
 	}
+	
+	@Override
+	public void saveCSSData(String path, String data) {
+		File cssFile = new File(DatahubDataModel.WEBSERVER_DIR + path);
+		cssFile.delete();
+		try {
+			cssFile.createNewFile();
+			FileWriter fileWriter = new FileWriter(cssFile.getAbsolutePath(), true);
+	        BufferedWriter bufferWriter = new BufferedWriter(fileWriter);
+
+		    bufferWriter.write(data);
+			bufferWriter.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public List<String> getTables(String username, String repo) {
@@ -810,7 +816,6 @@ public class KibitzServer implements Iface {
 
 			List<String> columns = new ArrayList<String>();
 
-
 			ResultSet res = client.execute_sql(connection, "select * from information_schema.columns where table_schema='" + repo + "' and table_name='" + table + "';", null);
 			HashMap<String, Integer> colToIndex = DatahubDataModel.getFieldNames(res);
 
@@ -828,4 +833,100 @@ public class KibitzServer implements Iface {
 		}
 		return null;
 	};
+	
+	@Override
+	public String getFirstRepo(String username) {
+		try {
+			THttpClient transport = new THttpClient("http://datahub.csail.mit.edu/service");
+			TBinaryProtocol protocol = new  TBinaryProtocol(transport);
+			DataHub.Client client = new DataHub.Client(protocol);
+
+			ConnectionParams params = new ConnectionParams();
+			params.setApp_id(DatahubDataModel.getKibitzAppName());
+			params.setApp_token(DatahubDataModel.getKibitzAppId());
+			params.setRepo_base(username);
+			Connection connection = client.open_connection(params);
+
+			ResultSet res = client.execute_sql(connection, "select distinct schemaname from pg_tables where tableowner = '" + username + "';", null);
+			HashMap<String, Integer> colToIndex = DatahubDataModel.getFieldNames(res);
+
+			for (Tuple t : res.getTuples()) {
+				List<ByteBuffer> cells = t.getCells();
+				return new String(cells.get(colToIndex.get("schemaname")).array());
+			}
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	@Override
+	public long getNumRepos(String username) {
+		try {
+			THttpClient transport = new THttpClient("http://datahub.csail.mit.edu/service");
+			TBinaryProtocol protocol = new  TBinaryProtocol(transport);
+			DataHub.Client client = new DataHub.Client(protocol);
+
+			ConnectionParams params = new ConnectionParams();
+			params.setApp_id(DatahubDataModel.getKibitzAppName());
+			params.setApp_token(DatahubDataModel.getKibitzAppId());
+			params.setRepo_base(username);
+			Connection connection = client.open_connection(params);
+
+			ResultSet res = client.execute_sql(connection, "select count(distinct schemaname) from pg_tables where tableowner = '" + username + "';", null);
+			HashMap<String, Integer> colToIndex = DatahubDataModel.getFieldNames(res);
+
+			for (Tuple t : res.getTuples()) {
+				List<ByteBuffer> cells = t.getCells();
+				return Long.parseLong(new String(cells.get(colToIndex.get("count")).array()));
+			}
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return 0;
+	}
+	
+	@Override
+	public List<String> getAllRepos(String username) {
+		try {
+			THttpClient transport = new THttpClient("http://datahub.csail.mit.edu/service");
+			TBinaryProtocol protocol = new  TBinaryProtocol(transport);
+			DataHub.Client client = new DataHub.Client(protocol);
+
+			ConnectionParams params = new ConnectionParams();
+			params.setApp_id(DatahubDataModel.getKibitzAppName());
+			params.setApp_token(DatahubDataModel.getKibitzAppId());
+			params.setRepo_base(username);
+			Connection connection = client.open_connection(params);
+
+			ResultSet res = client.execute_sql(connection, "select distinct schemaname from pg_tables where tableowner = '" + username + "';", null);
+			HashMap<String, Integer> colToIndex = DatahubDataModel.getFieldNames(res);
+			
+			List<String> repos = new ArrayList<String>();
+			String repo;
+			
+			for (Tuple t : res.getTuples()) {
+				List<ByteBuffer> cells = t.getCells();
+				repo = new String(cells.get(colToIndex.get("schemaname")).array());
+				repos.add(repo);
+			}
+			
+			return repos;
+		} catch (DBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

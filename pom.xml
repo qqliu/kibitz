@@ -1,8 +1,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>generalrecommender</groupId>
-  <artifactId>generalrecommender</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <groupId>kibitz</groupId>
+  <artifactId>kibitz</artifactId>
+  <version>0.0.1</version>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>
@@ -12,6 +12,9 @@
         <configuration>
           <source>1.7</source>
           <target>1.7</target>
+          <manifest>
+          	<mainClass>EmbeddingJettyWithServlet</mainClass>
+          </manifest>
         </configuration>
        </plugin>
     </plugins>
@@ -21,11 +24,6 @@
         <groupId>rhino</groupId>
         <artifactId>js</artifactId>
         <version>1.7R1</version>
-    </dependency>
-    <dependency>
-        <groupId>com.googlecode.ws4j</groupId>
-        <artifactId>ws4j</artifactId>
-        <version>1.0.1</version>
     </dependency>
     <dependency>
         <groupId>mysql</groupId>

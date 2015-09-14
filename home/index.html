@@ -17,6 +17,9 @@
         <link href="css/index.css" rel="stylesheet">
         <link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
 
+        <!-- jQuery -->
+        <script src="js/jquery.js"></script>
+
         <!-- Custom Fonts -->
         <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
         <link href="//fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
@@ -34,6 +37,16 @@
     </head>
 
     <body id="page-top" class="index">
+        <div id="creating_table_instructions">
+            <h2 class="instructions_creating_table">Instructions for Creating a Table</h2>
+            <ol style="color: #ff9900;">
+                <li><p><bbb>Create a repository by entering a name in the field, "Name of the new repository:".</bbb></p></li>
+                <li><p><bbb>Click on your newly created repository.</bbb></p></li>
+                <li><p><bbb>Click "Files".</bbb></p></li>
+                <li><p><bbb>Click on the <span class="upload-table-icon"></span> button next to Files.</bbb></p></li>
+                <li><p><bbb>Upload a comma deliminated list of items with the column names as the header. Click on the "Create Table" icon <span class="create-table-icon"></span> to create a table from the uploaded file.</bbb></p></li>
+            </ol>
+        </div>
         <div id="sign-up-form">
             <!-- multistep form -->
             <form class="msform">
@@ -47,7 +60,7 @@
                 <fieldset>
                         <h2 class="fs-title">Datahub Account</h2>
                         <div id="username_already_exists" class="fs-subtitle">To use Kibitz, please <b>sign-in</b> to your Datahub Account and <b>allow Kibitz access</b> to your repository containing your list of items.
-                            If you do not have a Datahub Account, you may create one via the Datahub <a href="http://datahub.csail.mit.edu/account/register">register page</a>.</div>
+                            If you do not have a Datahub Account, you may create one via the Datahub <a href="javascript:popup_register_page();">registration page</a>.</div>
                         <div class="required"><input type="text" id="repo-name" placeholder="Repository Name" /></div>
                         <input type="button" class="selection-button button-active" id="login-kibitz-account" value="Allow Kibitz Access" />
                 </fieldset>
@@ -82,7 +95,7 @@
                 <fieldset id="submit-info">
                         <h2 class="fs-title">Submit</h2>
                         <div class="fs-subtitle">You have completed all fields. <br /><br />Submit to <b>create your recommender</b> or <b>go back to change your inputs.</b><br /><br />
-                        You may <b>not change</b> your inputs after you submit. <br /><br />It takes approx. an hour for the recommender to be configured. During the time it is configuring,
+                        You may <b>not change</b> your inputs after you submit. <br /><br />It takes about 10 minutes for the recommender to be configured. During the time it is configuring,
                         recommendations may not be accurate.</div>
                         <input type="button" name="previous" class="previous-page-before-submit action-button btn btn-xl" value="Previous" />
                         <input type="button" name="submit" class="submit action-button btn btn-xl" value="Submit" />
@@ -115,19 +128,22 @@
                             <a href="#page-top"></a>
                         </li>
                         <li>
-                            <a class="page-scroll" href="#recommenders">Recommenders</a>
-                        </li>
-                        <li>
                             <a class="page-scroll" href="#about">About</a>
                         </li>
                         <li>
-                            <a class="page-scroll" href="api.html">API</a>
+                            <a class="page-scroll" href="#recommenders">Example Recommenders</a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="#instructions">Instructions</a>
                         </li>
                         <li>
                             <a class="page-scroll" href="#team">Credits</a>
                         </li>
                         <li>
                             <a class="page-scroll" href="#contact">Contact</a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="api.html">API</a>
                         </li>
                     </ul>
                 </div>
@@ -138,44 +154,75 @@
 
         <!-- Header -->
         <header>
-            <div class="container">
-                <div class="intro-text">
-                    <div class="intro-lead-in">Welcome To Kibitz!</div>
-                    <div class="intro-heading">Create a Recommender</div>
-                    <input type="button" onclick="show_signup_form();" id="sign-up" class="page-scroll btn btn-xl" value="Sign Up" />
-                    <input type="button" onclick="show_login_form();" id="log-in" class="page-scroll btn btn-xl" value="Log In" />
+            <div class="layer">
+                <div class="container">
+                    <div class="intro-text">
+                        <div class="intro-heading">Welcome to Kibitz</div>
+                        <span class="float-left recommendation-object"><object class="svg-object" type="image/svg+xml" data="recommendation_web.svg">Your browser does not support SVG</object></span>
+                        <span class="intro-lead-in float-left small-text-box">Recommend items your users will love!</span></div>
+                        <div class="signup-login-buttons"><input type="button" onclick="show_signup_form();" id="sign-up" class="page-scroll btn btn-xl" value="Sign Up" />
+                        <input type="button" onclick="show_login_form();" id="log-in" class="page-scroll btn btn-xl" value="Log In" /></div>
+                    </div>
                 </div>
             </div>
         </header>
-        <section id="recommenders">
+        <section id="about">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h2 class="section-heading text-center">What are recommenders?</h2>
+                        <p><a href="https://en.wikipedia.org/wiki/Recommender_system">Recommender systems</a> provide item recommendations to you <b>based on your preferences</b>. If you use services
+                             like Amazon, Netflix, Google, eHarmony, Facebook, Pandora or Goodreads, you are using recommender systems! Recommenders help you find appliances, movies, articles, music,
+                             books, friends, and even potential partners. Most importantly, they <b>help you find things that you like</b>.
+                        </p><br /><br />
+                        <h2 class="section-heading text-center">How do recommenders work?</h2>
+                        <p>You might really like the <i>Harry Potter</i> series but really dislike the <i>Lord of the Rings</i> trilogy. One way you can input these preferences into recommenders
+                           is by rating the <i>Harry Potter</i> series an 8 out of 10 but the <i>Lord of the Rings</i> trilogy a 4 out of 10. The recommender then <b>matches your preferences with
+                           other users who have similar preferences</b>. Then, it recommends to you items that these <b>other users like</b>. For example, other users who like <i>Harry Potter</i> but
+                           dislike <i>Lord of the Rings</i> love <i>The Golden Compass</i>. <i>The Golden Compass</i> would be presented to you as a recommendation. Recommenders do not
+                           even need your ratings to provide recommendations. They can provide recommendations based on things like what you've clicked on or how long you stayed on a page. Many researchers focus on
+                           building <a href="https://en.wikipedia.org/wiki/Collaborative_filtering">collaborative filtering</a> recommender systems based on these ideas!</p><br /><br />
+                        <h2 class="section-heading text-center">What is <span class="name-logo">Kibitz</span> ?</h2>
+                        <p>Kibitz helps you build recommenders! With Kibitz, you can:
+                             <ul class="kibitz-attributes" style="list-style-type:circle">
+                                <li><p><bb>Create</bb> a website that <b>provides user recommendations without writing a single line of code</b>.
+                                <li><p><bb>Populate</bb> your recommender from a <b>list of items</b>.</p></li>
+                                <li><p><bb>Customize</bb> your recommender website using our <b>online interface</b>.</p></li>
+                                <li><p><bb>Integrate</bb> recommender functionalities into your <b>existing website</b>.</p></li>
+                                <li><p><bb>Generate</bb> item lists using our custom online scrapper.</p></li>
+                                <li><p><bb>Observe</bb> <b>user like and dislike trends</b> using data from your recommender!</p></li>
+                            </ul>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="recommenders" class="bg-light-gray">
             <div class="container">
                 <div class="row">
                     <div class="col-lg-12 text-center">
-                        <h2 class="section-heading">Recommenders</h2>
-                        <p>This is intended to be a research project (as specified in <a href="#team">credits</a>). Therefore, we would like your help! If you use our tool for any reason, please
-                        give a shoutout in the Twitter feed below by posting a link to your recommender and any suggestions with <a href="#">@kibitz_recs</a> and <a href="#">#kibitzRecs</a></p>
-                        <div class="ui-grid-a">
-                            <span><a class="twitter-timeline" href="https://twitter.com/kibitz_recs" data-widget-id="589921410891522048">Tweets by @kibitz_recs</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+                        <h2 class="section-heading">Example Recommenders</h2>
+                            <p>Below are the 10 most popular recommenders built using Kibitz. More user-built recommenders may be viewed in our <b><a href="#">Kibitz gallery</a></b>.
                             <span><h4>Sample Books Recommender:</h4><a href="http://kibitz.csail.mit.edu/quanquanliu/books/"><br />
                                 <img src="img/books-demo.jpg" alt="Books Recommender Demo" width="100%" border="0">
                             </a></span>
-                        </div>
                     </div>
                 </div>
             </div>
         </section>
         <!-- Recommenders Description Section -->
-        <section id="about" class="bg-light-gray">
+        <section id="instructions">
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-12 text-center">
-                        <h2 class="section-heading">About</h2>
-                        <p style="font-size: 1.5em">Kibitz offers two different ways to build your recommenders and two different types of recommenders. To start, follow the following steps:</p>
-                        <div style="background-color: #ffffff; padding: 3%;"><ol style="font-size: 1.2em; color: #00007F;">
-                            <li>Upload your table of items on Datahub. Click the Sign-Up link and allow Kibitz access to your table.</li><br />
-                            <li>Fill in information about your table: we will display a <b>title</b> column, <b>description</b> column, and an <b>image</b> column by default.</li><br />
-                            <li>If you have a column that contains a numerical ranking of your items, you may include it. We will provide recommendations of items with the highest rankings (i.e. an item with a ranking of 10 will be recommended before an item of ranking 2). Duplicate rankings are allowed!</li><br />
-                            <li>Submit your information, and we create a <b>default recommender</b> for you! To view more <b>customization options</b>, log in to Kibitz using your Datahub account.</li><br />
+                    <div class="col-lg-12">
+                        <h2 class="section-heading text-center">Detailed Instructions</h2>
+                        <p style="font-size: 1.5em">Kibitz offers two different ways to build your recommenders. To start, <a href="javascript:show_signup_form();">sign-up</a> by following these steps:</p>
+                        <div class="instructions-list" style="background-color: #f7f7f7; padding: 3%;"><ol style="font-size: 1.2em; color: #00007F;">
+                            <li><p>Upload your table of items on Datahub. Click the Sign-Up link and allow Kibitz access to your table.</p></li><br />
+                            <li><p>Fill in information about your table: we will display a <b>title</b> column, <b>description</b> column, and an <b>image</b> column by default.</p></li><br />
+                            <li><p>If you have a column that contains a numerical ranking of your items, you may include it. We will provide recommendations of items with the highest rankings (i.e. an item with a ranking of 10 will be recommended before an item of ranking 2). Duplicate rankings are allowed!</p></li><br />
+                            <li><p>Submit your information, and we create a <b>default recommender</b> for you! To view more <b>customization options</b>, log in to Kibitz using your Datahub account.</p></li><br />
                         </ol></div>
                     </div>
                 </div>
@@ -187,7 +234,7 @@
                             <i class="fa fa-cloud-download fa-stack-1x fa-inverse"></i>
                         </span>
                         <h4 class="service-heading">Ready-Built</h4>
-                        <p class="text-muted">Upload a table to <a href="http://datahub.csail.mit.edu/">Datahub</a> with a primary key. Link your table with Kibitz, and
+                        <p class="text-muted">Upload a table to <a href="http://datahub.csail.mit.edu/">Datahub</a> or use a pre-existing table. Link your table with Kibitz, and
                         Kibitz will give you the option of either <b>downloading a ZIP file</b> containing your recommender to host at your own domain or <b>hosting your recommender at
                         <a href="http://kibitz.csail.mit.edu">kibitz.csail.mit.edu</a>/YOUR_USERNAME/YOUR_REPO_NAME.</b></p>
                     </div>
@@ -197,8 +244,8 @@
                             <i class="fa fa-code fa-stack-1x fa-inverse"></i>
                         </span>
                         <h4 class="service-heading">Customize</h4>
-                        <p class="text-muted">Customize your recommender using custom table columns. Your table must still contain a primary key. If you choose to use custom table columns,
-                        you will need to code your own recommender using our, easy to learn, <a href="#api">Kibitz API</a>.</p>
+                        <p class="text-muted"><a href="javascript:show_login_form();">Log in</a> to customize your recommender using our online interface.
+                        You may also choose to integrate Kibitz seamlessly into your website using our easy to learn, <a href="#api">Kibitz API</a>.</p>
                     </div>
                 </div>
                 <div class="row text-center">
@@ -237,13 +284,13 @@
         </section>
 
         <!-- Team Section -->
-        <section id="team">
+        <section id="team" class="bg-light-gray">
             <div class="container">
                 <div class="row">
-                    <div class="col-lg-12 text-center">
-                        <h2 class="section-heading">About</h2>
-                        <h3 class="section-subheading text-muted">Kibitz began as a research project in Haystack, a lab in MIT CSAIL. The purpose of the project is three-fold:
-                        <ol><li>Study the end-to-end application building process of non/inexperienced coders.</li><li>Look into whether recommendations may be made
+                    <div class="col-lg-12">
+                        <h2 class="section-heading text-center">Credits</h2>
+                        <h3 class="section-subheading text-muted">Kibitz began as a research project in Haystack, a lab in MIT CSAIL. The purpose of the project is three-fold:<br /><br />
+                        <ol class="kibitz-attributes"><li>Study the end-to-end application building process of non/inexperienced coders.</li><li>Look into whether recommendations may be made
                         for seemingly unrelated items.</li>
                         <li>Provide an end-to-end backend recommendation builder and engine with easy-to-use API that may be plugged into a variety of frontends.</li></ol></h3>
                     </div>
@@ -290,11 +337,11 @@
                 <div class="row">
                     <div class="col-lg-12 text-center">
                         <h2 class="section-heading">Contact Us</h2>
-                        <h3 class="section-subheading text-muted">Feel free to email <a href="mailto:kibitz@csail.mit.edu">kibitz@csail.mit.edu</a> or <a href="mailto:quanquan@mit.edu">quanquan@mit.edu</a> with any questions, concerns, and suggestions!.</h3>
+                        <p class="text-muted">Feel free to email <a href="mailto:kibitz@csail.mit.edu">kibitz@csail.mit.edu</a> or <a href="mailto:quanquan@mit.edu">quanquan@mit.edu</a> with any questions, concerns, and suggestions!</p>
                     </div>
                 </div>
             </div>
-        </section>
+         </section>
 
         <footer>
             <div class="container">
@@ -312,9 +359,6 @@
             </div>
         </footer>
 
-        <!-- jQuery -->
-        <script src="js/jquery.js"></script>
-        <!-- Kibitz server -->
         <script src="js/thrift.js"></script>
         <script src="js/kibitz_types.js"></script>
         <script src="js/RecommenderService.js"></script>
