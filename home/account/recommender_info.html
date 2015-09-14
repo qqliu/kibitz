@@ -15,7 +15,7 @@
     <link href="assets/font-awesome/css/font-awesome.css" rel="stylesheet" />
     <link rel="stylesheet" type="text/css" href="assets/js/bootstrap-datepicker/css/datepicker.css" />
     <link rel="stylesheet" type="text/css" href="assets/js/bootstrap-daterangepicker/daterangepicker.css" />
-        
+
     <!-- Custom styles for this template -->
     <link href="assets/css/style.css" rel="stylesheet">
     <link href="assets/css/style-responsive.css" rel="stylesheet">
@@ -53,7 +53,7 @@
             </div>
         </header>
       <!--header end-->
-      
+
       <!-- **********************************************************************************************************************************************************
       MAIN SIDEBAR MENU
       *********************************************************************************************************************************************************** -->
@@ -62,10 +62,10 @@
           <div id="sidebar"  class="nav-collapse ">
               <!-- sidebar menu start-->
               <ul class="sidebar-menu" id="nav-accordion">
-              
+
               	  <p class="centered"><a href="profile.html"><img src="assets/img/ui-default.png" class="img-circle" width="60"></a></p>
               	  <h5 class="centered" id="username_display"></h5>
-              	  	
+
                    <li class="sub-menu">
                       <a href="profile.html">
                           <i class="fa fa-file-text-o"></i>
@@ -88,7 +88,7 @@
           </div>
       </aside>
       <!--sidebar end-->
-      
+
       <!-- **********************************************************************************************************************************************************
       MAIN CONTENT
       *********************************************************************************************************************************************************** -->
@@ -106,9 +106,9 @@
                 <!-- fieldsets -->
                 <fieldset>
                         <h2 class="fs-title">Datahub Account</h2>
-                        <div id="username_already_exists" class="fs-subtitle">To use Kibitz, please <b>sign-in</b> to your Datahub Account and <b>allow Kibitz access</b> to your repository containing your list of items.
-                            If you do not have a Datahub Account, you may create one via the Datahub <a href="http://datahub.csail.mit.edu/account/register">register page</a>.</div>
-                        <div class="required"><input type="text" id="repo-name" placeholder="Repository Name" /></div>
+                        <div id="username_already_exists" class="fs-subtitle">Enter the repository name containing your list of items. Create a new repo
+                        on <a href = 'http://datahub.csail.mit.edu'>Datahub</a>.</div>
+                        <div class="required"><select class="chosen-select" id="repo-name-chosen" data-placeholder="Repository Name"></select></div>
                         <input type="button" class="selection-button button-active" id="login-kibitz-account" value="Allow Kibitz Access" />
                 </fieldset>
                 <fieldset id="customization-form">
@@ -142,7 +142,7 @@
                 <fieldset id="submit-info">
                         <h2 class="fs-title">Submit</h2>
                         <div class="fs-subtitle">You have completed all fields. <br /><br />Submit to <b>create your recommender</b> or <b>go back to change your inputs.</b><br /><br />
-                        You may <b>not change</b> your inputs after you submit. <br /><br />It takes approx. an hour for the recommender to be configured. During the time it is configuring,
+                        You may <b>not change</b> your inputs after you submit. <br /><br />It takes about 10 minutes for the recommender to be configured. During the time it is configuring,
                         recommendations may not be accurate.</div>
                         <input type="button" name="previous" class="previous-page-before-submit action-button btn btn-xl" value="Previous" />
                         <input type="button" name="submit" class="submit action-button btn btn-xl" value="Submit" />
@@ -155,7 +155,7 @@
         </div>
           <section class="wrapper">
           	<h3>Recommender Info</h3>
-          	
+
           	<!-- BASIC FORM ELELEMNTS -->
           	<div class="row mt">
           		<div class="col-lg-12">
@@ -189,7 +189,7 @@
                           </div>
                           <!--<div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">Recommender Types:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <p class="form-control-static">User-Based</p>
                                 <p class="form-control-static">Item-Based</p>
                                 <p class="form-control-static">Random</p>
@@ -197,26 +197,26 @@
                           </div>
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">1st Item Similarity Column Name:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <input class="form-control" id="disabledInput" type="text" placeholder="Filler" disabled>
                               </div>
                           </div>
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">2nd Item Similarity Column Name:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <input class="form-control" id="disabledInput" type="text" placeholder="Filler" disabled>
                               </div>
                           </div>
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">3rd Item Similarity Column Name:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <input class="form-control" id="disabledInput" type="text" placeholder="Filler" disabled>
                               </div>
                           </div>-->
                           <div class="form-group">
-                              <label class="col-sm-2 col-sm-2 control-label">Homepage address:</label>
-                              <div class="col-sm-10">                           
-                                <input class="form-control" id="homepage" type="text" placeholder="e.g. http://kibitz.csail.mit.edu/quanquan/demo/">
+                              <label class="col-sm-2 col-sm-2 control-label">Kibitz homepage address:</label>
+                              <div class="col-sm-10">
+                                <span class="set-fields" id="homepage"></span>
                               </div>
                           </div>
                           <div class="form-group">
@@ -227,26 +227,26 @@
                           </div>
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">Title Column Name:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <select data-placeholder="Title Column" class="rec-select columns" id = 'title' style="width:350px;" tabindex="2"></select>
                               </div>
                           </div>
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">Description Column Name:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <select data-placeholder="Description Column" class="rec-select columns" id = 'description' style="width:350px;" tabindex="2"></select>
                               </div>
                           </div>
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">Image Column Name:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <select data-placeholder="Image Column" class="rec-select columns" id = 'image' style="width:350px;" tabindex="2"></select>
                                 <span class="help-block">Either use a image or video but not both for best visual results.</span>
                               </div>
                           </div>
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">Video Column Name:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <select data-placeholder="Video Column" class="rec-select columns" id = 'video' style="width:350px;" tabindex="2"></select>
                                 <span class="help-block">Either use a image or video but not both for best visual results.</span>
                               </div>
@@ -260,38 +260,45 @@
                           </div>
                           <!--<div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">Item Similarity File (Optional):</label>
-                              <div class="col-sm-10">      
+                              <div class="col-sm-10">
                                   <input type="file" name="pic" accept="image/*">
                                   <span class="help-block">Upload an item-similarity file to use with your Item-Based recommender. See <a href="here.html">here</a> for format requirements.</span>
                               </div>
                           </div>-->
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">Description Display Columns:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <input class="form-control" id="display_columns" type="text" />
                                 <span class="help-block">Comma separated. List the columns you wish to display in the description field, separated by commas.</span>
                               </div>
                           </div>
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">Display Item Types:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <input class="form-control" id="display_item_types" type="text" placeholder="Eg. name: text, author: text, picture: image'"/>
                                 <span class="help-block"><b>IMPORTANT</b>, you <b>MUST</b> provide this if you used the display columns feature. Comma separated list of [Column Name]:[Item Type] of your display columns. List of possible item types: image, video, text, html, and number.</span>
                               </div>
                           </div>
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">Number Recommendations:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <input class="form-control" id="num_recs" type="number" placeholder="10"/>
                                 <span class="help-block">Number of recommendations you want to give.</span>
                               </div>
                           </div>
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">Maximum Rating Value:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <input class="form-control" id="max_rating_value" type="number" placeholder="10"/>
                                 <span class="help-block">Maximum number of stars you want to display.</span>
                               </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-sm-2 col-sm-2 control-label">Edit CSS files:</label>
+                              <div class="col-sm-10">
+                                <div><a href="javascript:show_css_file('rating.css');">rating.css</a></div>
+                                <div><a href="javascript:show_css_file('main.css');">main.css</a></div>
+                             </div>
                           </div>
                           <div class="form-group">
                               <label id="zip-file" class="col-sm-2 col-sm-2 control-label"></label>
@@ -299,69 +306,70 @@
                           <h3><button onclick="save_recommender_info();">Save</button></h3>
                       </form>
                   </div>
-          	  </div><!-- col-lg-12-->      	
+          	  </div><!-- col-lg-12-->
           	</div><!-- /row -->
-                
+
                 <div class="row mt">
           		<div class="col-lg-12">
                   <div class="form-panel">
                       <h4>Advanced Options</h4>
                       <form class="form-horizontal style-form" method="get">
+                          <p>Works best with ID columns containing numerical IDs. The table for the ratings should be in the same directory as your items table.</p>
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">Individual User Ratings Table:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <input class="form-control" id="user_rating_table" type="text" placeholder="e.g. demo_user_ratings"/>
                                 <span class="help-block">Table containing individual user ratings. Please refer to <a href='example'>example</a> table format. Your table must contain a column
-                                  for user ids, a column for item ids that must be the same as your primary key column, and a column for ratings.</span>
+                                  for user ids, a column for item ids that must be the same as your ID column, and a column for ratings.</span>
                               </div>
                           </div>
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">UserId Column Name:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <input class="form-control" id="user_id" type="text" placeholder="e.g. userId"/>
                                 <span class="help-block">Column containing user Id's.</span>
                               </div>
                           </div>
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">Primary Key Column Name:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <input class="form-control" id="item_id" type="text" placeholder="e.g. itemId"/>
                                 <span class="help-block">Column containing the column names of items rated.</span>
                               </div>
                           </div>
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">User Rating Column Name:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <input class="form-control" id="user_rating_column" type="text" placeholder="e.g. ratings"/>
                                 <span class="help-block">Column containing numerical user ratings for each item/user pair.</span>
                               </div>
                           </div>
                           <h3><button onclick="configure_prefilled_user_ratings_table();">Configure User Ratings</button></h3>
-                          
+
                           <!--<div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">Item Similarity Table:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <input class="form-control" id="item_similarity_table" type="text" placeholder="e.g. demo_item_similarity"/>
                                 <span class="help-block">Table containing item similarity. Please refer to <a href='example'>example</a> for the correct format.</span>
                               </div>
                           </div>
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">First Item Id Column:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <input class="form-control" id="item_id_one" type="text" placeholder="e.g. id1"/>
                                 <span class="help-block">Column containing one item id.</span>
                               </div>
                           </div>
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">Second Item Id Column:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <input class="form-control" id="item_id_two" type="text" placeholder="e.g. id2"/>
                                 <span class="help-block">Column containing another item id.</span>
                               </div>
                           </div>
                           <div class="form-group">
                               <label class="col-sm-2 col-sm-2 control-label">Item Similarity Column:</label>
-                              <div class="col-sm-10">                           
+                              <div class="col-sm-10">
                                 <input class="form-control" id="similarity_column" type="text" placeholder="e.g. similarity"/>
                                 <span class="help-block">Column containing numerical item similarity between each pair of items.</span>
                               </div>
@@ -369,7 +377,7 @@
                           <h3><button onclick="configure_item_similarity();">Configure Item Similarity</button></h3>-->
                       </form>
                   </div>
-          	  </div><!-- col-lg-12-->      	
+          	  </div><!-- col-lg-12-->
           	</div><!-- /row -->
 	  </section><! --/wrapper -->
       </section><!-- /MAIN CONTENT -->
@@ -378,7 +386,7 @@
       <!--footer start-->
       <footer class="site-footer">
           <div class="text-center">
-              Copyright &copy; Kibitz 2014
+              Copyright &copy; Kibitz 2015
               <a href="https://github.com/qqliu/kibitz"><i class="fa fa-github"></i></a>
               <a href="form_component.html#" class="go-top">
                   <i class="fa fa-angle-up"></i>
@@ -402,18 +410,18 @@
 
 	<!--custom switch-->
 	<script src="assets/js/bootstrap-switch.js"></script>
-	
+
 	<!--custom tagsinput-->
 	<script src="assets/js/jquery.tagsinput.js"></script>
-	
+
 	<!--custom checkbox & radio-->
-	
+
 	<script type="text/javascript" src="assets/js/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
 	<script type="text/javascript" src="assets/js/bootstrap-daterangepicker/date.js"></script>
 	<script type="text/javascript" src="assets/js/bootstrap-daterangepicker/daterangepicker.js"></script>
-	
+
 	<script type="text/javascript" src="assets/js/bootstrap-inputmask/bootstrap-inputmask.min.js"></script>
-	
+
 	<script src="assets/js/form-component.js"></script>
         <script type="text/javascript" src="assets/js/kibitz_types.js"></script>
         <script type="text/javascript" src="assets/js/thrift.js"></script>

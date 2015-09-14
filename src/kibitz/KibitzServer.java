@@ -1,8 +1,11 @@
 package kibitz;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Reader;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -20,6 +23,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import kibitz.RecommenderService.Iface;
+import updates.UpdateLocalFiles;
 
 import org.apache.mahout.cf.taste.impl.recommender.AbstractRecommender;
 import org.apache.thrift.TException;
@@ -741,6 +745,23 @@ public class KibitzServer implements Iface {
 					 primaryKey,  itemTable,  tableName,
 					 userIdCol,  itemIdCol,  userRatingCol);
 		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void saveCSSData(String path, String data) {
+		File cssFile = new File(DatahubDataModel.WEBSERVER_DIR + path);
+		cssFile.delete();
+		try {
+			cssFile.createNewFile();
+			FileWriter fileWriter = new FileWriter(cssFile.getAbsolutePath(), true);
+	        BufferedWriter bufferWriter = new BufferedWriter(fileWriter);
+
+		    bufferWriter.write(data);
+			bufferWriter.close();
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

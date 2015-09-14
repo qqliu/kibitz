@@ -1,3 +1,5 @@
+var homepage = window.location.href, home_location = window.location.href;
+
 var setCookie = function (cname, cvalue, exdays) {
     var d = new Date();
     d.setTime(d.getTime() + (exdays*24*60*60*1000));
@@ -35,15 +37,22 @@ var swap = function swap(one, two) {
 };
 
 var logout = function() {
-    debugger;
     swap("login_panel", "login_message");
     eraseCookie("username");
     eraseCookie("userId");
+    deleteLoginInfo();
 
     sessionStorage.setItem("username", "");
     sessionStorage.setItem("userId", "");
     document.location = ".";
 };
+
+
+function deleteLoginInfo() {
+    var popup = window.open('http://datahub.csail.mit.edu/account/logout','newwindow', config='height=600,width=600,' +
+            'toolbar=no, menubar=no, scrollbars=no, resizable=no,' + 'location=no, directories=no, status=no');
+    popup.close();
+}
 
 var imageExists = function testImage(url, callback, id, prefix) {
     var timeout = 2000;
@@ -107,7 +116,7 @@ var processNextPages = function(start) {
 //var transport = new Thrift.Transport("http://kibitz.csail.mit.edu:9888/kibitz/");
 var transport = new Thrift.Transport("http://localhost:9889/kibitz/");
 var protocol = new Thrift.Protocol(transport);
-var client = new kibitz.RecommenderServiceClient(protocol)
+var client = new kibitz.RecommenderServiceClient(protocol);
 
 var show_signup_form = function() {
     var popup = window.open('http://datahub.csail.mit.edu/account/login?redirect_url=' + homepage,'newwindow', config='height=600,width=600,' +
@@ -120,12 +129,16 @@ var show_signup_form = function() {
     // This will be the method that we use to check
     // changes in the window location.
     var fnCheckLocation = function(){
+    if (popup.location === null) {
+        clearInterval(id);
+    }
 	// Check to see if the location has changed.
 	if (popup.location.href.indexOf("auth_user") > -1) {
 	    var href = popup.location.href;
 	    sessionStorage.setItem("username", href.split("=")[1]);
 	    setCookie("username", href.split("=")[1]);
 	    popup.close();
+        clearInterval(id);
 	    process_login(href.split("=")[1]);
 	}
     }
@@ -214,10 +227,47 @@ var display_database_items = function(items) {
 	  $(el).rating('', {maxvalue: parseInt(maxRatingVal)});
 	}
     });
-}
+};
+
+var popup_register_page = function() {
+    var popup_sign_up = window.open('http://datahub.csail.mit.edu/account/register?redirect_url=' + home_location,'newwindow', config='height=600,width=600,' +
+			'toolbar=no, menubar=no, scrollbars=no, resizable=no,' + 'location=no, directories=no, status=no');
+
+    //Create a trigger for location changes
+    var intIntervalTime = 100;
+    var curPage = this;
+
+    // This will be the method that we use to check
+    // changes in the window location.
+    var fnCheckLocation = function(){
+	    // Check to see if the location has changed.
+        if (popup_sign_up === null) {
+            clearInterval(id);
+            $("#creating_table_instructions").hide();
+        }
+
+        if (popup_sign_up === null || popup_sign_up.location === null) {
+            popup_sign_up.close();
+            popup_sign_up = null;
+            clearInterval(id);
+        }
+
+        if (popup_sign_up.location.href.indexOf("auth_user") > -1) {
+	        var href = popup_sign_up.location.href;
+	        var splits = href.split("=");
+            var userName = href.split("=")[splits.length - 1];
+	        sessionStorage.setItem("username", userName);
+	        setCookie("username", userName);
+            clearInterval(id);
+	        popup_sign_up.close();
+            clearInterval(id);
+	        process_login(userName);
+	    }
+    };
+    var id = setInterval( fnCheckLocation, intIntervalTime );
+};
 
 $(document).ready(function() {
-
     transport.open();
     client.createNewIndividualServer(client_key);
     client.initiateModel(client_key, recommender_name, creator_name, repo_name);

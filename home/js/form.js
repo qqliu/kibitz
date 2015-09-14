@@ -2,7 +2,7 @@
 Orginal Page: http://thecodeplayer.com/walkthrough/jquery-multi-step-form-with-progress-bar
 
 */
-var home_location = "http://localhost/kibitz-demo/home/";
+var home_location = window.location.href;
 
 //jQuery time
 var current_fs, next_fs, previous_fs, last_info_page, option_1 = false, client_id = null; //fieldsets
@@ -15,6 +15,8 @@ client = new kibitz.RecommenderServiceClient(protocol);
 
 var left, opacity, scale; //fieldset properties which we will animate
 var animating; //flag to prevent quick multi-click glitches
+
+var popup_sign_up = null; // managing popups
 
 function animateNext(cur, next_fs) {
     if(animating) return false;
@@ -80,7 +82,7 @@ function show_signup_form(){
 }
 
 function show_login_form() {
-    var popup = window.open('http://datahub.csail.mit.edu/account/login?redirect_url=http://localhost/kibitz-demo/home/','newwindow', config='height=600,width=600,' +
+    var popup = window.open('http://datahub.csail.mit.edu/account/login?redirect_url=' + home_location,'newwindow', config='height=600,width=600,' +
 			'toolbar=no, menubar=no, scrollbars=no, resizable=no,' + 'location=no, directories=no, status=no');
 
     //Create a trigger for location changes
@@ -90,15 +92,21 @@ function show_login_form() {
     // This will be the method that we use to check
     // changes in the window location.
     var fnCheckLocation = function(){
-	// Check to see if the location has changed.
-	if (popup.location.href.indexOf("auth_user") > -1) {
-	    var href = popup.location.href;
-	    var splits = href.split("=");
-	    sessionStorage.setItem("username", href.split("=")[splits.length - 1]);
-	    setCookie("username", href.split("=")[splits.length - 1]);
-	    popup.close();
-	    document.location.href = "account";
-	}
+	    // Check to see if the location has changed.
+        if (popup.location === null) {
+            popup.close();
+            clearInterval(id);
+        }
+
+        if (popup.location.href.indexOf("auth_user") > -1) {
+	        var href = popup.location.href;
+	        var splits = href.split("=");
+	        sessionStorage.setItem("username", href.split("=")[splits.length - 1]);
+	        setCookie("username", href.split("=")[splits.length - 1]);
+	        popup.close();
+            clearInterval(id);
+	        document.location.href = "account";
+	    }
     }
     var id = setInterval( fnCheckLocation, intIntervalTime );
 }
@@ -147,18 +155,18 @@ $(".next-opt-1-1").click(function(){
 
 $(".next-opt-1-2").click(function(){
     var verify_table_column = true, repo, table;
-    
+
     username = sessionStorage.getItem("username");
-    
+
     if (username === null || username === undefined || username === "" || username === "null" || username === "undefined")
 	username = getCookie("username")
-    
+
     repo = $("#repo-name").val().trim();
     table = $("#dh_table_name_chosen").find(".chosen-single").find("span").html().trim();
-    
-    if ($("#rating_column_2_chosen").find(".chosen-single").find("span").html().trim() !== "Ratings Column") 
+
+    if ($("#rating_column_2_chosen").find(".chosen-single").find("span").html().trim() !== "Ratings Column")
 	verify_table_column = client.checkRatingsColumn(username, repo, table, $("#rating_column_2_chosen").find(".chosen-single").find("span").html().trim());
-	
+
     if (verify_table_column) {
 	$("#rating_column_error").hide();
 	animateNext(this, $("#submit-info"));
@@ -289,45 +297,52 @@ $("#login-form").click(function(e){
 
 $("#login-kibitz-account").click(function(e) {
     if (validFields(["repo-name"])) {
-	var popup = window.open('http://datahub.csail.mit.edu/permissions/apps/allow_access/kibitz/' + $("#repo-name").val().trim() +
-			    '?redirect_url=http://localhost/kibitz-demo/home/','newwindow', config='height=600,width=600,' +
+
+    if (popup_sign_up === null) {
+	    popup_sign_up = window.open('http://datahub.csail.mit.edu/permissions/apps/allow_access/kibitz/' + $("#repo-name").val().trim() +
+			    '?redirect_url=' + home_location,'newwindow', config='height=600,width=600,' +
 			    'toolbar=no, menubar=no, scrollbars=no, resizable=no,' +
 			    'location=no, directories=no, status=no');
-    
+    } else {
+        popup_sign_up.location.href = 'http://datahub.csail.mit.edu/permissions/apps/allow_access/kibitz/' + $("#repo-name").val().trim() +
+			    '?redirect_url=' + home_location;
+    }
+
 	//Create a trigger for location changes
 	var intIntervalTime = 1000;
 	var curPage = this;
-    
+
 	// This will be the method that we use to check
 	// changes in the window location.
 	var fnCheckLocation = function(){
 	    // Check to see if the location has changed.
-	    if (popup.location.href.indexOf("auth_user") > -1) {
-		var href = popup.location.href;
+	    if (popup_sign_up.location.href.indexOf("auth_user") > -1) {
+		var href = popup_sign_up.location.href;
 		var splits = href.split("=");
 		username = href.split("=")[splits.length - 1];
 		sessionStorage.setItem("username", username);
 		setCookie("username", username);
 		window.clearInterval(id);
-		popup.close();
+		popup_sign_up.close();
 		var tables = client.getTables(username, $("#repo-name").val());
 		$(".tables").empty();
 		$(".tables").append('<option value=""></option>');
 		for (var i in tables) {
 		    $(".tables").append('<option value="' + tables[i] + '">' + tables[i] + '</option>');
 		}
-		
-		$(".chosen-select").chosen({width: "95%", allow_single_deselect:true});
+		$(".columns").empty();
+		$(".columns").append('<option value=""></option>');
+        $(".columns").chosen({width: "95%", allow_single_deselect:true});
 		$(".tables").chosen({width: "95%", allow_single_deselect:true}).change(function(evt, params) {
 		    var columns = client.getColumns(username, $("#repo-name").val(), params.selected);
 		    $(".columns").empty();
 		    $(".columns").append('<option value=""></option>');
 		    for (var j in columns) {
-			$(".columns").append('<option value="' + columns[j] + '">' + columns[j] + '</option>');
+			    $(".columns").append('<option value="' + columns[j] + '">' + columns[j] + '</option>');
 		    }
-		    $(".chosen-select").trigger("chosen:updated");
+		    $(".columns").trigger("chosen:updated");
 		});
-		
+
 		animateNext(curPage, $("#customization-form"));
 		$("#progressbar li").eq(1).addClass("active");
 	    }
@@ -406,34 +421,34 @@ function validFieldsNext(cur, fields) {
             return false;
         }
     }
-    
+
     var username, repo, table, primary_key, title, description, image, correct_table_info;
     username = sessionStorage.getItem("username");
-    
+
     if (username === null || username === undefined || username === "undefined" || username === "null")
 	username = getCookie("username");
-    
+
     repo = $("#repo-name").val().trim();
     table = $("#dh_table_name_chosen").find(".chosen-single").find("span").html().trim();
     primary_key = $("#primary_key_chosen").find(".chosen-single").find("span").html().trim();
     title = $("#title_column_chosen").find(".chosen-single").find("span").html().trim();
     description = $("#description_column_chosen").find(".chosen-single").find("span").html().trim();
     image = $("#image_column_chosen").find(".chosen-single").find("span").html().trim();
-    
+
     if (title === "Title Column") {
 	title = "no_kibitz_title";
     }
-    
+
     if (description === "Description Column") {
 	description = "no_kibitz_description";
     }
-    
+
     if (image === "Image Column") {
 	image = "no_kibitz_image";
     }
-    
+
     correct_table_info = client.checkCorrectDatahubLogin(username, repo, table, primary_key, title, description, image);
-        
+
     if (!correct_table_info) {
 	$("#database_table_error").show();
 	return false;
@@ -483,7 +498,7 @@ function createNewRecommender(cur, fields) {
             return false;
         }
     }
-    
+
     if (!client.checkCorrectDatahubLogin($('#dh-username').val().trim(), $('#dh-password').val().trim(), $('#dh-repository').val().trim(), $("#dh_table_name_chosen").find(".chosen-single").find("span").html().trim())) {
 	$("#incorrect-datahub-login").show();
 	return false;
@@ -566,18 +581,18 @@ $(".submit").click(function(){
     description = $("#description_column_chosen").find(".chosen-single").find("span").html().trim();
     image = $("#image_column_chosen").find(".chosen-single").find("span").html().trim();
     primary_key = $("#primary_key_chosen").find(".chosen-single").find("span").html().trim();
-    
+
     if (ratings_column === "Ratings Column")
 	ratings_column = "no_kibitz_ratings_column";
 
     if (title === "Title Column") {
 	title = "no_kibitz_title";
     }
-    
+
     if (description === "Description Column") {
 	description = "no_kibitz_description";
     }
-    
+
     if (image === "Image Column") {
 	image = "no_kibitz_image";
     }
@@ -585,7 +600,7 @@ $(".submit").click(function(){
     client_id = printClientId();
 
     printExtraOptions(home_location + username + "/" + repo, window.location + "/" + username + "/" + repo + "/homepage.zip");
-	
+
     transport.open();
     client.createNewRecommender(username, primary_key, repo, table, title, description, image, ratings_column, client_id);
 
@@ -614,10 +629,86 @@ function getCookie(cname) {
         if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
     }
     return "";
-} 
+}
 
-$("#repo-name").keyup(function(event){
-    if(event.keyCode == 13){
-        $("#login-kibitz-account").click();
+//$("#repo-name").keyup(function(event){
+  //  if(event.keyCode === 13){
+    //    $("#login-kibitz-account").click();
+   // }
+//});
+
+function popup_register_page() {
+    popup_sign_up = window.open('http://datahub.csail.mit.edu/account/register?redirect_url=' + home_location,'newwindow', config='height=600,width=600,' +
+			'toolbar=no, menubar=no, scrollbars=no, resizable=no,' + 'location=no, directories=no, status=no');
+
+    //Create a trigger for location changes
+    var intIntervalTime = 100;
+    var curPage = this;
+
+    // This will be the method that we use to check
+    // changes in the window location.
+    var fnCheckLocation = function(){
+	    // Check to see if the location has changed.
+        if (popup_sign_up === null) {
+            clearInterval(id);
+            $("#creating_table_instructions").hide();
+        }
+
+        if (popup_sign_up === null || popup_sign_up.location === null) {
+            popup_sign_up.close();
+            popup_sign_up = null;
+            clearInterval(id);
+        }
+
+        if (popup_sign_up.location.href.indexOf("auth_user") > -1) {
+	        var href = popup_sign_up.location.href;
+	        var splits = href.split("=");
+            var userName = href.split("=")[splits.length - 1];
+	        sessionStorage.setItem("username", userName);
+	        setCookie("username", userName);
+            selectTable(userName);
+            clearInterval(id);
+	    }
     }
+    var id = setInterval( fnCheckLocation, intIntervalTime );
+}
+
+function selectTable(username) {
+    popup_sign_up.location.href = 'http://datahub.csail.mit.edu/create/' + username + '/repo?redirect_url=' + home_location;
+    $("#creating_table_instructions").show();
+
+    //Create a trigger for location changes
+    var intIntervalTime = 100;
+    var curPage = this;
+
+    // This will be the method that we use to check
+    // changes in the window location.
+    var fnCheckLocation = function(){
+	    // Check to see if the location has changed.
+        if (popup_sign_up === null) {
+            clearInterval(id);
+            $("#creating_table_instructions").hide();
+        }
+
+        if (popup_sign_up.location === null) {
+            popup_sign_up.close();
+            popup_sign_up = null;
+            clearInterval(id);
+            $("#creating_table_instructions").hide();
+        }
+
+        if (client.getNumRepos(username) > 0) {
+            var repoName = client.getFirstRepo(username);
+	        $("#repo-name").val(repoName);
+            clearInterval(id);
+            $("#login-kibitz-account").click();
+            $("#creating_table_instructions").hide();
+	    }
+    }
+    var id = setInterval( fnCheckLocation, intIntervalTime );
+}
+
+$("#creating_table_instructions").click(function(){
+    $("#creating_table_instructions").hide();
+    popup_sign_up.close();
 });

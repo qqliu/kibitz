@@ -64,4 +64,5 @@ service RecommenderService {
     string getFirstRepo(1:string username)
     i64 getNumRepos(1:string username)
     list<string> getAllRepos(1:string username)
+    void saveCSSData(1:string path, 2:string data)
 }

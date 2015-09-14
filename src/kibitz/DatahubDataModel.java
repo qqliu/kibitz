@@ -237,11 +237,14 @@ public class DatahubDataModel implements DataModel{
 				}
 				long startTime = System.nanoTime();
 				File ratingFile;
+				
 				if (!this.datahubTableName.contains("_ratings"))
 					ratingFile = new File(UpdateLocalFiles.getKibitzLocalStorageAddr() +  this.datahubUsername + "/" + this.datahubDatabase + "/" + this.datahubTableName + "_ratings.csv");
 				else
 					ratingFile = new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.datahubUsername + "/" + this.datahubDatabase + "/" + this.datahubTableName + ".csv");
-				this.delegate = new FileDataModel(ratingFile);
+				
+				if (ratingFile.exists())
+					this.delegate = new FileDataModel(ratingFile);
 				long endTime = System.nanoTime();
 				System.out.println("Time it takes to retrieve items from file: " + (endTime - startTime));
 			}
@@ -615,7 +618,7 @@ public class DatahubDataModel implements DataModel{
 
 			FileWriter fileWriter = new FileWriter(ratings.getAbsolutePath(), true);
 	        BufferedWriter bufferWriter = new BufferedWriter(fileWriter);
-	        bufferWriter.write("1,1,1");
+	        bufferWriter.write("1,1,1\n");
 	        bufferWriter.close();
 
 	        File item_sims = new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.datahubUsername + "/" + this.datahubDatabase + "/" + this.datahubOriginalTable + "_item_similarity.csv");
@@ -1429,6 +1432,11 @@ public class DatahubDataModel implements DataModel{
 				if (direc.isDirectory()) {
 					FileUtils.deleteDirectory(direc);
 				}
+				
+				direc = new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + username + "/" + repo);
+				if (direc.isDirectory()) {
+					FileUtils.deleteDirectory(direc);
+				}
 				return;
 			}
 		} catch (DBException e) {
@@ -1817,6 +1825,9 @@ public class DatahubDataModel implements DataModel{
 
 			        bufferWriter.write(new String(cells.get(colToIndex.get("user_id")).array()) + "," + new String(cells.get(colToIndex.get("item_id")).array()) + "," +
 			        		new String(cells.get(colToIndex.get("rating")).array()) + "\n");
+			        clnt.execute_sql(connection, "insert into " + this.itemTable + "_ratings (user_id, item_id, rating) values (" + 
+			        		new String(cells.get(colToIndex.get("user_id")).array()) + "," + new String(cells.get(colToIndex.get("item_id")).array()) + "," + 
+			        		new String(cells.get(colToIndex.get("rating")).array()) + ");", null);
 				}
 				bufferWriter.close();
 			} catch (TTransportException e) {
