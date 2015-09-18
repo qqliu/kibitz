@@ -45,7 +45,7 @@ public class KibitzServer implements Iface {
 
 	public static Map<String, IndividualRecommender> SESSIONS = new HashMap<String, IndividualRecommender>();
 	public static Map<String, AbstractRecommender> RECOMMENDERS = new HashMap<String, AbstractRecommender>();
-	public static String HOMEPAGE_URL = "localhost/~quanquanliu/home/";
+	public static String HOMEPAGE_URL = "http://kibitz.csail.mit.edu/";
 	public static boolean RUNNING = true;
 
 	private MysqlDataSource dataSource;
@@ -749,7 +749,7 @@ public class KibitzServer implements Iface {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void saveCSSData(String path, String data) {
 		File cssFile = new File(DatahubDataModel.WEBSERVER_DIR + path);
@@ -833,7 +833,7 @@ public class KibitzServer implements Iface {
 		}
 		return null;
 	};
-	
+
 	@Override
 	public String getFirstRepo(String username) {
 		try {
@@ -863,7 +863,7 @@ public class KibitzServer implements Iface {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public long getNumRepos(String username) {
 		try {
@@ -893,7 +893,7 @@ public class KibitzServer implements Iface {
 		}
 		return 0;
 	}
-	
+
 	@Override
 	public List<String> getAllRepos(String username) {
 		try {
@@ -909,16 +909,16 @@ public class KibitzServer implements Iface {
 
 			ResultSet res = client.execute_sql(connection, "select distinct schemaname from pg_tables where tableowner = '" + username + "';", null);
 			HashMap<String, Integer> colToIndex = DatahubDataModel.getFieldNames(res);
-			
+
 			List<String> repos = new ArrayList<String>();
 			String repo;
-			
+
 			for (Tuple t : res.getTuples()) {
 				List<ByteBuffer> cells = t.getCells();
 				repo = new String(cells.get(colToIndex.get("schemaname")).array());
 				repos.add(repo);
 			}
-			
+
 			return repos;
 		} catch (DBException e) {
 			// TODO Auto-generated catch block

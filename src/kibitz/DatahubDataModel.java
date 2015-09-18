@@ -62,10 +62,10 @@ public class DatahubDataModel implements DataModel{
 	private static final String DEFAULT_DATAHUB_TABLENAME = "users";
 
 	/** Default Webserver Location*/
-	public static final String WEBSERVER_DIR = "/Users/quanquanliu/Sites/home/";
+	public static final String WEBSERVER_DIR = "/var/www/";
 
 	/** Kibitz Homepage */
-	public static final String HOMEPAGE = "localhost/~quanquanliu/home/";
+	public static final String HOMEPAGE = "http://kibitz.csail.mit.edu/";
 
 	/** Kibitz Datahub App ID */
 	private static final String KIBITZ_APP_ID = "9ce63ac3-47a9-4922-b674-d710b1467641";
@@ -237,12 +237,12 @@ public class DatahubDataModel implements DataModel{
 				}
 				long startTime = System.nanoTime();
 				File ratingFile;
-				
+
 				if (!this.datahubTableName.contains("_ratings"))
 					ratingFile = new File(UpdateLocalFiles.getKibitzLocalStorageAddr() +  this.datahubUsername + "/" + this.datahubDatabase + "/" + this.datahubTableName + "_ratings.csv");
 				else
 					ratingFile = new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + this.datahubUsername + "/" + this.datahubDatabase + "/" + this.datahubTableName + ".csv");
-				
+
 				if (ratingFile.exists())
 					this.delegate = new FileDataModel(ratingFile);
 				long endTime = System.nanoTime();
@@ -735,7 +735,7 @@ public class DatahubDataModel implements DataModel{
 			input += "var item_types = {" + StringUtils.join(itemsTypes, ',') + "}; \n";
 			input += "var display_items = ['" + StringUtils.join(display_items, "','") + "']; \n\n";
 			input += "// Recommender Info \n";
-			input += "var recommender_name = '" + recommenderName + "';\n var client_key = '" + clientKey + 
+			input += "var recommender_name = '" + recommenderName + "';\n var client_key = '" + clientKey +
 					 "';\n var creator_name = '" + creatorName + "'; \n var repo_name = '" + repoName + "'; \n\n";
 			input += "// Rating Customization \n";
 
@@ -1432,7 +1432,7 @@ public class DatahubDataModel implements DataModel{
 				if (direc.isDirectory()) {
 					FileUtils.deleteDirectory(direc);
 				}
-				
+
 				direc = new File(UpdateLocalFiles.getKibitzLocalStorageAddr() + username + "/" + repo);
 				if (direc.isDirectory()) {
 					FileUtils.deleteDirectory(direc);
@@ -1825,9 +1825,9 @@ public class DatahubDataModel implements DataModel{
 
 			        bufferWriter.write(new String(cells.get(colToIndex.get("user_id")).array()) + "," + new String(cells.get(colToIndex.get("item_id")).array()) + "," +
 			        		new String(cells.get(colToIndex.get("rating")).array()) + "\n");
-			        clnt.execute_sql(connection, "insert into " + this.itemTable + "_ratings (user_id, item_id, rating) values (" + 
-			        		new String(cells.get(colToIndex.get("user_id")).array()) + "," + new String(cells.get(colToIndex.get("item_id")).array()) + "," + 
-			        		new String(cells.get(colToIndex.get("rating")).array()) + ");", null);
+			        //clnt.execute_sql(connection, "insert into " + this.itemTable + "_ratings (user_id, item_id, rating) values (" +
+			        //		new String(cells.get(colToIndex.get("user_id")).array()) + "," + new String(cells.get(colToIndex.get("item_id")).array()) + "," +
+			        //		new String(cells.get(colToIndex.get("rating")).array()) + ");", null);
 				}
 				bufferWriter.close();
 			} catch (TTransportException e) {
@@ -1872,7 +1872,7 @@ public class DatahubDataModel implements DataModel{
 			this.writeToItemSimilarityFile();
 		}
 
-		
+
 		private void writeToItemSimilarityFile() {
 			try {
 				double firstColumnScore = 0;
@@ -1938,7 +1938,7 @@ public class DatahubDataModel implements DataModel{
 				e.printStackTrace();
 			}
 		}
-		
+
 
 		private void writeSimilarityScore(String table, String firstId, String secondId, float score) {
 			try {

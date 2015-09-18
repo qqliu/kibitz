@@ -1,18 +1,18 @@
-/Users/quanquanliu/Dropbox (MIT)/kibitz-git/src/datahub/account/AccountException.java
-/Users/quanquanliu/Dropbox (MIT)/kibitz-git/src/datahub/Tuple.java
-/Users/quanquanliu/Dropbox (MIT)/kibitz-git/src/kibitz/KibitzServlet.java
-/Users/quanquanliu/Dropbox (MIT)/kibitz-git/src/kibitz/Recommender.java
-/Users/quanquanliu/Dropbox (MIT)/kibitz-git/src/datahub/Connection.java
-/Users/quanquanliu/Dropbox (MIT)/kibitz-git/src/datahub/DBException.java
-/Users/quanquanliu/Dropbox (MIT)/kibitz-git/src/datahub/ResultSet.java
-/Users/quanquanliu/Dropbox (MIT)/kibitz-git/src/datahub/account/AccountService.java
-/Users/quanquanliu/Dropbox (MIT)/kibitz-git/src/kibitz/RecommenderService.java
-/Users/quanquanliu/Dropbox (MIT)/kibitz-git/src/kibitz/DatahubDataModel.java
-/Users/quanquanliu/Dropbox (MIT)/kibitz-git/src/kibitz/KibitzServer.java
-/Users/quanquanliu/Dropbox (MIT)/kibitz-git/src/datahub/DataHub.java
-/Users/quanquanliu/Dropbox (MIT)/kibitz-git/src/kibitz/Item.java
-/Users/quanquanliu/Dropbox (MIT)/kibitz-git/src/updates/UpdateLocalFiles.java
-/Users/quanquanliu/Dropbox (MIT)/kibitz-git/src/datahub/ConnectionParams.java
-/Users/quanquanliu/Dropbox (MIT)/kibitz-git/src/datahub/datahubConstants.java
-/Users/quanquanliu/Dropbox (MIT)/kibitz-git/src/kibitz/EmbeddingJettyWithServlet.java
-/Users/quanquanliu/Dropbox (MIT)/kibitz-git/src/kibitz/IndividualRecommender.java
+/home/ubuntu/kibitzgit/src/datahub/account/AccountService.java
+/home/ubuntu/kibitzgit/src/kibitz/DatahubDataModel.java
+/home/ubuntu/kibitzgit/src/kibitz/KibitzServlet.java
+/home/ubuntu/kibitzgit/src/kibitz/IndividualRecommender.java
+/home/ubuntu/kibitzgit/src/updates/UpdateLocalFiles.java
+/home/ubuntu/kibitzgit/src/kibitz/Recommender.java
+/home/ubuntu/kibitzgit/src/kibitz/Item.java
+/home/ubuntu/kibitzgit/src/kibitz/RecommenderService.java
+/home/ubuntu/kibitzgit/src/datahub/ConnectionParams.java
+/home/ubuntu/kibitzgit/src/datahub/datahubConstants.java
+/home/ubuntu/kibitzgit/src/datahub/Connection.java
+/home/ubuntu/kibitzgit/src/datahub/account/AccountException.java
+/home/ubuntu/kibitzgit/src/datahub/DataHub.java
+/home/ubuntu/kibitzgit/src/kibitz/KibitzServer.java
+/home/ubuntu/kibitzgit/src/datahub/ResultSet.java
+/home/ubuntu/kibitzgit/src/datahub/DBException.java
+/home/ubuntu/kibitzgit/src/datahub/Tuple.java
+/home/ubuntu/kibitzgit/src/kibitz/EmbeddingJettyWithServlet.java
