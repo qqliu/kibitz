@@ -106,8 +106,8 @@ var processNextPages = function(start) {
 };
 
 
-//var transport = new Thrift.Transport("http://kibitz.csail.mit.edu:9888/kibitz/");
-var transport = new Thrift.Transport("http://localhost:9889/kibitz/");
+var transport = new Thrift.Transport("http://kibitz.csail.mit.edu:9889/kibitz/");
+//var transport = new Thrift.Transport("http://localhost:9889/kibitz/");
 var protocol = new Thrift.Protocol(transport);
 var client = new kibitz.RecommenderServiceClient(protocol)
 
