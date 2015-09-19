@@ -2,17 +2,11 @@ package kibitz;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,7 +15,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -269,7 +262,7 @@ public class DatahubDataModel implements DataModel{
 	public List<Item> getPageItems(String table, long page, long numPerPage, List<String> displayColumns) {
 		try {
 			return this.getListOfItems( "select kibitz_generated_id, " + StringUtils.join(displayColumns, ',') + " from " +
-					this.datahubDatabase + "." + table + " limit " + numPerPage + " offset " + numPerPage * page, displayColumns);
+					this.datahubDatabase + "." + table + " limit " + numPerPage + " offset " + numPerPage * page, displayColumns, null);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -677,7 +670,7 @@ public class DatahubDataModel implements DataModel{
 
 			if (ratingsColumnName != null) {
 				return this.getListOfItems("select kibitz_generated_id, "+ StringUtils.join(displayColumns, ", i.") + " from " + table + " i left join "
-					+ rating_table + " r on i.kibitz_generated_id = r.item_id where r.item_id is null ORDER BY " + ratingsColumnName + " DESC LIMIT " + numRecs, displayColumns);
+					+ rating_table + " r on i.kibitz_generated_id = r.item_id where r.item_id is null ORDER BY " + ratingsColumnName + " DESC LIMIT " + numRecs, displayColumns, null);
 			}
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
@@ -761,7 +754,7 @@ public class DatahubDataModel implements DataModel{
 	public List<Item> makeRandomRecommmendation(long numRecs, String table, List<String> displayColumns) {
 		try {
 			return this.getListOfItems("select kibitz_generated_id, " + StringUtils.join(displayColumns, ',') + " from " + table
-					+ " ORDER BY RANDOM() LIMIT " + numRecs, displayColumns);
+					+ " ORDER BY RANDOM() LIMIT " + numRecs, displayColumns, null);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -833,7 +826,7 @@ public class DatahubDataModel implements DataModel{
 
 			return this.getListOfItems("SELECT " + ratings_table + ".item_id as kibitz_generated_id, " + ratings_table +
 					".rating, " + StringUtils.join(itemsTableColumns, ',') + ", " + ratings_table + ".user_id FROM " + ratings_table + " INNER JOIN " + items_table +
-					" ON " + ratings_table + ".item_id = " + items_table + ".kibitz_generated_id" + " WHERE user_id=" + userId, displayColumns);
+					" ON " + ratings_table + ".item_id = " + items_table + ".kibitz_generated_id" + " WHERE user_id=" + userId, displayColumns, null);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -954,7 +947,7 @@ public class DatahubDataModel implements DataModel{
 		 }
 		 query += itemKeys.get(itemKeys.size() - 1);
 		 try {
-			return this.getListOfItems(query, displayColumns);
+			return this.getListOfItems(query, displayColumns, null);
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1142,7 +1135,7 @@ public class DatahubDataModel implements DataModel{
 						query += ids.get(i) + "' OR kibitz_generated_id='";
 					}
 					query += ids.get(ids.size() - 1) + "')";
-					return this.getListOfItems(query, displayColumns);
+					return this.getListOfItems(query, displayColumns, null);
 				} else {
 					return new ArrayList<Item>();
 				}
@@ -1229,7 +1222,38 @@ public class DatahubDataModel implements DataModel{
 			}
 
 			q += StringUtils.join(displayQueries, " OR ");
-			return this.getListOfItems(q, displayColumns);
+			
+			String exact_q = "select kibitz_generated_id, " + StringUtils.join(displayColumns, ",") + " from " + table + " where ";
+			
+			HashMap<String, Integer> curItems = new HashMap<String, Integer>();
+			
+			List<String >secondQueries = new ArrayList<String>();
+			for (String column: columnsToSearch) {
+				if (column != "no_kibitz_description" && column != "no_kibitz_title" && column != "no_kibitz_image") {
+					String exact_q_item = "(" + column + " like '%";
+					for (int i = 0; i < words.length - 1; i++) {
+						exact_q_item  += WordUtils.uncapitalize(words[i]) + " ";
+					}
+					exact_q_item += WordUtils.uncapitalize(words[words.length - 1]) + "%') OR ";
+
+					exact_q_item += "(" + column + " like '%";
+					for (int i = 0; i < words.length - 1; i++) {
+						exact_q_item += WordUtils.capitalize(words[i]) + " ";
+					}
+					exact_q_item += WordUtils.capitalize(words[words.length - 1]) + "%')";
+					secondQueries.add(exact_q_item);
+				}
+			}
+			exact_q += StringUtils.join(secondQueries, " OR ");
+			
+			List<Item> exact = this.getListOfItems(exact_q, displayColumns, null);
+			
+			for (Item i: exact) {
+				curItems.put(i.attributes.toString(), 1);
+			}
+			List<Item> its = this.getListOfItems(q, displayColumns, curItems);
+			exact.addAll(its);
+			return exact;
 		} catch (DBException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -1627,28 +1651,37 @@ public class DatahubDataModel implements DataModel{
 	 * @throws TException
 	 * @throws DBException
 	 */
-	public List<Item> getListOfItems(String query, List<String> displayColumns) throws DBException, TException {
+	public List<Item> getListOfItems(String query, List<String> displayColumns, HashMap<String, Integer> originalQuery) throws DBException, TException {
 		List<Item> items = new ArrayList<Item>();
 		HashMap<String, String> attributes = new HashMap<String, String>();
 		ResultSet res;
+		int total = 50;
 		synchronized(this.client) {
 			res = this.client.execute_sql(this.conn, query, null);
 		}
+		
 		HashMap<String, Integer> colToIndex = DatahubDataModel.getFieldNames(res);
 
 		for (Tuple t : res.getTuples()) {
-			List<ByteBuffer> cells = t.getCells();
-			Item item = new Item();
-			item.setKibitz_generated_id(Long.parseLong(new String(cells.get(colToIndex.get("kibitz_generated_id")).array())));
+			if (items.size() <= total) {
+				List<ByteBuffer> cells = t.getCells();
+				Item item = new Item();
+				item.setKibitz_generated_id(Long.parseLong(new String(cells.get(colToIndex.get("kibitz_generated_id")).array())));
+	
+				attributes = new HashMap<String, String>();
+				for (String column: displayColumns) {
+					if (colToIndex.containsKey(column) && !new String(cells.get(colToIndex.get(column)).array()).equals("None"))
+						attributes.put(column, new String(cells.get(colToIndex.get(column)).array()));
+				}
 
-			attributes = new HashMap<String, String>();
-			for (String column: displayColumns) {
-				if (colToIndex.containsKey(column) && !new String(cells.get(colToIndex.get(column)).array()).equals("None"))
-					attributes.put(column, new String(cells.get(colToIndex.get(column)).array()));
+				item.setAttributes(attributes);
+				if (originalQuery ==  null || !originalQuery.containsKey(item.attributes.toString()))
+					items.add(item);
+				else 
+					total -= 1;
+			} else {
+				return items;
 			}
-
-			item.setAttributes(attributes);
-			items.add(item);
 		}
 		return items;
 	}

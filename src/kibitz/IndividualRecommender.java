@@ -7,6 +7,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.crypto.SecretKeyFactory;
@@ -16,7 +17,9 @@ import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.recommender.GenericItemBasedRecommender;
 //import org.apache.mahout.cf.taste.impl.recommender.CachingRecommender;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
-import org.apache.mahout.cf.taste.impl.similarity.LogLikelihoodSimilarity;
+import org.apache.mahout.cf.taste.impl.similarity.EuclideanDistanceSimilarity;
+import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
+import org.apache.mahout.cf.taste.impl.similarity.UncenteredCosineSimilarity;
 import org.apache.mahout.cf.taste.impl.similarity.file.FileItemSimilarity;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
@@ -60,30 +63,113 @@ public class IndividualRecommender {
 				List<RecommendedItem> recommendations;
 
 				recommendations = this.recommender.recommend((int) userId, (int) numRecs);
+				System.out.println(this.dataModel.getPrefFileLocation());
+				
+				UncenteredCosineSimilarity cosSim = new UncenteredCosineSimilarity(this.dataModel);
+				NearestNUserNeighborhood neighborhood = new NearestNUserNeighborhood(30, cosSim, this.dataModel);
+				GenericUserBasedRecommender cosRec = new GenericUserBasedRecommender(this.dataModel, neighborhood, cosSim);
+				List<RecommendedItem> cosineRecs = cosRec.recommend((int) userId, (int) numRecs);
+				
+				EuclideanDistanceSimilarity euSim = new EuclideanDistanceSimilarity(this.dataModel);
+				neighborhood = new NearestNUserNeighborhood(30, euSim, this.dataModel);
+				GenericUserBasedRecommender euRec = new GenericUserBasedRecommender(this.dataModel, neighborhood, euSim);
+				List<RecommendedItem> euRecs = euRec.recommend((int) userId, (int) numRecs);
+				
+				System.out.println(recommendations);
+				System.out.println(cosineRecs);
+				System.out.println(euRecs);
+				
+				HashMap<Long, Integer> numberOccurrences = new HashMap<Long, Integer>();
+				for (int i = 0; i < recommendations.size(); i++) {
+					long itemId = recommendations.get(i).getItemID();
+					numberOccurrences.put(itemId, 1);
+				}
+				
+				for (int i = 0; i < cosineRecs.size(); i++) {
+					long itemId = cosineRecs.get(i).getItemID();
+					if (numberOccurrences.containsKey(itemId)) {
+						int occurrences = numberOccurrences.get(itemId);
+						numberOccurrences.put(itemId, occurrences + 1);
+					} else {
+						numberOccurrences.put(itemId, 1);
+					}
+				}
+				
+				for (int i = 0; i < euRecs.size(); i++) {
+					long itemId = euRecs.get(i).getItemID();
+					if (numberOccurrences.containsKey(itemId)) {
+						int occurrences = numberOccurrences.get(itemId);
+						numberOccurrences.put(itemId, occurrences + 1);
+					} else {
+						numberOccurrences.put(itemId, 1);
+					}
+				}
+				
                 //System.out.println(this.recommender.estimatePreference(5, 98));
                 //System.out.println(this.recommender.recommend(5, 10));
-				if (recommendations.size() == 0 && recommenderTypes.get(0)) {
+				if (numberOccurrences.size() == 0 && recommenderTypes.get(0)) {
 					recommendations = this.itemRecommender.recommend((int) userId, (int) numRecs);
+					
+					for (int i = 0; i < recommendations.size(); i++) {
+						long itemId = recommendations.get(i).getItemID();
+						numberOccurrences.put(itemId, 1);
+					}
 				}
 
 				ArrayList<Long> recommendationNames = new ArrayList<Long>();
-				for (int i = 0; i < recommendations.size(); i++) {
-					recommendationNames.add(recommendations.get(i).getItemID());
+				for (Long key: numberOccurrences.keySet()) {
+					recommendationNames.add(key);
 				}
 
 				List<Item> recs = this.dataModel.getItemsFromIds(recommendationNames, this.databaseName + "." + this.items_table,
 						this.databaseName + "." + this.ratings_table, userId, displayColumns);
+				
+				if (recs.size() == 0 && recommenderTypes.get(2)) {
+					recs = this.dataModel.makeOverallRatingsBasedRecommendation(this.databaseName + "." + this.items_table, this.databaseName + "." + this.ratings_table, numRecs, displayColumns);
+				}
+				
+				for (int i = 0; i < recs.size(); i++) {
+					Item rec = recs.get(i);
+					long k = rec.getKibitz_generated_id();
+					if (numberOccurrences.containsKey(k)) {
+						rec.setConfidence(numberOccurrences.get(k));
+						double perPredictedPreference = recommender.estimatePreference(userId, k);
+						double cosPredictedPreference = cosRec.estimatePreference(userId, k);
+						double euPredictedPreference = euRec.estimatePreference(userId, k);
+						double s = 0.0; 
+						int c = 0;
+						if (!Double.isNaN(perPredictedPreference)) {
+							s += perPredictedPreference;
+							c += 1;
+						}
+						
+						if (!Double.isNaN(cosPredictedPreference)) {
+							s += cosPredictedPreference;
+							c += 1;
+						}
+						
+						if (!Double.isNaN(euPredictedPreference)) {
+							s += euPredictedPreference;
+							c += 1;
+						}
+						
+						if (c > 0)
+							rec.setPredictedPreferences(s/c);
+						else
+							rec.setPredictedPreferences(-1);
+					} else {
+						rec.setConfidence(0);
+						rec.setPredictedPreferences(-1);
+					}
+				}
 
 				long endTime = System.nanoTime();
 				System.out.println("Time it takes to get recommendation: " + (endTime - startTime));
 
-				if (recs.size() == 0 && recommenderTypes.get(2)) {
-					recs = this.dataModel.makeOverallRatingsBasedRecommendation(this.databaseName + "." + this.items_table, this.databaseName + "." + this.ratings_table, numRecs, displayColumns);
-				}
-
 				if (recs.size() == 0 && recommenderTypes.get(1)) {
 					return this.dataModel.makeRandomRecommmendation(numRecs, this.databaseName + "." + this.items_table, displayColumns);
 				} else {
+					System.out.println(recs);
 					return recs;
 				}
 			}
@@ -291,9 +377,9 @@ public class IndividualRecommender {
 			if (KibitzServer.RECOMMENDERS.get(key) != null) {
 				this.recommender = (GenericUserBasedRecommender) KibitzServer.RECOMMENDERS.get(key);
 			} else {
-				this.userSimilarity = new LogLikelihoodSimilarity(this.dataModel);
-				this.neighborhood =
-					      new NearestNUserNeighborhood(30, this.userSimilarity, this.dataModel);
+				this.userSimilarity = new PearsonCorrelationSimilarity(this.dataModel);
+			
+				this.neighborhood = new NearestNUserNeighborhood(30, this.userSimilarity, this.dataModel);
 				this.recommender = new GenericUserBasedRecommender(this.dataModel, this.neighborhood, this.userSimilarity);
 				//this.cachingRecommender = new CachingRecommender(recommender);
 				KibitzServer.RECOMMENDERS.put(key, this.recommender);
@@ -328,9 +414,8 @@ public class IndividualRecommender {
 
 	public void updateDataModel(String key) {
 		try {
-			this.userSimilarity = new LogLikelihoodSimilarity(this.dataModel);
-			this.neighborhood =
-				      new NearestNUserNeighborhood(30, this.userSimilarity, this.dataModel);
+			this.userSimilarity = new PearsonCorrelationSimilarity(this.dataModel);
+			this.neighborhood = new NearestNUserNeighborhood(30, this.userSimilarity, this.dataModel);
 			this.recommender = new GenericUserBasedRecommender(this.dataModel, this.neighborhood, this.userSimilarity);
 			//this.cachingRecommender = new CachingRecommender(recommender);
 			KibitzServer.RECOMMENDERS.put(key, this.recommender);

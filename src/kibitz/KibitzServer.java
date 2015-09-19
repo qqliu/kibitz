@@ -23,7 +23,6 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import kibitz.RecommenderService.Iface;
-import updates.UpdateLocalFiles;
 
 import org.apache.mahout.cf.taste.impl.recommender.AbstractRecommender;
 import org.apache.thrift.TException;

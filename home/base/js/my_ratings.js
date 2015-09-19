@@ -2,7 +2,7 @@ var username, userId;
 $(document).ready(function() {
   username = getCookie("username");
   userId = getCookie("userId");
-  
+
   if (username === "" || username === undefined || username === null) {
 	username = sessionStorage.getItem("username");
 	userId = sessionStorage.getItem("userId");
@@ -16,8 +16,8 @@ $(document).ready(function() {
     }
 
     var items = client.getUserRatedItems(client_key, userId, display_items);
-    display_database_items(items);
+    display_database_items(items,true);
   } else {
-    document.getElementById('listofitems').innerHTML = "<p>Please <a href='javascript:show_signup_form();'>login</a> to see and rate items.</p>";
+    document.getElementById('listofitems').innerHTML = "<p>Please <a href='javascript:popup_register_page();'>sign up</a> or <a href='javascript:show_signup_form();'>login</a> to see and rate items.</p>";
   }
 });

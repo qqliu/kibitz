@@ -10,6 +10,8 @@ namespace js kibitz
 struct Item {
     1: required map<string, string> attributes
     2: required i64 kibitz_generated_id
+    3: required i32 confidence
+    4: required double predictedPreferences
 }
 
 struct Recommender {

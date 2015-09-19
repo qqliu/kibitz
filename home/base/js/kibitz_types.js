@@ -11,6 +11,8 @@ if (typeof kibitz === 'undefined') {
 kibitz.Item = function(args) {
   this.attributes = null;
   this.kibitz_generated_id = null;
+  this.confidence = null;
+  this.predictedPreferences = null;
   if (args) {
     if (args.attributes !== undefined) {
       this.attributes = args.attributes;
@@ -21,6 +23,16 @@ kibitz.Item = function(args) {
       this.kibitz_generated_id = args.kibitz_generated_id;
     } else {
       throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field kibitz_generated_id is unset!');
+    }
+    if (args.confidence !== undefined) {
+      this.confidence = args.confidence;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field confidence is unset!');
+    }
+    if (args.predictedPreferences !== undefined) {
+      this.predictedPreferences = args.predictedPreferences;
+    } else {
+      throw new Thrift.TProtocolException(Thrift.TProtocolExceptionType.UNKNOWN, 'Required field predictedPreferences is unset!');
     }
   }
 };
@@ -74,6 +86,20 @@ kibitz.Item.prototype.read = function(input) {
         input.skip(ftype);
       }
       break;
+      case 3:
+      if (ftype == Thrift.Type.I32) {
+        this.confidence = input.readI32().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
+      case 4:
+      if (ftype == Thrift.Type.DOUBLE) {
+        this.predictedPreferences = input.readDouble().value;
+      } else {
+        input.skip(ftype);
+      }
+      break;
       default:
         input.skip(ftype);
     }
@@ -103,6 +129,16 @@ kibitz.Item.prototype.write = function(output) {
   if (this.kibitz_generated_id !== null && this.kibitz_generated_id !== undefined) {
     output.writeFieldBegin('kibitz_generated_id', Thrift.Type.I64, 2);
     output.writeI64(this.kibitz_generated_id);
+    output.writeFieldEnd();
+  }
+  if (this.confidence !== null && this.confidence !== undefined) {
+    output.writeFieldBegin('confidence', Thrift.Type.I32, 3);
+    output.writeI32(this.confidence);
+    output.writeFieldEnd();
+  }
+  if (this.predictedPreferences !== null && this.predictedPreferences !== undefined) {
+    output.writeFieldBegin('predictedPreferences', Thrift.Type.DOUBLE, 4);
+    output.writeDouble(this.predictedPreferences);
     output.writeFieldEnd();
   }
   output.writeFieldStop();

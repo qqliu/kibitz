@@ -145,8 +145,14 @@ var show_signup_form = function() {
     var id = setInterval(fnCheckLocation, intIntervalTime);
 };
 
-var display_database_items = function(items) {
+var display_database_items = function(items, is_rating_page) {
     var itemslist ="";
+    items.sort(comparePreference);
+
+    if (is_rating_page) {
+        items.sort(compareTitle);
+    }
+
     for (var i =0; i < items.length; i++) {
       var item = items[i];
       if (item.kibitz_generated_id !== null) {
@@ -201,6 +207,27 @@ var display_database_items = function(items) {
 	if (item.attributes[description] !== null && item.attributes[description] !== undefined) {
 	  currItem += '</ul></div>';
 	}
+
+    if (item.confidence !== 0 && item.predictedPreferences !== 0) {
+        if (item.confidence === 0)
+            currItem += "<div class='preference-indication'>Others have rated this item highly. We hope you like it too!</div>";
+        else {
+            currItem += "<div class='preference-indication'>We think it is <confidence>";
+            if (item.confidence === 1)
+                currItem += "somewhat";
+            else if (item.confidence === 2)
+                currItem += "fairly";
+            else
+                currItem += "very";
+            if (item.predictedPreferences > 5)
+                currItem += "</confidence> likely you will rate this item <predicted-g>" + parseInt(item.predictedPreferences) + "</predicted-g> stars.";
+            else if (item.predictedPreferences > 1)
+                currItem += "</confidence> likely you will rate this item <predicted-o>" + parseInt(item.predictedPreferences) + "</predicted-o> stars.";
+            else
+                currItem += "</confidence> likely you will rate this item <predicted-r>1</predicted-r> star.";
+        }
+    }
+
 	currItem += '</div></div></td></tr>';
 	itemslist += currItem;
       }
@@ -296,3 +323,19 @@ $(document).ready(function() {
         }
     });
 });
+
+function comparePreference(a,b) {
+    if (a.predictedPreferences > b.predictedPreferences)
+        return -1;
+    if (a.predictedPreferences < b.predictedPreferences)
+        return 1;
+    return 0;
+}
+
+function compareTitle(a, b) {
+    if (a.attributes[title] < b.attributes[title])
+        return -1;
+    if (a.attributes[title] > b.attributes[title])
+        return 1;
+    return 0;
+}

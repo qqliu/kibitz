@@ -16,7 +16,7 @@ $(document).ready(function() {
     }
 
     var items = client.getPageItems(client_key, parseInt(window.location.hash.split("#")[1]), 10, display_items);
-    display_database_items(items);
+    display_database_items(items, true);
 
     var numPages = parseInt(client.getItemCount(client_key));
     var pages = "";
