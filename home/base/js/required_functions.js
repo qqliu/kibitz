@@ -113,8 +113,8 @@ var processNextPages = function(start) {
 };
 
 
-//var transport = new Thrift.Transport("http://kibitz.csail.mit.edu:9888/kibitz/");
-var transport = new Thrift.Transport("http://localhost:9889/kibitz/");
+var transport = new Thrift.Transport("http://kibitz.csail.mit.edu:9889/kibitz/");
+//var transport = new Thrift.Transport("http://localhost:9889/kibitz/");
 var protocol = new Thrift.Protocol(transport);
 var client = new kibitz.RecommenderServiceClient(protocol);
 
@@ -208,7 +208,8 @@ var display_database_items = function(items, is_rating_page) {
 	  currItem += '</ul></div>';
 	}
 
-    if (item.confidence !== 0 && item.predictedPreferences !== 0) {
+    if (((item.confidence !== 0 || item.predictedPreferences !== 0) && (item.confidence !== null && item.predictedPreferences !== null)) ||
+                    (item.confidence === 0 && item.predictedPreferences > 0)) {
         if (item.confidence === 0)
             currItem += "<div class='preference-indication'>Others have rated this item highly. We hope you like it too!</div>";
         else {
