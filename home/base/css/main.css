@@ -200,3 +200,23 @@ object {
 #listofitems {
   text-align: center;
 }
+
+confidence {
+    font-weight: bold;
+    color: #9933FF;
+}
+
+predicted-g {
+    font-weight: bold;
+    color: #009933;
+}
+
+predicted-o {
+    font-weight: bold;
+    color: #FF9900;
+}
+
+predicted-r {
+    font-weight: bold;
+    color: #FF0000;
+}
