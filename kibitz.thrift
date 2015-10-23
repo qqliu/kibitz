@@ -1,3 +1,12 @@
+/**
+ * kibitz.thrift
+ * Set Kibitz services
+ *
+ * @author: Quanquan Liu
+ * @date: 10/22/2014
+ *
+ */
+
 namespace php kibitz
 namespace py kibitz
 namespace csharp kibitz

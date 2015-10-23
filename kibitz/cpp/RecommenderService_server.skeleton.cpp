@@ -162,6 +162,26 @@ class RecommenderServiceHandler : virtual public RecommenderServiceIf {
     printf("getColumns\n");
   }
 
+  void getFirstRepo(std::string& _return, const std::string& username) {
+    // Your implementation goes here
+    printf("getFirstRepo\n");
+  }
+
+  int64_t getNumRepos(const std::string& username) {
+    // Your implementation goes here
+    printf("getNumRepos\n");
+  }
+
+  void getAllRepos(std::vector<std::string> & _return, const std::string& username) {
+    // Your implementation goes here
+    printf("getAllRepos\n");
+  }
+
+  void saveCSSData(const std::string& path, const std::string& data) {
+    // Your implementation goes here
+    printf("saveCSSData\n");
+  }
+
 };
 
 int main(int argc, char **argv) {

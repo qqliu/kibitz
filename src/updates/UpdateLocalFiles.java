@@ -18,6 +18,16 @@ import datahub.DataHub;
 import datahub.ResultSet;
 import datahub.Tuple;
 
+/**
+ * UpdateLocalFiles: Dynamic local list of
+ * items with the items in Datahub. Attempt
+ * at dynamic additions to sets of items.
+ *
+ * @author Quanquan Liu
+ *
+ * @date 10/22/2014
+*/
+
 public class UpdateLocalFiles {
 	private static final String KIBITZ_LOCAL_STORAGE_ADDR = "/home/ubuntu/";
 

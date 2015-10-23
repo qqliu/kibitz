@@ -38,7 +38,12 @@ import datahub.*;
 
 public class DatahubDataModel implements DataModel{
 	/**
-	 * DataModel for Kibitz
+	 * DataModel for Kibitz: Responsible for all changes
+     * to Database content.
+     *
+     * @author Quanquan Liu
+     *
+     * @date 10/22/2014
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -1222,11 +1227,11 @@ public class DatahubDataModel implements DataModel{
 			}
 
 			q += StringUtils.join(displayQueries, " OR ");
-			
+
 			String exact_q = "select kibitz_generated_id, " + StringUtils.join(displayColumns, ",") + " from " + table + " where ";
-			
+
 			HashMap<String, Integer> curItems = new HashMap<String, Integer>();
-			
+
 			List<String >secondQueries = new ArrayList<String>();
 			for (String column: columnsToSearch) {
 				if (column != "no_kibitz_description" && column != "no_kibitz_title" && column != "no_kibitz_image") {
@@ -1245,9 +1250,9 @@ public class DatahubDataModel implements DataModel{
 				}
 			}
 			exact_q += StringUtils.join(secondQueries, " OR ");
-			
+
 			List<Item> exact = this.getListOfItems(exact_q, displayColumns, null);
-			
+
 			for (Item i: exact) {
 				curItems.put(i.attributes.toString(), 1);
 			}
@@ -1659,7 +1664,7 @@ public class DatahubDataModel implements DataModel{
 		synchronized(this.client) {
 			res = this.client.execute_sql(this.conn, query, null);
 		}
-		
+
 		HashMap<String, Integer> colToIndex = DatahubDataModel.getFieldNames(res);
 
 		for (Tuple t : res.getTuples()) {
@@ -1667,7 +1672,7 @@ public class DatahubDataModel implements DataModel{
 				List<ByteBuffer> cells = t.getCells();
 				Item item = new Item();
 				item.setKibitz_generated_id(Long.parseLong(new String(cells.get(colToIndex.get("kibitz_generated_id")).array())));
-	
+
 				attributes = new HashMap<String, String>();
 				for (String column: displayColumns) {
 					if (colToIndex.containsKey(column) && !new String(cells.get(colToIndex.get(column)).array()).equals("None"))
@@ -1677,7 +1682,7 @@ public class DatahubDataModel implements DataModel{
 				item.setAttributes(attributes);
 				if (originalQuery ==  null || !originalQuery.containsKey(item.attributes.toString()))
 					items.add(item);
-				else 
+				else
 					total -= 1;
 			} else {
 				return items;

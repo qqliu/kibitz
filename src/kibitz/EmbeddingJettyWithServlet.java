@@ -20,8 +20,16 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
+/**
+ * EmbeddingJettyWithServlet: Sets up the Jetty web server.
+ *
+ * @author Quanquan Liu
+ *
+ * @date 10/22/2014
+*/
+
 public class EmbeddingJettyWithServlet {
-	
+
 	public static void main(String[] args) throws Exception {
 		// Setup Threadpool for multiple server connections
 	    QueuedThreadPool threadPool = new QueuedThreadPool();
@@ -32,9 +40,9 @@ public class EmbeddingJettyWithServlet {
 	    int port = 9889;
 	    int portSecure = 9888;
 
-	    // Configure jetty.home 
+	    // Configure jetty.home
 	    String home = ".";
-	    
+
 	    // HTTP Configuration
 	    HttpConfiguration http_config = new HttpConfiguration();
 	    http_config.setSecureScheme("https");
@@ -61,7 +69,7 @@ public class EmbeddingJettyWithServlet {
 	    sslConnector.setPort(portSecure);
 
 	    server.setConnectors(new Connector[] { http, sslConnector });
-        
+
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		context.setContextPath("/kibitz");
 
@@ -72,13 +80,13 @@ public class EmbeddingJettyWithServlet {
 		cors.setInitParameter("allowedMethods", "GET, POST");
 		cors.setFilter(new CrossOriginFilter());
 		context.addFilter(cors, "*", EnumSet.of(DispatcherType.REQUEST, DispatcherType.ASYNC, DispatcherType.INCLUDE));
-		
+
 		server.setHandler(context);
 		MysqlDataSource dataSource = new MysqlDataSource();
 		dataSource.setServerName("http://datahub.csail.mit.edu/service");
 		dataSource.setDatabaseName("quanquan.books");
 		context.addServlet(new ServletHolder(new KibitzServlet(dataSource)), "/*");
-		
+
 		server.start();
 		server.join();
 	}

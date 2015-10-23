@@ -30,6 +30,16 @@ import updates.UpdateLocalFiles;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
+/**
+ * IndividualRecommender: Mini-server for managing
+ * each individual recommender server. Responsible for
+ * generating recommendations for each site.
+ *
+ * @author Quanquan Liu
+ *
+ * @date 10/22/2014
+*/
+
 public class IndividualRecommender {
 	private DatahubDataModel dataModel;
 	private MysqlDataSource dataSource;
@@ -64,27 +74,27 @@ public class IndividualRecommender {
 
 				recommendations = this.recommender.recommend((int) userId, (int) numRecs);
 				System.out.println(this.dataModel.getPrefFileLocation());
-				
+
 				UncenteredCosineSimilarity cosSim = new UncenteredCosineSimilarity(this.dataModel);
 				NearestNUserNeighborhood neighborhood = new NearestNUserNeighborhood(30, cosSim, this.dataModel);
 				GenericUserBasedRecommender cosRec = new GenericUserBasedRecommender(this.dataModel, neighborhood, cosSim);
 				List<RecommendedItem> cosineRecs = cosRec.recommend((int) userId, (int) numRecs);
-				
+
 				EuclideanDistanceSimilarity euSim = new EuclideanDistanceSimilarity(this.dataModel);
 				neighborhood = new NearestNUserNeighborhood(30, euSim, this.dataModel);
 				GenericUserBasedRecommender euRec = new GenericUserBasedRecommender(this.dataModel, neighborhood, euSim);
 				List<RecommendedItem> euRecs = euRec.recommend((int) userId, (int) numRecs);
-				
+
 				System.out.println(recommendations);
 				System.out.println(cosineRecs);
 				System.out.println(euRecs);
-				
+
 				HashMap<Long, Integer> numberOccurrences = new HashMap<Long, Integer>();
 				for (int i = 0; i < recommendations.size(); i++) {
 					long itemId = recommendations.get(i).getItemID();
 					numberOccurrences.put(itemId, 1);
 				}
-				
+
 				for (int i = 0; i < cosineRecs.size(); i++) {
 					long itemId = cosineRecs.get(i).getItemID();
 					if (numberOccurrences.containsKey(itemId)) {
@@ -94,7 +104,7 @@ public class IndividualRecommender {
 						numberOccurrences.put(itemId, 1);
 					}
 				}
-				
+
 				for (int i = 0; i < euRecs.size(); i++) {
 					long itemId = euRecs.get(i).getItemID();
 					if (numberOccurrences.containsKey(itemId)) {
@@ -104,12 +114,12 @@ public class IndividualRecommender {
 						numberOccurrences.put(itemId, 1);
 					}
 				}
-				
+
                 //System.out.println(this.recommender.estimatePreference(5, 98));
                 //System.out.println(this.recommender.recommend(5, 10));
 				if (numberOccurrences.size() == 0 && recommenderTypes.get(0)) {
 					recommendations = this.itemRecommender.recommend((int) userId, (int) numRecs);
-					
+
 					for (int i = 0; i < recommendations.size(); i++) {
 						long itemId = recommendations.get(i).getItemID();
 						numberOccurrences.put(itemId, 1);
@@ -123,11 +133,11 @@ public class IndividualRecommender {
 
 				List<Item> recs = this.dataModel.getItemsFromIds(recommendationNames, this.databaseName + "." + this.items_table,
 						this.databaseName + "." + this.ratings_table, userId, displayColumns);
-				
+
 				if (recs.size() == 0 && recommenderTypes.get(2)) {
 					recs = this.dataModel.makeOverallRatingsBasedRecommendation(this.databaseName + "." + this.items_table, this.databaseName + "." + this.ratings_table, numRecs, displayColumns);
 				}
-				
+
 				for (int i = 0; i < recs.size(); i++) {
 					Item rec = recs.get(i);
 					long k = rec.getKibitz_generated_id();
@@ -136,23 +146,23 @@ public class IndividualRecommender {
 						double perPredictedPreference = recommender.estimatePreference(userId, k);
 						double cosPredictedPreference = cosRec.estimatePreference(userId, k);
 						double euPredictedPreference = euRec.estimatePreference(userId, k);
-						double s = 0.0; 
+						double s = 0.0;
 						int c = 0;
 						if (!Double.isNaN(perPredictedPreference)) {
 							s += perPredictedPreference;
 							c += 1;
 						}
-						
+
 						if (!Double.isNaN(cosPredictedPreference)) {
 							s += cosPredictedPreference;
 							c += 1;
 						}
-						
+
 						if (!Double.isNaN(euPredictedPreference)) {
 							s += euPredictedPreference;
 							c += 1;
 						}
-						
+
 						if (c > 0)
 							rec.setPredictedPreferences(s/c);
 						else
@@ -378,7 +388,7 @@ public class IndividualRecommender {
 				this.recommender = (GenericUserBasedRecommender) KibitzServer.RECOMMENDERS.get(key);
 			} else {
 				this.userSimilarity = new PearsonCorrelationSimilarity(this.dataModel);
-			
+
 				this.neighborhood = new NearestNUserNeighborhood(30, this.userSimilarity, this.dataModel);
 				this.recommender = new GenericUserBasedRecommender(this.dataModel, this.neighborhood, this.userSimilarity);
 				//this.cachingRecommender = new CachingRecommender(recommender);

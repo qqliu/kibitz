@@ -1,27 +1,31 @@
 -ifndef(_kibitz_types_included).
 -define(_kibitz_types_included, yeah).
 
-%% struct item
+%% struct 'Item'
 
--record(item, {attributes = dict:new() :: dict(),
-               kibitz_generated_id :: integer()}).
+-record('Item', {'attributes' = dict:new() :: dict(),
+                 'kibitz_generated_id' :: integer(),
+                 'confidence' :: integer(),
+                 'predictedPreferences' :: float()}).
+-type 'Item'() :: #'Item'{}.
 
-%% struct recommender
+%% struct 'Recommender'
 
--record(recommender, {username :: string() | binary(),
-                      recommenderName :: string() | binary(),
-                      clientKey :: string() | binary(),
-                      homepage :: string() | binary(),
-                      repoName :: string() | binary(),
-                      title :: string() | binary(),
-                      description :: string() | binary(),
-                      image :: string() | binary(),
-                      video :: string() | binary(),
-                      itemTypes :: dict(),
-                      displayItems :: list(),
-                      numRecs :: integer(),
-                      maxRatingVal :: integer(),
-                      ratingsColumn :: string() | binary(),
-                      primaryKey :: string() | binary()}).
+-record('Recommender', {'username' :: string() | binary(),
+                        'recommenderName' :: string() | binary(),
+                        'clientKey' :: string() | binary(),
+                        'homepage' :: string() | binary(),
+                        'repoName' :: string() | binary(),
+                        'title' :: string() | binary(),
+                        'description' :: string() | binary(),
+                        'image' :: string() | binary(),
+                        'video' :: string() | binary(),
+                        'itemTypes' :: dict(),
+                        'displayItems' :: list(),
+                        'numRecs' :: integer(),
+                        'maxRatingVal' :: integer(),
+                        'ratingsColumn' :: string() | binary(),
+                        'primaryKey' :: string() | binary()}).
+-type 'Recommender'() :: #'Recommender'{}.
 
 -endif.

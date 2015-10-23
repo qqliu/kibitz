@@ -40,6 +40,15 @@ import datahub.ResultSet;
 import datahub.Tuple;
 import static java.util.concurrent.TimeUnit.*;
 
+/**
+ * KibitzServer: Sets up the server on kibitz.csail.mit.edu.
+ * Responsible for managing all the individual servers.
+ *
+ * @author Quanquan Liu
+ *
+ * @date 10/22/2014
+*/
+
 public class KibitzServer implements Iface {
 
 	public static Map<String, IndividualRecommender> SESSIONS = new HashMap<String, IndividualRecommender>();
