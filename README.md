@@ -8,11 +8,15 @@ http://kibitz.csail.mit.edu.
 Some sample recommenders built from the site:
 
 
-http://kibitz.csail.mit.edu/quanquanl/desserts/
+http://kibitz.csail.mit.edu/amyxzhang/board_games/
 
-http://kibitz.csail.mit.edu/quanquan/quanquan_cities_demo/
+http://kibitz.csail.mit.edu/q2liu/books_recommender/
 
-http://kibitz.csail.mit.edu/quanquanl/quotes/
+http://kibitz.csail.mit.edu/q2liu/books_recommender/
+
+http://kibitz.csail.mit.edu/amyxzhang/course_six/
+
+http://kibitz.csail.mit.edu/amyxzhang/hass_courses/
 
 This is only the preliminary stage of the project. It is still in development and we look forward to adding more cool things along the way.
 
