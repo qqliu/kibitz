@@ -3,7 +3,7 @@ Kibitz
 
 Quanquan C. Liu
 
-Codebase for the publication: "Kibitz: End-to-End Recommendation System Builder" by Quanquan C. Liu, David R. Karger which appeared in RecSys 2015. To cite our work, please use the following: 
+Codebase for the publication: "[Kibitz: End-to-End Recommendation System Builder](https://dl.acm.org/doi/10.1145/2792838.2796557)" by Quanquan C. Liu, David R. Karger which appeared in RecSys 2015. To cite our work, please use the following: 
 
 ```
 @inproceedings{DBLP:conf/recsys/LiuK15,
