@@ -1,6 +1,8 @@
 Kibitz
 ======
 
+Quanquan C. Liu
+
 Haystack research project for general purpose recommendation system. To check out the system, please visit:
 
 http://kibitz.csail.mit.edu.
